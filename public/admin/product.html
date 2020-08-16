@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adding New product</title>
+
+  </head>
+  <body>
+    <div id="container">
+      <h1>Adding New Product</h1>
+      <form action="/admin/product" method="POST" enctype="multipart/form-data">
+        ID : <input name="id" type="text" value="" /><br />
+        Class :
+        <select name="class">
+          <option value="women" selected="true">Women</option>
+          <option value="men">Men</option>
+          <option value="accessories">Accessories</option>
+        </select><br />
+        Title : <input name="title" type="text" value="" /><br />
+        Description : <input name="description" type="text" value="" /><br />
+        Price : <input name="price" type="text" value="" /><br />
+        Texture : <input name="texture" type="text" value="" /><br />
+        Wash : <input name="wash" type="text" value="" /><br />
+        Place : <input name="place" type="text" value="" /><br />
+        Note : <input name="note" type="text" value="" /><br />
+        Story : <input name="story" type="text" value="" /><br />
+        <!-- Color : -->
+        <!-- <select name="code">
+          <option value="334455" selected="true">深藍</option>
+          <option value="FFFFFF">白色</option>
+        </select><br /> -->
+        <!-- Size : <select name="size">
+          <option value="S" selected="true">S</option>
+          <option value="M">M</option>
+        </select><br /> -->
+        Variants :
+          <select name="color_code">
+          <option value="334455" selected="true">深藍</option>
+          <option value="FFFFFF">白色</option>
+          <option value="BFC8D7">藍色</option>
+          <option value="E2D2D2">粉色</option>
+          <option value="E3E2B4">黃色</option>
+          <option value="A2B59F">綠色</option>
+          </select>
+          <select name="sizes">
+          <option value="S" selected="true">S</option>
+          <option value="M">M</option>
+          <option value="L">L</option>
+          <option value="X">X</option>
+          <option value="XL">XL</option>
+          </select>
+          <input name="stock" type="number" placeholder="stock..." value="" /><br />
+
+        Main image : <input type="file" n" class="btn btn-info" /></input><br />
+        Other images : 
+          <input multiple type="file" name="images" class="btn btn-info" /></input ><br />
+
+      <input type="submit" value="Submit" />
+      </form>
+    </div>
+
+  </body>
+</html>

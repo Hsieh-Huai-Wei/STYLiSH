@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stylish 產品資訊</title>
+    <link rel="stylesheet" type="text/css" href="./css/product.css" media="all" />
+    <!-- <script src="js/lib.js"></script> -->
+
+  </head>
+
+  <body onload="data()">
+    <header>
+      <div class="padding-mobile"></div>
+      <div class="logo">
+        <a href="./"><img src="imgs/logo.png" /></a>
+      </div>
+      <nav>
+        <div class="item0"><a href="./?tag=women">女裝</a></div>
+        <div class="item0"><a href="./?tag=men">男裝</a></div>
+        <div class="item1"><a href="./?tag=accessories">配件</a></div>
+      </nav>
+      <div class="feature">
+        <form class="item" action="./">
+          <input type="text" class="search" name="tag" />
+        </form>
+        <a href="cart.html" class="item cart">
+          <div id="cart-qty" class="qty">0</div>
+        </a>
+        <a href="profile.html" class="item member">
+          <img src="imgs/member.png" />
+        </a>
+      </div>
+    </header>
+    <nav class="mobile"></nav>
+
+    <main>
+      <div id="viewM" class="view">
+        <!-- <div id="product-main-image" class="main-image"><img src="imgs/01/01001.jpg" /></div> -->
+        <div class="details">
+          <!-- <div id="product-name" class="name">前開衩扭結洋裝</div> -->
+          <!-- <div id="product-id" class="id">201807201824</div> -->
+          <!-- <div id="product-price" class="price">TWD.799</div> -->
+          <div id="product-colors" class="colors">
+            <span id="titleC" class="title">顏色 &nbsp; |</span>
+              <div id="colorBox" class="colorBox">
+                <!-- <div class="color" style="background-color: green;"></div>
+                <div class="color" style="background-color: blue;"></div>
+                <div class="color" style="background-color: red;"></div> -->
+              </div>
+          </div>
+          <div id="product-sizes" class="sizes">
+            <span id="titleS" class="title">尺寸 &nbsp; |</span>
+              <div id="sizeBox" class="sizeBox">
+                <!-- <div class="size">S</div>
+              <div class="size">M</div>
+              <div class="size">L</div> -->
+              </div>
+          </div>
+          <div class="qty">
+            <span class="title">數量 &nbsp; |</span>
+            <div id="product-qty" class="chooser">
+              <!-- <button class="add" onclick="countN(-1)" >-</button>
+              <input class="value" value="1" step="1" disabled></input>
+              <button class="sub" max="5" onclick="countN(1)">+</button> -->
+            </div>
+          </div>
+          <div class="add-cart">
+            <button id="product-add-cart-btn">加入購物車</button>
+          </div>
+          <div id="product-summary" class="summary">
+          <!-- "joawjsdofwaoiejfaowiej"<br><br>"jiafowjieofja;owejf;"<br>"fjiwoejfowiejf" -->
+          </div>
+        </div>
+        <div class="separator">
+          <div class="title">更多產品資訊</div>
+          <div class="line"></div>
+        </div>
+        <div class="description">
+          <div class="story" id="product-story">
+          <!-- "jiofajwo;je;foajwo;efijaowiej" -->
+          </div>
+          <div class="images" id="product-images">
+          <!-- <img src="imgs/01/01002.jpg" alt="">
+          <img src="imgs/01/01003.jpg" alt=""> -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="view">
+        <div class="link link-0">
+          <div class="item10">關於 Stylish</div>
+          <div class="item10">服務條款</div>
+          <div class="item10">隱私政策</div>
+        </div>
+        <div class="link link-1">
+          <div class="item10">聯絡我們</div>
+          <div class="item11">FAQ</div>
+        </div>
+        <div class="social">
+          <img src="imgs/line.png" />
+          <img src="imgs/twitter.png" />
+          <img src="imgs/facebook.png" />
+        </div>
+        <div class="copyright">
+          &copy; 2018. All rights reserved.
+        </div>
+      </div>
+    </footer>
+  <script src="./js/product.js"></script>
+  </body>
+</html>
