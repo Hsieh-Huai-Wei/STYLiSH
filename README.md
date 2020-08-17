@@ -1,31 +1,76 @@
-<!-- Student name -->
+# STYLiSH
 
-Raymond(謝懷緯)
+E-commerce
 
-<!-- HTTPS DOMAIN MAIN url -->
-https://www.raymond0116.xyz/
-<!-- Build Node.js Project for Web Server -->
+#### Website URL: https://www.raymond0116.xyz/ 
+( Recommended browser : Chrome )
 
-http://3.22.212.77/
+## Table of content
+* [Technologies](#Technologies)
+* [Structure](#Structure)
+* [Database design](#Database-design)
+* [Features](#Features)
+* [Author](#Author)
 
-<!-- Run Web Server in the Background -->
+## Technologies
 
-利用 pm2 維持程式持續在背景被執行 1.安裝個 pm2。
-npm install pm2 -g
+### Backend
 
-2.到專案資料夾，用 pm2 啟動專案。
-pm2 start app.js
-pm2 start ./bin/www
-pm2 start npm — name “<example_process_name>” — start
+* Linux
+* Node.js / Express.js
+* NGINX
 
-3.讓伺服器重啟時 pm2 就會自動跑，可以執行：
-pm2 startup
+### Frontend
 
-4.把 pm2 存檔讓它下次重啟時知道要做什麼：
-pm2 save
+* JavaScript ( ES6 )
+* HTML
+* CSS
 
-5.確認 pm2 狀態報告，可以執行：
-pm2 status
-pm2 list
+### Database
 
-ref:https://medium.com/wenchin-rolls-around/%E5%9C%A8-aws-ec2-%E4%B8%8A%E9%83%A8%E7%BD%B2-node-js-%E6%87%89%E7%94%A8%E7%A8%8B%E5%BC%8F-cdc9ce9ef18c
+* MySQL
+* Redis ( Cache )
+
+### Cloud Service(AWS)
+
+* Compute: EC2
+* Storage: S3
+* Database: RDS
+* Network: ELB
+
+### Library
+
+* JWT
+
+### Tools for development
+
+* Version Control: Git, GitHub
+* Test: Artillery
+
+### Networking
+
+* HTTP & HTTPS
+* Domain Name System (DNS)
+* Cloudflare
+* RESTful API
+* fetch
+
+## Structure
+![Structure screenshot](https://i.imgur.com/99uR9m0.png)
+
+## Database design
+![Example screenshot](https://i.imgur.com/GfHel7r.png)
+
+## Features
+![Demo Home Page alpha](https://i.imgur.com/AOLvLfh.png)
+* Built server on AWS EC2 with NGINX and handled the varying load of application * * traffic by AWS ELB.
+* Used AWS S3 to stored product images, and the reduced response time through AWS CDN.
+* Optimized MySQL schema by Normalization, Foreign Key and Index.
+* Constructed RESTful API for product details, orders, payments and user information.
+* Optimized data response efficiency through in-memory cache mechanism by Redis.
+* Performed server load testing by artillery.
+* Integrated Facebook login via JavaScript SDK and Graph API.
+* Integrated TapPay SDK (third-party payment API) for credit card payment feature.
+
+## Author
+Hsieh-Huai-Wei [@Hsieh-Huai-Wei](https://github.com/Hsieh-Huai-Wei)
