@@ -15,12 +15,6 @@ con.connect(function (err) {
   console.log("Connected!");
 });
 
-// setting Redis
-// const redis = require('redis');
-// const REDIS_PORT = 6379;
-// const client = redis.createClient(REDIS_PORT)
-
-
 // catch use query url
 function sorting (category, keyword, id) {
   let sql = "";

@@ -1,6 +1,7 @@
 require("dotenv").config();
 const mysql = require("mysql");
 const { HOST, USERNAME2, PASSWORD, DATABASE } = process.env;
+const redis = require('../../util/redis')
 
 // DB connection
 const con = mysql.createConnection({
@@ -76,7 +77,13 @@ const createCampaign = async (req, res, next) => {
         "INSERT INTO campaigns SET product_id = ?, picture = ?, story = ?";
       con.query(sql, [productId, data.pictures, data.story], function (err) {
         if (err) next(err);
-        // console.log("campaigns table record inserted");
+        try {
+          redis.del('campaigns', (err, res) => {
+            if (err) throw err;
+          })
+        } catch (e) {
+          console.log('Delete cache failed')
+        }
         res.send("OK");
       });
     }
@@ -85,6 +92,12 @@ const createCampaign = async (req, res, next) => {
 
 const getCampaigns = async (req, res, next) => {
   try {
+    const cache = await redis.getCache('campaigns')
+    console.log('from redis')
+    return res.json(cache);
+  } catch (e) {
+    console.log('from db')
+    console.log(e)
     let campaignsObjS = {};
     let campaignsCount = await countCam();
     let allCamPages = Math.floor((campaignsCount - 1) / 6);
@@ -116,10 +129,8 @@ const getCampaigns = async (req, res, next) => {
     }
 
     campaignsObjS.data = campaignsObj;
+    redis.set('campaigns', JSON.stringify(campaignsObjS))
     res.json(campaignsObjS);
-  } catch (e) {
-    console.log(e);
-    res.sendStatus(500);
   }
 };
 
