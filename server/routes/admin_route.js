@@ -5,7 +5,6 @@ const { secretAccessKey, accessKeyId } = process.env;
 
 //multer module
 const multer = require("multer");
-// const singleUpload = uploads.single("image");
 
 // AWS S3
 const aws = require("aws-sdk");
@@ -39,14 +38,8 @@ var cpUpload = uploads.fields([
   { name: "pictures", maxCount: 8 },
 ]);
 
-// app.post("/image-upload", function (req, res) {
-//   singleUpload(req, res, function (err) {
-//     return res.json({ imageUrl: req.file });
-//   });
-// });
-
-const { createProduct } = require('../models/product_model');
-const { createCampaign } = require('../models/marketing_model');
+const { createProduct } = require("../contorllers/product_controller");
+const { createCampaign } = require("../contorllers/marketing_contorller");
 
 router.route('/admin/product').post(cpUpload, createProduct);
 router.route('/admin/campaign').post(cpUpload, createCampaign);

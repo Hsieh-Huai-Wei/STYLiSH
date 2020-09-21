@@ -23,24 +23,19 @@ fetch("api/1.0/marketing/campaigns")
     }
   })
   .catch(function (error) {
-    // console.log(error);
   });
 
 fetch("api/1.0/products/all")
   .then((response) => response.json())
-  // .then(response => console.log(response))
   .then(function (data) {
-    // console.log(data.data);
     for (let i = 0; i < data.data.length; i++) {
       let a = document.createElement("a");
       let img = document.createElement("img");
       let colors = document.createElement("div");
-      // let color = document.createElement('div');
       let name = document.createElement("div");
       let price = document.createElement("div");
       let products = document.querySelector(".products");
       a.className = "product";
-      // a.href = `/product.html?id=${data.data[i].id}`;
       a.href = `/product.html?id=${[i + 1]}`;
       img.src = `${data.data[i].main_image}`;
       colors.className = "colors";
@@ -64,5 +59,4 @@ fetch("api/1.0/products/all")
     }
   })
   .catch(function (error) {
-    // console.log(error);
   });

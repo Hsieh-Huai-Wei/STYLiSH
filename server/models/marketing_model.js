@@ -1,93 +1,35 @@
-require("dotenv").config();
-const mysql = require("mysql");
-const { HOST, USERNAME2, PASSWORD, DATABASE } = process.env;
+const { query } = require("../../util/dbcon");
 const redis = require('../../util/redis')
-
-// DB connection
-const con = mysql.createConnection({
-  host: HOST, // MYSQL HOST NAME
-  user: USERNAME2, // MYSQL USERNAME
-  password: PASSWORD, // MYSQL PASSWORD
-  database: DATABASE, // MYSQL DB NAME
-});
-
-con.connect(function (err) {
-  if (err) throw err;
-  console.log("Connected!");
-});
-
 
 const hostName = `https://as-raymond0116-image.s3.us-east-2.amazonaws.com/`;
 
-
-countCam = () => {
-  return new Promise((resolve, reject) => {
-    let sql = `
-      SELECT
-        COUNT(id) AS count
-      FROM campaigns`;
-    con.query(sql, (err, results) => {
-      if (err) throw err;
-      resolve(JSON.parse(JSON.stringify(results[0].count)));
-    });
-  });
+const countCam = async () => {
+  const result = await query('SELECT COUNT(id) AS count FROM campaigns');
+  return result;
 };
 
-resultCam = () => {
-  return new Promise((resolve, reject) => {
-    let limit = 6;
-    let sql = `
-      SELECT 
-        product_id, picture, story
-      FROM campaigns `;
-    sql += ` ORDER BY campaigns.id ASC LIMIT ${limit} OFFSET ${paging * limit}`;
-    con.query(sql, (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      return resolve(results);
-    });
-  });
+const resultCam = async (limit, paging) => {
+  const offset = limit*paging;
+  const result = await query('SELECT product_id, picture, story FROM campaigns ORDER BY campaigns.id ASC LIMIT ? OFFSET ?', [limit, offset]);
+  return result;
 };
 
-const createCampaign = async (req, res, next) => {
-  let data = {
-    story: req.body.story,
-  };
+const option = async (data) => {
+  const result = await query('SELECT * FROM stock.history_price WHERE(date between ? and ?) AND (close between ? and ?) ORDER BY stock_id, date DESC;', [data.start, data.end, data.lower, data.upper]);
+  return result;
+};
 
-  let result = [];
-  let pictures = req.files["pictures"];
-  for (let i = 0; i < pictures.length; i++) {
-    result.push(pictures[i]["filename"]);
-  }
-  data.pictures = result.toString();
-  data.productID = req.body.number;
+const searchCampaign = async (data) => {
+  const result = await query('SELECT id FROM stylish.product WHERE number = ? ;', [data.productID]);
+  return result;
+};
 
-  // insertMarketingData(data, next);
-  var sql = `SELECT id FROM stylish.product WHERE number = "${data.productID}";`;
-  con.query(sql, function (err, result) {
-    if (err) next(err);
-    if (result.length === 0) {
-      const err = new Error("NOOOOOOOOOO");
-      err.status = 400;
-      next(err);
-    } else {
-      let productId = result[0].id;
-      var sql =
-        "INSERT INTO campaigns SET product_id = ?, picture = ?, story = ?";
-      con.query(sql, [productId, data.pictures, data.story], function (err) {
-        if (err) next(err);
-        try {
-          redis.del('campaigns', (err, res) => {
-            if (err) throw err;
-          })
-        } catch (e) {
-          console.log('Delete cache failed')
-        }
-        res.send("OK");
-      });
-    }
-  });
+const createCampaign = async (productId, data) => {
+  const result = await query(
+    "INSERT INTO campaigns SET product_id = ?, picture = ?, story = ?",
+    [productId, data.pictures, data.story]
+  );
+  return result;
 };
 
 const getCampaigns = async (req, res, next) => {
@@ -115,12 +57,9 @@ const getCampaigns = async (req, res, next) => {
     let campaignsObj = JSON.parse(JSON.stringify(await resultCam()));
 
     for (let i = 0; i < campaignsObj.length; i++) {
-      //length = 3
       let picturesArray = [];
       let x = campaignsObj[i].picture.split(",").length;
-      // console.log(x) //2
       for (let j = 0; j < x; j++) {
-        // for (let j = 0; j < productObj[i].images.split(",").length; j++) {
         picturesArray.push(
           hostName + "uploads/" + campaignsObj[i].picture.split(",")[j]
         );
@@ -135,6 +74,10 @@ const getCampaigns = async (req, res, next) => {
 };
 
 module.exports = {
+  countCam,
+  resultCam,
+  option,
+  searchCampaign,
   createCampaign,
   getCampaigns
 };

@@ -1,19 +1,5 @@
 require("dotenv").config();
-const mysql = require("mysql");
-const { HOST, USERNAME2, PASSWORD, DATABASE } = process.env;
-
-// DB connection
-const con = mysql.createConnection({
-  host: HOST, // MYSQL HOST NAME
-  user: USERNAME2, // MYSQL USERNAME
-  password: PASSWORD, // MYSQL PASSWORD
-  database: DATABASE, // MYSQL DB NAME
-});
-
-con.connect(function (err) {
-  if (err) throw err;
-  console.log("Connected!");
-});
+const con = require("../../util/dbcon");
 
 const dashboard = async (req, res) => {
   try {

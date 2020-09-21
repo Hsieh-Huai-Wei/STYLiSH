@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { wrapAsync } = require('../../util/util');
 
 const { signUp, signIn, fbSignIn, getUserProfile,
-} = require('../models/user_model');
+} = require('../contorllers/user_controller');
 
 router.route('/user/signup').post(wrapAsync(signUp));
 
