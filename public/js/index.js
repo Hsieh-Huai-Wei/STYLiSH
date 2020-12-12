@@ -1,8 +1,6 @@
 fetch("api/1.0/marketing/campaigns")
   .then((response) => response.json())
-  // .then(response => console.log(response))
   .then(function (data) {
-    // console.log(data)
     for (let i = 0; i < data.data.length; i++) {
       let a = document.createElement("a");
       let story = document.createElement("div");

@@ -42,7 +42,6 @@ const getCampaigns = async (req, res, next) => {
     return res.json(cache);
   } catch (e) {
     console.log("from db");
-    console.log(e);
     let campaignsObjS = {};
     let campaignsCount = await Marketing.countCam();
     let allCamPages = Math.floor((campaignsCount - 1) / 6);
@@ -57,8 +56,7 @@ const getCampaigns = async (req, res, next) => {
       campaignsObjs.next_paging = paging + 1;
     }
     let limit = 6;
-    let campaignsObj = JSON.parse(JSON.stringify(await resultCam(limit, paging)));
-
+    let campaignsObj = await Marketing.resultCam(limit, paging);
     for (let i = 0; i < campaignsObj.length; i++) {
       let picturesArray = [];
       let x = campaignsObj[i].picture.split(",").length;

@@ -31,6 +31,8 @@ app.use('/api/' + apiVersion,
 app.use((err, req, res, next) => {
   res.status(err.status || 500);
   res.json({ error: err.message });
+  console.log('here')
+  console.log(err)
 });
 
 app.listen(port, () => {
