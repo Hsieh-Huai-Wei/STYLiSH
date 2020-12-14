@@ -7,7 +7,14 @@ const checkSignUp = async (data) => {
 
 const signUp = async (data) => {
   try {
-    const result = await query("INSERT INTO user SET number = ?, name = ?, email = ?, password = ?, picture = ?, provider_id = ?, access_token = ?, access_expired = ?",[data])
+    const result = await query("INSERT INTO user SET number = ?, name = ?, email = ?, password = ?, picture = ?, provider_id = ?, access_token = ?, access_expired = ?",[data.number,
+      data.name,
+      data.email,
+      data.password,
+      data.picture,
+      data.provider_id,
+      data.access_token,
+      data.access_expired])
     return result;
   } catch (err) {
     return {err};

@@ -33,7 +33,16 @@ const signUp = async (req, res) => {
         { userEmail: req.body.email, exp: expirationDate },
         secret
       );
-      const inf = [randomID, req.body.name, req.body.email, userPwd, "123.jpeg", 1, token, signInDate]
+      const inf = {
+        number:randomID,
+        name:req.body.name,
+        email:req.body.email,
+        password:userPwd,
+        picture:"123.jpeg",
+        provider_id:1,
+        access_token:token,
+        access_expired:signInDate,
+      };
       await User.signUp(inf);
       let user = {
         id: randomID,
@@ -48,6 +57,7 @@ const signUp = async (req, res) => {
       data.user = user;
       let results = {};
       results.data = data;
+      console.log(results.data)
       res.json(results);
     }
   }
@@ -119,11 +129,21 @@ const fbSignIn = async (req, res) => {
       results.data = data;
       res.json(results);
     } else if (checkEmail.length === 0) {
+      const randomID = Math.floor(Math.random() * 10000) + 1;
       const token = jwt.sign(
         { userEmail: userData.email, exp: expirationDate },
         secret
       );
-      const inf = [randomID, req.body.name, req.body.email, userPwd, "123.jpeg", 1, token, signInDate]
+      const inf = {
+        number:randomID,
+        name:userData.name,
+        email:userData.email,
+        password:null,
+        picture:"123.jpeg",
+        provider_id:1,
+        access_token:token,
+        access_expired:signInDate,
+      };
       await User.signUp(inf);
       let user = {
         id: userData.id,

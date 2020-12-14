@@ -12,13 +12,10 @@ function signUp() {
     body: JSON.stringify(data),
   }).then((res) => res.json())
     .then((body) => {
-      if (body.status !== undefined) {
-        alert(body.msg);
-      } else {
-        const token = body.data.access_token
-        localStorage.setItem('userToken', token);
-        window.location.replace('/profile.html');
-      }
+      console.log(body)
+      const token = body.data.access_token
+      localStorage.setItem('userToken', token);
+      window.location.replace('/profile.html');
     });
 };
 

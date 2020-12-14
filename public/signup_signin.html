@@ -32,38 +32,62 @@
     </header>
     <nav class="mobile"></nav>
 
-    <main>
-      <div id="header">
-        <h1>Sign In or Sign Up</h1>
+    <main style="border: 1px solid red;">
+      <div style="display:flex; flex-direction: column; text-align: center; margin: 0 auto;">
+        <div style="display:flex; margin-top: 50px">
+          <div style="display: flex;
+          flex-direction: column;
+          text-align: start;
+          max-width: 210px;
+          border: 1px solid grey;
+          border-radius: 10px;
+          padding: 10px 50px 20px 50px;
+          margin: 0 25px;
+          height: 220px;">
+            <h2>登入</h2>
+            <div style="display:flex; flex-direction: column; text-align: start;">
+              <form id="signInForm">
+                <div>
+                  信箱：<input type="email" name="email" value="" />
+                </div>
+                <div style="margin: 15px 0;">
+                  密碼：<input type="password" name="pwd" value="" />
+                </div>
+                <button style="width: 100%;" onclick="signIn()">登入</button>
+              </form>
+            </div>
+          </div>
+          <div style="display: flex;
+          flex-direction: column;
+          text-align: start;
+          max-width: 210px;
+          border: 1px solid grey;
+          border-radius: 10px;
+          padding: 10px 50px 20px 50px;
+          margin: 0 25px;
+          height: 220px;">
+            <h2>註冊</h2>
+            <div style="display:flex; flex-direction: column; text-align: start;">
+              <form id="signUpForm">
+                <div>
+                  姓名：<input type="text" name="_name" value="" />
+                </div>
+                <div style="margin: 15px 0;">
+                  信箱：<input type="email" name="_email" value="" />
+                </div>
+                <div style="margin: 15px 0;">
+                  密碼：<input type="password" name="_pwd" value="" />
+                </div>
+                <button style="width: 100%;" onclick="signUp()">註冊</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div>
+          <fb:login-button scope="public_profile,email" onlogin="checkLoginState();" ></fb:login-button>
+          <div id="status"></div>
+        </div>
       </div>
-      <div class="signUp">
-        <h2 class="title">Sign Up</h2>
-        <form id="signUpForm">
-          Name：<input type="text" name="_name" value="" /><br>
-          Email：<input type="text" name="_email" value="" /><br>
-          Password：<input type="text" name="_pwd" value="" /><br>
-          <input class="signUpBtn" type="button" value="Sign Up" onclick="signUp()" />
-        </form>
-      </div>
-      <div class="signIn">
-        <h2 class="title">Sign In</h2>
-        <form id="signInForm">
-          Email：<input type="text" name="email" value="" /><br>
-          Password：<input type="text" name="pwd" value="" /><br>
-          <input class="signInBtn" type="button" value="Sign In" onclick="signIn()" />
-        </form>
-      </div>
-      <!-- // The JS SDK Login Button -->
-
-      <fb:login-button
-        scope="public_profile,email"
-        onlogin="checkLoginState();"
-      >
-      </fb:login-button>
-
-      <div id="status"></div>
-    </main>
-
     <footer>
       <div class="view">
         <div class="link link-0">
@@ -81,7 +105,7 @@
           <img src="imgs/facebook.png" />
         </div>
         <div class="copyright">
-          &copy; 2018. All rights reserved.
+          &copy; 2020. All rights reserved.
         </div>
       </div>
     </footer>
