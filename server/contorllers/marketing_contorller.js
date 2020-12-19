@@ -1,8 +1,7 @@
 require("dotenv").config();
+const { HOST_S3 } = process.env;
 const Marketing = require("../models/marketing_model");
 const redis = require("../../util/redis");
-
-const hostName = `https://as-raymond0116-image.s3.us-east-2.amazonaws.com/`;
 
 const createCampaign = async (req, res, next) => {
   let data = {
@@ -18,7 +17,7 @@ const createCampaign = async (req, res, next) => {
   data.productID = req.body.number;
   const searchResult = await Marketing.searchCampaign(data);
   if (searchResult.length === 0) {
-    const err = new Error("NOOOOOOOOOO");
+    const err = new Error("No campaign in Redis.");
     err.status = 400;
     next(err);
   } else {
@@ -62,7 +61,7 @@ const getCampaigns = async (req, res, next) => {
       let x = campaignsObj[i].picture.split(",").length;
       for (let j = 0; j < x; j++) {
         picturesArray.push(
-          hostName + "uploads/" + campaignsObj[i].picture.split(",")[j]
+          HOST_S3 + "uploads/" + campaignsObj[i].picture.split(",")[j]
         );
       }
       campaignsObj[i].picture = picturesArray;

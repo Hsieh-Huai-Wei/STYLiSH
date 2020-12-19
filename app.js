@@ -1,9 +1,9 @@
 // require
 require("dotenv").config();
+const { NODE_ENV, PORT, PORT_TEST, API_VERSION} = process.env;
+const port = NODE_ENV == 'test' ? PORT_TEST : PORT;
 const express = require("express");
-const port = 3000;
 const bodyParser = require("body-parser");
-const apiVersion = "1.0";
 const app = express();
 
 app.set("json spaces", 2);
@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // API routes
-app.use('/api/' + apiVersion, 
+app.use('/api/' + API_VERSION, 
   [
     require('./server/routes/admin_route'),
     require('./server/routes/product_route'),
@@ -31,7 +31,6 @@ app.use('/api/' + apiVersion,
 app.use((err, req, res, next) => {
   res.status(err.status || 500);
   res.json({ error: err.message });
-  console.log('here')
   console.log(err)
 });
 
