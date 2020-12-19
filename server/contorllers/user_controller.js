@@ -1,102 +1,128 @@
+require("dotenv").config();
+const { SECRET, TOKEN_EXPIRE } = process.env;
 const User = require("../models/user_model");
 const got = require("got");
-
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const secret = "secret";
 
-const signUp = async (req, res) => {
-  const expirationDate = Math.floor(Date.now() / 1000) + 30; // 30 sec
-  const signInDate = Math.floor(Date.now() / 1000);
-  if (!req.body.name) {
-    res.json({ status: 404, msg: "User name cannot be empty" });
-    const err = new Error("verify fail");
-    err.status = 403;
-    next(err);
-  } else if (!req.body.email) {
-    res.json({ status: 404, msg: "Email cannot be empty" });
-  } else if (!req.body.pwd || req.body.pwd.length < 6) {
-    res.json({ status: 404, msg: "Password cannot be empty or length less 6" });
+function verifyData(data) {
+  if (data.status === "signUp" && !data.name ) {
+    return result = {
+      check: false,
+      status: 404,
+      msg: "會員姓名不得為空！"
+    }
+  } else if (!data.email) {
+    return result = {
+      check: false,
+      status: 404,
+      msg: "信箱不得為空！"
+    }
+  } else if (!data.pwd || data.pwd.length < 6) {
+    return result = {
+      check: false,
+      status: 404,
+      msg: "密碼不得為空或小於6碼！"
+    }
+  } else if (data.email.split('@').length !== 2) {
+    return result = {
+      check: false,
+      status: 404,
+      msg: "信箱驗證錯誤，請輸入符合規範之信箱！"
+    }
   } else {
-    const userEmail = req.body.email;
-    const result = await User.checkSignUp(userEmail)
-    if (result.length > 0) {
-      res.json({ status: 404, msg: "account is already exist !!" });
-    } else {
-      const randomID = Math.floor(Math.random() * 10000) + 1;
-      const userPwd = crypto
-        .createHash("sha256")
-        .update(req.body.pwd)
-        .digest("hex");
-
-      const token = jwt.sign(
-        { userEmail: req.body.email, exp: expirationDate },
-        secret
-      );
-      const inf = [randomID, req.body.name, req.body.email, userPwd, "123.jpeg", 1, token, signInDate]
-      await User.signUp(inf);
-      let user = {
-        id: randomID,
-        provider: "native",
-        name: req.body.name,
-        email: req.body.email,
-        picture: "123.jepg",
-      };
-      data = {};
-      data.access_token = token;
-      data.access_expired = signInDate;
-      data.user = user;
-      let results = {};
-      results.data = data;
-      res.json(results);
+    return result = {
+      check: true
     }
   }
+}
+
+function jwtSign(email, expirationDate) {
+  return jwt.sign(
+    { userEmail: email, exp: expirationDate },
+    SECRET
+  );
+}
+
+function pwdHash(pwd) {
+  return crypto
+  .createHash("sha256")
+  .update(pwd)
+  .digest("hex");
+}
+
+const signUp = async (req, res) => {
+  const expirationDate = Math.floor(Date.now()/1000 + Number(TOKEN_EXPIRE));
+  const signInDate = Math.floor(Date.now());
+  const userData = {
+    status: "signUp",
+    name: req.body.name,
+    email: req.body.email,
+    pwd: req.body.pwd,
+  }
+  const checkResult = verifyData(userData);
+  if (!checkResult.check) return res.send(checkResult);
+  const result = await User.checkSignUp(userData.email);
+  if (result.length > 0) return res.json({ status: 404, msg: "此帳號已存在！" });
+  const randomID = Math.floor(Math.random() * 10000) + 1;
+  const userPwd = pwdHash(userData.pwd);
+  const token = jwtSign(userData.email, expirationDate)
+  const inf = {
+    number:randomID,
+    name:req.body.name,
+    email:req.body.email,
+    password:userPwd,
+    picture:"123.jpeg",
+    provider_id:1,
+    access_token:token,
+    access_expired:signInDate,
+  };
+  await User.signUp(inf);
+  const user = {
+    id: randomID,
+    provider: "native",
+    name: req.body.name,
+    email: req.body.email,
+    picture: "123.jepg",
+  };
+  const data = {
+    access_token: token,
+    access_expired: expirationDate,
+    user: user
+  };
+  res.json({data: data});
 };
 
 const signIn = async (req, res) => {
-  const expirationDate = Math.floor(Date.now() / 1000) + 3600; // 60 min
-  const signInDate = Math.floor(Date.now() / 1000);
-  if (!req.body.email) {
-    res.json({ status: 404, msg: "Email cannot be empty" });
-    return;
-  } else if (!req.body.pwd || req.body.pwd.length < 6) {
-    // throw new Error("Password cannot be empty or length less 6");
-    res.json({ status: 404, msg: "Password cannot be empty or length less 6" });
-    return;
-  } else {
-    const userPwd = crypto
-      .createHash("sha256")
-      .update(req.body.pwd)
-      .digest("hex");
-    const userEmail = req.body.email;
-    const checkEmail = await User.checkSignIn(userEmail, userPwd)
-    if (checkEmail.length === 0) {
-      res.json({
-        status: 404,
-        msg: "email is not exist or password incorrect !",
-      });
-    } else {
-      const token = jwt.sign(
-        { userEmail: req.body.email, exp: expirationDate },
-        secret
-      );
-      await User.signIn(token, signInDate, userEmail);
-      const result = await User.signInData(userEmail);
-      let user = result[0];
-      data = {};
-      data.access_token = token;
-      data.access_expired = signInDate;
-      data.user = user;
-      let results = {};
-      results.data = data;
-      res.json(results);
-    }
+  const expirationDate = Math.floor(Date.now()/1000 + Number(TOKEN_EXPIRE));
+  const signInDate = Math.floor(Date.now());
+  const userData = {
+    status: "signIn",
+    name: req.body.name,
+    email: req.body.email,
+    pwd: req.body.pwd,
   }
+  const checkResult = verifyData(userData);
+  if (!checkResult.check) return res.send(checkResult);
+  const userPwd = pwdHash(userData.pwd);
+  const checkEmail = await User.checkSignIn(userData.email, userPwd)
+  if (checkEmail.length === 0) return res.json({
+    status: 404,
+    msg: "信箱或密碼不正確!",
+  });
+  const token = jwtSign(userData.email, expirationDate)
+  await User.signIn(token, signInDate, userData.email);
+  const result = await User.signInData(userData.email);
+  const data = {
+    access_token: token,
+    access_expired: expirationDate,
+    user: result[0]
+  };
+  res.json({data: data});
 };
 
 const fbSignIn = async (req, res) => {
-  const expirationDate = Math.floor(Date.now() / 1000) + 3600; // 60 min
-  const signInDate = Math.floor(Date.now() / 1000);
+  const expirationDate = Math.floor(Date.now()/1000 + Number(TOKEN_EXPIRE));
   let url = `https://graph.facebook.com/me?fields=id,name,email&access_token=${req.body.access_token}`;
 
   try {
@@ -104,62 +130,62 @@ const fbSignIn = async (req, res) => {
     const userData = JSON.parse(result.body);
     const checkEmail = await User.checkSignUp(userData.email);
     if (checkEmail.length === 1) {
-      const token = jwt.sign(
-        { userEmail: userData.email, exp: expirationDate },
-        secret
-      );
-      await User.signIn(token, signInDate,userData.email);
+      const token = jwtSign(userData.email, expirationDate)
+      await User.signIn(token, expirationDate ,userData.email);
       const userInf = await User.signInData(userData.email);
-      let user = userInf[0];
-      data = {};
-      data.access_token = token;
-      data.access_expired = signInDate;
-      data.user = user;
-      let results = {};
-      results.data = data;
-      res.json(results);
+      const user = userInf[0];
+      const data = {
+        access_token: token,
+        access_expired: expirationDate,
+        user: user
+      };
+      res.json({data: data});
     } else if (checkEmail.length === 0) {
-      const token = jwt.sign(
-        { userEmail: userData.email, exp: expirationDate },
-        secret
-      );
-      const inf = [randomID, req.body.name, req.body.email, userPwd, "123.jpeg", 1, token, signInDate]
+      const randomID = Math.floor(Math.random() * 10000) + 1;
+      const token = jwtSign(userData.email, expirationDate)
+      const inf = {
+        number:randomID,
+        name:userData.name,
+        email:userData.email,
+        password:null,
+        picture:"123.jpeg",
+        provider_id:1,
+        access_token:token,
+        access_expired:expirationDate,
+      };
       await User.signUp(inf);
-      let user = {
+      const user = {
         id: userData.id,
         provider: "facebook",
         name: userData.name,
         email: userData.email,
         picture: "123.jepg",
       };
-      data = {};
-      data.access_token = token;
-      data.access_expired = signInDate;
-      data.user = user;
-      let results = {};
-      results.data = data;
-      res.json(results);
-    } else {
-      throw err;
+      const data = {
+        access_token: token,
+        access_expired: expirationDate,
+        user: user
+      };
+      res.json({data: data});
     }
   } catch (error) {
-    res.send(err);
+    res.send(error);
   }
 };
 
 const getUserProfile = async (req, res) => {
-  const signInDate = Math.floor(Date.now() / 1000);
-  decode = jwt.verify(req.body.token, secret);
+  const signInDate = Math.floor(Date.now()/1000);
+  decode = jwt.verify(req.body.token, SECRET);
   if (decode.exp > signInDate) {
     const result = await User.getUserProfile(decode.userEmail, req.body.token);
     if (result.length === 0) {
-      res.status(404).json({ error: "email is not exist !" });
+      res.status(404).json({ error: "信箱不存在，請重新註冊新會員！" });
       return;
     } else {
       res.status(200).json(result[0]);
     }
   } else {
-    res.status(404).json({ error: "登入逾時，請重新登入" });
+    res.status(404).json({ error: "登入逾時，請重新登入！" });
   }
 };
 

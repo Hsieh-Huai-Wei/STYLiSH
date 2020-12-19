@@ -349,7 +349,7 @@ cart.addEventListener("click", () => {
       .then((body) => {
         if (body.error) {
           alert("登入逾時，請重新登入")
-          window.location.replace("/signup_signin.html");
+          window.location.replace("/login.html");
         } else {
           window.location.replace('/cart.html')
         }
@@ -371,13 +371,13 @@ cart.addEventListener("click", () => {
         if (body.error) {
           // alert(body.error);
           alert("登入逾時，請重新登入")
-          window.location.replace("/signup_signin.html");
+          window.location.replace("/login.html");
         } else {
           window.location.replace('/cart.html')
         }
       });
   } else {
     alert("請先登入會員");
-    window.location.replace("/signup_signin.html");
+    window.location.replace("/login.html");
   }
 });

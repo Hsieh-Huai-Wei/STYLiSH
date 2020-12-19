@@ -3,10 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Stylish 產品資訊</title>
-    <link rel="stylesheet" type="text/css" href="./css/thankyou.css" media="all" />
-    <!-- <script src="js/lib.js"></script> -->
-    <!-- <script src="product.js"></script> -->
+    <title>Stylish 會員註冊</title>
+    <link rel="stylesheet" type="text/css" href="./css/signup.css" media="all" />
   </head>
 
   <body>
@@ -27,18 +25,33 @@
         <a href="cart.html" class="item cart">
           <div id="cart-qty" class="qty">0</div>
         </a>
-        <div class="item member">
+        <a href="profile.html" class="item member">
           <img src="imgs/member.png" />
-        </div>
+        </a>
       </div>
     </header>
     <nav class="mobile"></nav>
 
     <main>
-     <p id="response"></p>
-     <p id="order"></p>
+      <div class="form">
+        <div class="login_form">
+          <div class="ser_inf">
+            <div class="column">姓名</div>
+            <input id="name" type="text" name="_name" value="" />
+            <div class="column">信箱</div>
+            <input id="email" type="email" name="_email" value="" />
+            <div class="column">密碼</div>
+            <input id="pwd" type="password" name="_pwd" value="" />
+            <div class="btns">
+              <button class="btn" onclick="signUp()">註冊</button>
+              <fb:login-button scope="public_profile,email"  data-width="29px" data-size="large" onlogin="checkLoginState();" ></fb:login-button>
+              <div id="status"></div>
+            </div>
+          </div>
+        </div>
+        <div class="quest"><a class="link_word" href="/login.html">已經是會員？登入</a></div>
+      </div>
     </main>
-
     <footer>
       <div class="view">
         <div class="link link-0">
@@ -60,28 +73,6 @@
         </div>
       </div>
     </footer>
-    <script>
-      const data = {
-        "token": localStorage.getItem("userToken")
-      }
-      fetch("api/1.0/user/profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      })
-        .then((res) => res.json())
-        .then((body) => {
-          if (body.error) {
-            alert(body.error);
-          } else {
-            const userName = `${body.name}`
-            const orderNum = localStorage.getItem("userOrder");
-            const user = document.getElementById('response');
-            const order = document.getElementById('order');
-            user.textContent = `Dear ${userName},`;
-            order.textContent = `Thanks for your order, number is ${orderNum} !`;
-          }
-        });
-    </script>
+    <script src = "./js/signup.js"></script>
   </body>
 </html>

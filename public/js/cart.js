@@ -122,7 +122,7 @@ function onSubmit(event) {
       .then((body) => {
         if (body.error) {
           alert("登入逾時，請重新登入")
-          window.location.replace("/signup_signin.html");
+          window.location.replace("/login.html");
         } else {
           // 取得 TapPay Fields 的 status
           const tappayStatus = TPDirect.card.getTappayFieldsStatus();
@@ -177,7 +177,7 @@ function onSubmit(event) {
         if (body.error) {
           // alert(body.error);
           alert("登入逾時，請重新登入")
-          window.location.replace("/signup_signin.html");
+          window.location.replace("/login.html");
         } else {
           // 取得 TapPay Fields 的 status
           const tappayStatus = TPDirect.card.getTappayFieldsStatus();
@@ -218,7 +218,7 @@ function onSubmit(event) {
       });
   } else {
     alert("請先登入會員");
-    window.location.replace("/signup_signin.html");
+    window.location.replace("/login.html");
   }
 
 }

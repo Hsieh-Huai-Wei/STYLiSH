@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Stylish 產品資訊</title>
-    <link rel="stylesheet" type="text/css" href="./css/signup_signin.css" media="all" />
+    <title>Stylish 會員登入</title>
+    <link rel="stylesheet" type="text/css" href="./css/login.css" media="all" />
   </head>
 
   <body>
@@ -33,37 +33,25 @@
     <nav class="mobile"></nav>
 
     <main>
-      <div id="header">
-        <h1>Sign In or Sign Up</h1>
+      <div class="form">
+        <div class="login_form">
+          <div class="login_form">
+            <div class="ser_inf">
+              <div class="column">信箱</div>
+              <input id="email" type="email" name="email" value="" />
+              <div class="column">密碼</div>
+              <input id="pwd" type="password" name="pwd" value="" />
+              <div class="btns">
+                <button class="btn" onclick="signIn()">登入</button>
+                <fb:login-button scope="public_profile,email"  data-width="29px" data-size="large" onlogin="checkLoginState();" ></fb:login-button>
+                <div id="status"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="quest"><a class="link_word" href="/signup.html">還不是會員？加入會員</a></div>
       </div>
-      <div class="signUp">
-        <h2 class="title">Sign Up</h2>
-        <form id="signUpForm">
-          Name：<input type="text" name="_name" value="" /><br>
-          Email：<input type="text" name="_email" value="" /><br>
-          Password：<input type="text" name="_pwd" value="" /><br>
-          <input class="signUpBtn" type="button" value="Sign Up" onclick="signUp()" />
-        </form>
-      </div>
-      <div class="signIn">
-        <h2 class="title">Sign In</h2>
-        <form id="signInForm">
-          Email：<input type="text" name="email" value="" /><br>
-          Password：<input type="text" name="pwd" value="" /><br>
-          <input class="signInBtn" type="button" value="Sign In" onclick="signIn()" />
-        </form>
-      </div>
-      <!-- // The JS SDK Login Button -->
-
-      <fb:login-button
-        scope="public_profile,email"
-        onlogin="checkLoginState();"
-      >
-      </fb:login-button>
-
-      <div id="status"></div>
     </main>
-
     <footer>
       <div class="view">
         <div class="link link-0">
@@ -81,10 +69,10 @@
           <img src="imgs/facebook.png" />
         </div>
         <div class="copyright">
-          &copy; 2018. All rights reserved.
+          &copy; 2020. All rights reserved.
         </div>
       </div>
     </footer>
-    <script src = "./js/signup_signin.js"></script>
+    <script src = "./js/login.js"></script>
   </body>
 </html>

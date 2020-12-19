@@ -5,12 +5,14 @@ const hostName = `https://as-raymond0116-image.s3.us-east-2.amazonaws.com/`;
 
 const countCam = async () => {
   const result = await query('SELECT COUNT(id) AS count FROM campaigns');
-  return result;
+  return result[0].count;
 };
 
 const resultCam = async (limit, paging) => {
   const offset = limit*paging;
-  const result = await query('SELECT product_id, picture, story FROM campaigns ORDER BY campaigns.id ASC LIMIT ? OFFSET ?', [limit, offset]);
+  console.log(offset)
+  console.log(`SELECT product_id, picture, story FROM stylish.campaigns ORDER BY campaigns.id ASC LIMIT ${limit} OFFSET ${offset}`)
+  const result = await query('SELECT product_id, picture, story FROM stylish.campaigns ORDER BY campaigns.id ASC LIMIT ? OFFSET ?', [limit, offset]);
   return result;
 };
 
@@ -41,8 +43,12 @@ const getCampaigns = async (req, res, next) => {
     console.log('from db')
     console.log(e)
     let campaignsObjS = {};
-    let campaignsCount = await countCam();
+    console.log('here')
+    let campaignsCount = await query('SELECT COUNT(id) AS count FROM campaigns');
+    console.log('campaignsCount',campaignsCount)
+    console.log(1)
     let allCamPages = Math.floor((campaignsCount - 1) / 6);
+    console.log(2)
     if (isNaN(req.query.paging) || req.query.paging <= 0) {
       paging = 0;
     } else if (req.query.paging > 0) {
@@ -50,12 +56,14 @@ const getCampaigns = async (req, res, next) => {
     } else {
       paging = 0;
     }
+    console.log(3)
     if (paging < allCamPages) {
+      console.log(4)
       campaignsObjs.next_paging = paging + 1;
     }
-
+    console.log(5)
     let campaignsObj = JSON.parse(JSON.stringify(await resultCam()));
-
+    console.log(6)
     for (let i = 0; i < campaignsObj.length; i++) {
       let picturesArray = [];
       let x = campaignsObj[i].picture.split(",").length;
@@ -66,7 +74,6 @@ const getCampaigns = async (req, res, next) => {
       }
       campaignsObj[i].picture = picturesArray;
     }
-
     campaignsObjS.data = campaignsObj;
     redis.set('campaigns', JSON.stringify(campaignsObjS))
     res.json(campaignsObjS);

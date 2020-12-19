@@ -85,7 +85,6 @@ const resultP = async (category, paging, keyword, id) => {
   sql += sorting(category, keyword, id);
   sql += ' ORDER BY p.id ASC LIMIT ? OFFSET ?';
   const result = await query(sql, [limit, offset]);
-  console.log(result)
   return result;
 }
 

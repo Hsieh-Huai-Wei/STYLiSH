@@ -1,37 +1,14 @@
 function signUp() {
   const data = {
-    "name": document.getElementById("signUpForm")[0].value,
-    "email": document.getElementById("signUpForm")[1].value,
-    "pwd": document.getElementById("signUpForm")[2].value,
+    "name": document.getElementById("name").value,
+    "email": document.getElementById("email").value,
+    "pwd": document.getElementById("pwd").value,
   }
   fetch(`api/1.0/user/signup`, {
     method: 'POST',
     headers: new Headers({
       'Content-Type': 'application/json'
     }),
-    body: JSON.stringify(data),
-  }).then((res) => res.json())
-    .then((body) => {
-      if (body.status !== undefined) {
-        alert(body.msg);
-      } else {
-        const token = body.data.access_token
-        localStorage.setItem('userToken', token);
-        window.location.replace('/profile.html');
-      }
-    });
-};
-
-function signIn() {
-  const data = {
-    "email": document.getElementById("signInForm")[0].value,
-    "pwd": document.getElementById("signInForm")[1].value
-  }
-  fetch(`api/1.0/user/signin`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
     body: JSON.stringify(data),
   }).then((res) => res.json())
     .then((body) => {
