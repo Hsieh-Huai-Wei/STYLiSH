@@ -77,3 +77,14 @@ window.fbAsyncInit = function () {
   js.src = "https://connect.facebook.net/en_US/sdk.js";
   fjs.parentNode.insertBefore(js, fjs);
 })(document, "script", "facebook-jssdk");
+
+function countCart() {
+  const cart_str = localStorage.getItem('userCart');
+  if (cart_str) {
+    const cart = JSON.parse(cart_str);
+    const cart_count = document.getElementById('cart-qty');
+    cart_count.textContent = cart.length;
+  }
+}
+
+countCart();

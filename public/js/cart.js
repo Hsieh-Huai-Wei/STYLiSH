@@ -1,115 +1,66 @@
-TPDirect.setupSDK(
-  12348,
-  "app_pa1pQcKoY22IlnSXq5m5WP5jFKzoRG58VEXpT7wU62ud7mMbDOGzCYIlzzLF",
-  "sandbox"
-);
-
-TPDirect.card.setup({
-  fields: {
-    list: "#list",
-    number: {
-      // css selector
-      element: "#card-number",
-      placeholder: "**** **** **** ****",
-    },
-    expirationDate: {
-      // DOM object
-      element: document.getElementById("card-expiration-date"),
-      placeholder: "MM / YY",
-    },
-    ccv: {
-      element: "#card-ccv",
-      placeholder: "後三碼",
-    },
-  },
-  styles: {
-    // Style all elements
-    input: {
-      color: "gray",
-    },
-    // Styling ccv field
-    "input.cvc": {
-      // 'font-size': '16px'
-    },
-    // Styling expiration-date field
-    "input.expiration-date": {
-      // 'font-size': '16px'
-    },
-    // Styling card-number field
-    "input.card-number": {
-      // 'font-size': '16px'
-    },
-    // style focus state
-    ":focus": {
-      // 'color': 'black'
-    },
-    // style valid state
-    ".valid": {
-      color: "green",
-    },
-    // style invalid state
-    ".invalid": {
-      color: "red",
-    },
-    // Media queries
-    // Note that these apply to the iframe, not the root window.
-    "@media screen and (max-width: 400px)": {
-      input: {
-        color: "orange",
-      },
-    },
-  },
-});
-
-TPDirect.card.onUpdate(function (update) {
-  // update.canGetPrime === true
-  // --> you can call TPDirect.card.getPrime()
-  if (update.canGetPrime) {
-    // Enable submit Button to get prime.
-    // submitButton.removeAttribute('disabled')
+function checkCart() {
+  const cart_list = document.getElementById('list');
+  const cart_str = localStorage.getItem('userCart');
+  if (!cart_str) {
+    cart_list.innerHTML="<h4 style='margin-left:20px;'>購物車空空的耶</h4>";
   } else {
-    // Disable submit Button to get prime.
-    // submitButton.setAttribute('disabled', true)
+    const cart = JSON.parse(cart_str);
+    if (cart.length === 0) {
+      cart_list.innerHTML="<h4 style='margin-left:20px;'>購物車空空的耶</h4>";
+      return;
+    }
+    for(let i=0; i<cart.length; i++){
+      let data=cart[i];
+      const total_price = data.count*data.price
+      cart_list.innerHTML += `
+        <div class="row cart-list">
+          <div class="detail">
+            <img src="${data.main_image}" alt="">
+            <div class="product_inf">
+              <div class="title">${data.title}</div>
+              <div class="color"><div class="choice-color" style="background-color: #${data.color_code}"></div></div>
+              <div class="size">${data.size}</div>
+            </div>
+          </div>
+          <div class="pay_inf">
+            <div class="count">${data.count}</div>
+            <div class="single_price">NTD. ${data.price}</div>
+            <div class="total_price">NTD. ${total_price}</div>
+            <img class="delete" src="./imgs/delete.png" alt="" onclick="deleteProduct(${i})">
+          </div>
+        </div>
+      `;
+		}
   }
+}
 
-  // cardTypes = ['mastercard', 'visa', 'jcb', 'amex', 'unknown']
-  if (update.cardType === "visa") {
-    // Handle card type visa.
-  }
+function deleteProduct(pos) {
+  const cart_str = localStorage.getItem('userCart');
+  const cart = JSON.parse(cart_str);
+  const list = document.getElementById('list');
+  const div = document.createElement("div");
+  const cart_html = document.getElementById('cart');
+  cart.splice(pos,1);
+  localStorage.setItem('userCart', JSON.stringify(cart));
+  list.remove();
+  div.setAttribute('id', 'list');
+  div.setAttribute('class', 'list');
+  cart_html.appendChild(div);
+  countCart();
+  checkCart();
+}
 
-  // number 欄位是錯誤的
-  if (update.status.number === 2) {
-    // setNumberFormGroupToError()
-  } else if (update.status.number === 0) {
-    // setNumberFormGroupToSuccess()
-  } else {
-    // setNumberFormGroupToNormal()
-  }
-
-  if (update.status.expiry === 2) {
-    // setNumberFormGroupToError()
-  } else if (update.status.expiry === 0) {
-    // setNumberFormGroupToSuccess()
-  } else {
-    // setNumberFormGroupToNormal()
-  }
-
-  if (update.status.cvc === 2) {
-    // setNumberFormGroupToError()
-  } else if (update.status.cvc === 0) {
-    // setNumberFormGroupToSuccess()
-  } else {
-    // setNumberFormGroupToNormal()
-  }
-});
-
-TPDirect.card.getTappayFieldsStatus();
-
-function onSubmit(event) {
-
-  if (localStorage.getItem("userToken")) {
-    const data = {
-      "token": localStorage.getItem("userToken")
+function checkUserLogIn () {
+  if (localStorage.getItem("userToken") || localStorage.getItem("fbToken")) {
+    let data = new Object();
+    if (localStorage.getItem("userToken")) {
+      data = {
+        "token": localStorage.getItem("userToken")
+      }
+    } else {
+      data = {
+        "token": localStorage.getItem("fbToken")
+      }
     }
     fetch("api/1.0/user/profile", {
       method: 'POST',
@@ -124,101 +75,22 @@ function onSubmit(event) {
           alert("登入逾時，請重新登入")
           window.location.replace("/login.html");
         } else {
-          // 取得 TapPay Fields 的 status
-          const tappayStatus = TPDirect.card.getTappayFieldsStatus();
-          // 確認是否可以 getPrime
-          if (tappayStatus.canGetPrime === false) {
-            // alert("can not get prime");
-            // console.log("can not get prime");
-            return;
-          }
-          // Get prime
-          TPDirect.card.getPrime((result) => {
-            if (result.status !== 0) {
-              // console.log("get prime error " + result.msg);
-              alert("get prime error " + result.msg);
-            }
-            // console.log("get prime 成功，prime: " + result.card.prime);
-            const userCart = localStorage.getItem("userCart")
-            const price = JSON.parse(userCart).price
-            let results = {
-              prime: result.card.prime,
-              totalPrice: price,
-              user_id: body.id
-            };
-
-            fetch("api/1.0/order/checkout", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(results),
-            })
-              .then((res) => res.json())
-              .then((body) => {
-                localStorage.setItem('userOrder', JSON.stringify(body.data.number));
-                window.location.replace("/thankyou.html");
-              });
-          });
-        }
-      });
-  } else if (localStorage.getItem("fbToken")) {
-    const data = {
-      "token": localStorage.getItem("fbToken")
-    }
-    fetch("api/1.0/user/profile", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data),
-    })
-      .then((res) => res.json())
-      .then((body) => {
-        // console.log(body)
-        if (body.error) {
-          // alert(body.error);
-          alert("登入逾時，請重新登入")
-          window.location.replace("/login.html");
-        } else {
-          // 取得 TapPay Fields 的 status
-          const tappayStatus = TPDirect.card.getTappayFieldsStatus();
-          // 確認是否可以 getPrime
-          if (tappayStatus.canGetPrime === false) {
-            // alert("can not get prime");
-            // console.log("can not get prime");
-            return;
-          }
-          // Get prime
-          TPDirect.card.getPrime((result) => {
-            if (result.status !== 0) {
-              // console.log("get prime error " + result.msg);
-              alert("get prime error " + result.msg);
-            }
-            // console.log("get prime 成功，prime: " + result.card.prime);
-            const price = localStorage.getItem("userCart").split(',')[3].split(':')[1];
-
-            let results = {
-              prime: result.card.prime,
-              totalPrice: price
-            };
-
-            fetch("api/1.0/order/checkout", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(results),
-            })
-              .then((res) => res.json())
-              // .then(console.log("OK"))
-              .then((body) => {
-                // console.log(body)
-                localStorage.setItem('userOrder', JSON.stringify(body.data.number));
-                window.location.replace("/thankyou.html");
-              });
-          });
+          checkCart();
         }
       });
   } else {
     alert("請先登入會員");
     window.location.replace("/login.html");
   }
-
 }
+
+checkUserLogIn();
+
+function countCart() {
+  const cart_str = localStorage.getItem('userCart');
+  const cart = JSON.parse(cart_str);
+  const cart_count = document.getElementById('cart-qty');
+  cart_count.textContent = cart.length;
+}
+
+countCart()

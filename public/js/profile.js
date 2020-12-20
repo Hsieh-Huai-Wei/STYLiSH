@@ -50,3 +50,14 @@ function renderUserInf (data) {
   name.textContent = data.name;
   email.textContent= data.email;
 }
+
+function countCart() {
+  const cart_str = localStorage.getItem('userCart');
+  if (cart_str) {
+    const cart = JSON.parse(cart_str);
+    const cart_count = document.getElementById('cart-qty');
+    cart_count.textContent = cart.length;
+  }
+}
+
+countCart()
