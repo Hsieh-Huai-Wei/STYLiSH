@@ -1,6 +1,19 @@
 const Order = require("../models/order_model");
 const axios = require("axios").default;
-const checkout = async (req, res) => {
+const createOrder = async (req, res) => {
+  // { prime:
+  //   '04a3a018923b3d97f59d76fb3975afa9f508744d7973bd2b5c4a608508e14100',
+  //  total_price: 130,
+  //  location: 'taiwan',
+  //  shipping: 'credit_card',
+  //  recipient_name: '1',
+  //  recipient_email: '2',
+  //  recipient_phone: '3',
+  //  recipient_address: '4',
+  //  recipient_time: 'anytime',
+  //  cart: [ [Object], [Object] ] },
+  console.log(req.body)
+  return;
   let prime = req.body.prime;
   let orderNumber = Math.round(Math.random() * 1e10) + 1;
 
@@ -46,6 +59,7 @@ const checkout = async (req, res) => {
       res.json(results);
     });
   };
+
 module.exports = {
-  checkout,
+  createOrder
 }

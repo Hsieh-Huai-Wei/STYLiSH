@@ -6,6 +6,7 @@
 		<meta name="description" content="ecommerce website. updated at 20201220." />
 		<title>Stylish 購物車</title>
 		<link rel="stylesheet" type="text/css" href="./css/cart.css" media="all" />
+		
 	</head>
 	<body>
 		<header>
@@ -47,14 +48,16 @@
 				<div class="target">
 					<div class="country">
 						<span class="text">配送國家</span>
-						<select>
-							<option>台灣或離島</option>
+						<select id="location" name="location">
+							<option value="taiwan">台灣</option>
+							<option value="island">離島</option>
 						</select>
 					</div>
-					<div class="country">
+					<div class="shipping">
 						<span class="text">付款方式</span>
-						<select>
-							<option>信用卡付款</option>
+						<select id="shipping" name="payment">
+							<option value="cash_on_delivery">貨到付款</option>
+							<option value="credit_card" selected>信用卡</option>
 						</select>
 					</div>
 				</div>
@@ -68,37 +71,46 @@
 					<div class="line">
 						<div class="text">收件人姓名</div>
 						<div class="input">
-							<input type="text" id="recipient-name" />
+							<input type="text" name="recipient_name" id="recipient-name" />
 						</div>
 					</div>
 					<div class="line">
 						<div class="text">Email</div>
 						<div class="input">
-							<input type="text" id="recipient-email" />
+							<input type="text" name="recipient_email" id="recipient-email" />
 						</div>
 					</div>
 					<div class="line">
 						<div class="text">手機號碼</div>
 						<div class="input">
-							<input type="text" id="recipient-phone" />
+							<input type="text" name="recipient_phone" id="recipient-phone" />
 						</div>
 					</div>
 					<div class="line">
 						<div class="text">收件地址</div>
 						<div class="input">
-							<input type="text" id="recipient-address" />
+							<input type="text" name="recipient_address" id="recipient-address" />
 						</div>
 					</div>
 					<div class="line">
 						<div class="text">配送時間</div>
 						<div class="input">
-							<label><input type="radio" value="morning" name="recipient-time" /><span class="time"> 08:00 - 12:00</span></label>
-							<label><input type="radio" value="afternoon" name="recipient-time" /><span class="time"> 14:00 - 18:00</span></label>
-							<label><input type="radio" value="anytime" name="recipient-time" checked /><span class="time"> 不指定</span></label>
+							<label onclick="choiceTime('morning')">
+								<input type="radio" value="morning" name="recipient_time" />
+								<span class="time"> 08:00 - 12:00</span>
+							</label>
+							<label onclick="choiceTime('afternoon')">
+								<input type="radio" value="afternoon" name="recipient_time" />
+								<span class="time"> 14:00 - 18:00</span>
+							</label>
+							<label onclick="choiceTime('anytime')">
+								<input type="radio" value="anytime" name="recipient_time" checked />
+								<span class="time"> 不指定</span>
+							</label>
 						</div>
 					</div>
 				</div>
-				<div class="payment">
+				<div id="payment" class="payment">
 					<div class="title">付款資料</div>
 					<div class="line">
 						<div class="text">信用卡號碼</div>
@@ -136,7 +148,7 @@
 						<div class="price"><span class="unit">NTD. </span><span id="total"></span></div>
 					</div>
 					<div class="row">
-						<button id="checkout" disabled>確認付款</button>
+						<button id="checkout" onclick="checkPaymentInf()">確認付款</button>
 					</div>
 				</div>
 			</div>
@@ -162,8 +174,6 @@
 				</div>
 			</div>
 		</footer>
-
-		<!-- ------------------TapPay Fields------------------------ -->
 	<script src="https://js.tappaysdk.com/tpdirect/v4"></script>
 	<script src="./js/cart.js"></script>
 	</body>
