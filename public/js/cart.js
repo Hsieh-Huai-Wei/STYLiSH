@@ -1,3 +1,59 @@
+let payment = 'credit_card';
+let recipient_time = 'anytime';
+const credit_card_payment_inf = document.getElementById("payment");
+const shipping = document.getElementById("shipping");
+shipping.addEventListener("change", ()=>{
+  if (shipping.value === 'credit_card') {
+    payment = 'credit_card';
+    credit_card_payment_inf.classList.remove('hidden_credit')
+  } else {
+    payment = 'cash_on_delivery';
+    credit_card_payment_inf.classList.add('hidden_credit')
+  }
+})
+
+TPDirect.setupSDK(
+  12348,
+  "app_pa1pQcKoY22IlnSXq5m5WP5jFKzoRG58VEXpT7wU62ud7mMbDOGzCYIlzzLF",
+  "sandbox"
+);
+
+TPDirect.card.setup({
+  fields: {
+    list: "#list",
+    number: {
+      // css selector
+      element: "#card-number",
+      placeholder: "**** **** **** ****",
+    },
+    expirationDate: {
+      // DOM object
+      element: document.getElementById("card-expiration-date"),
+      placeholder: "MM / YY",
+    },
+    ccv: {
+      element: "#card-ccv",
+      placeholder: "後三碼",
+    },
+  },
+  styles: {
+    input: {
+      color: "gray",
+    },
+    ".valid": {
+      color: "green",
+    },
+    ".invalid": {
+      color: "red",
+    },
+    "@media screen and (max-width: 400px)": {
+      input: {
+        color: "orange",
+      },
+    },
+  },
+});
+
 function checkCart() {
   const cart_list = document.getElementById('list');
   const cart = getCartProduct();
@@ -42,6 +98,7 @@ function deleteProduct(pos) {
   cart_html.appendChild(div);
   countCart();
   checkCart();
+  countTotal();
 }
 
 function checkUserLogIn () {
@@ -78,8 +135,6 @@ function checkUserLogIn () {
   }
 }
 
-checkUserLogIn();
-
 function countCart() {
   const cart = getCartProduct();
   const cart_count = document.getElementById('cart-qty');
@@ -87,49 +142,6 @@ function countCart() {
     cart_count.textContent = cart.length;
   }
 }
-
-countCart()
-TPDirect.setupSDK(
-  12348,
-  "app_pa1pQcKoY22IlnSXq5m5WP5jFKzoRG58VEXpT7wU62ud7mMbDOGzCYIlzzLF",
-  "sandbox"
-);
-
-TPDirect.card.setup({
-  fields: {
-    list: "#list",
-    number: {
-      // css selector
-      element: "#card-number",
-      placeholder: "**** **** **** ****",
-    },
-    expirationDate: {
-      // DOM object
-      element: document.getElementById("card-expiration-date"),
-      placeholder: "MM / YY",
-    },
-    ccv: {
-      element: "#card-ccv",
-      placeholder: "後三碼",
-    },
-  },
-  styles: {
-    input: {
-      color: "gray",
-    },
-    ".valid": {
-      color: "green",
-    },
-    ".invalid": {
-      color: "red",
-    },
-    "@media screen and (max-width: 400px)": {
-      input: {
-        color: "orange",
-      },
-    },
-  },
-});
 
 function getPrime() {
   return new Promise((resolve)=>{
@@ -145,24 +157,9 @@ function getPrime() {
   })
 }
 
-let payment = 'credit_card';
-let recipient_time = 'anytime';
-const credit_card_payment_inf = document.getElementById("payment");
-const shipping = document.getElementById("shipping");
-
 function choiceTime(time) {
   recipient_time = time;
 }
-
-shipping.addEventListener("change", ()=>{
-  if (shipping.value === 'credit_card') {
-    payment = 'credit_card';
-    credit_card_payment_inf.classList.remove('hidden_credit')
-  } else {
-    payment = 'cash_on_delivery';
-    credit_card_payment_inf.classList.add('hidden_credit')
-  }
-})
 
 async function checkPaymentInf () {
   const cart = getCartProduct();
@@ -179,28 +176,16 @@ async function checkPaymentInf () {
     alert(prime.msg)
     return window.location.replace("/cart.html");
   }
-  // const body = {
-  //   prime: prime,
-  //   total_price: 130,
-  //   location: locations,
-  //   shipping: payment,
-  //   recipient_name: recipient_name,
-  //   recipient_email: recipient_email,
-  //   recipient_phone: recipient_phone,
-  //   recipient_address: recipient_address,
-  //   recipient_time: recipient_time,
-  //   cart: cart,
-  // }
   const body = {
-    prime: 'creditPrime',
+    prime: prime,
     total_price: 130,
-    location: 'Taiwan',
-    shipping: 'credit_card',
-    recipient_name: 'Raymond',
-    recipient_email: 'test@test.com',
-    recipient_phone: '0980116846',
-    recipient_address: 'Taipei City',
-    recipient_time: 'anytime',
+    location: locations,
+    shipping: payment,
+    recipient_name: recipient_name,
+    recipient_email: recipient_email,
+    recipient_phone: recipient_phone,
+    recipient_address: recipient_address,
+    recipient_time: recipient_time,
     cart: cart,
   }
   fetch("api/1.0/order/checkout", {
@@ -210,7 +195,7 @@ async function checkPaymentInf () {
   })
     .then((res) => { res.json })
     .then((body)=>{
-      console.log('ok');
+      return window.location.replace("/thankyou.html");
   })
 }
 
@@ -222,3 +207,20 @@ function getCartProduct() {
   }
   return cart;
 }
+
+function countTotal() {
+  const cart_str = localStorage.getItem('userCart');
+  const cart = JSON.parse(cart_str);
+  const subtotal = document.getElementById('subtotal');
+  const total_price = document.getElementById('total');
+  let price = 0;
+  for (let i=0; i<cart.length; i++) {
+    price += Number(cart[i].count)*Number(cart[i].price);
+  };
+  subtotal.innerHTML = price;
+  total_price.innerText = price + 60;
+}
+
+checkUserLogIn();
+countCart()
+countTotal();
