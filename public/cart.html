@@ -1,82 +1,180 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="ecommerce website. updated at 202001031559." />
-  <title>Stylish 2019 Winter</title>
-  <link rel="stylesheet" type="text/css" href="./css/cart.css" media="all" />
-  <!-- <script src="js/lib.js"></script> -->
-  
-</head>
-
-<body>
-  <header>
-    <div class="padding-mobile"></div>
-    <div class="logo">
-      <a href="./"><img src="imgs/logo.png" /></a>
-    </div>
-    <nav>
-      <div class="item0"><a href="./?tag=women">女裝</a></div>
-      <div class="item0"><a href="./?tag=men">男裝</a></div>
-      <div class="item1"><a href="./?tag=accessories">配件</a></div>
-    </nav>
-    <div class="feature">
-      <form class="item" action="./">
-        <input type="text" class="search" name="tag" />
-      </form>
-      <a href="cart.html" class="item cart">
-        <div id="cart-qty" class="qty">0</div>
-      </a>
-      <a href="profile.html" class="item member">
-        <img src="imgs/member.png" />
-      </a>
-    </div>
-  </header>
-  <nav class="mobile"></nav>
-  <main>
-    <!-- ------------------TapPay Fields------------------------ -->
-    <style>
-      .tpfield {
-        height: 40px;
-        width: 300px;
-        border: 1px solid gray;
-        margin: 5px 0;
-        padding: 5px;
-      }
-    </style>
-
-    <div>信用卡號:<div class="tpfield" id="card-number"></div></div>
-    <div>信用卡有效日期: <div class="tpfield" id="card-expiration-date"></div></div>
-    <div>信用卡認證編號<div class="tpfield" id="card-ccv"></div></div>
-    <button id="submit-button" onclick="onSubmit();">Checkout</button>
-  </main>
-  <footer>
-    <div class="view">
-      <div class="link link-0">
-        <div class="item10">關於 Stylish</div>
-        <div class="item10">服務條款</div>
-        <div class="item10">隱私政策</div>
-      </div>
-      <div class="link link-1">
-        <div class="item10">聯絡我們</div>
-        <div class="item11">FAQ</div>
-      </div>
-      <div class="social">
-        <img src="imgs/line.png" />
-        <img src="imgs/twitter.png" />
-        <img src="imgs/facebook.png" />
-      </div>
-      <div class="copyright">
-        &copy; 2020. All rights reserved.
-      </div>
-    </div>
-  </footer>
-
-  <!-- ------------------TapPay Fields------------------------ -->
-<script src="https://js.tappaysdk.com/tpdirect/v4"></script>
-<script src="./js/cart.js"></script>
-</body>
-
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="ecommerce website. updated at 20201220." />
+		<title>Stylish 購物車</title>
+		<link rel="stylesheet" type="text/css" href="./css/cart.css" media="all" />
+		
+	</head>
+	<body>
+		<header>
+			<div class="padding-mobile"></div>
+			<div class="logo">
+				<a href="./"><img src="imgs/logo.png" /></a>
+			</div>
+			<nav>
+				<div class="item0"><a href="./?tag=women">女裝</a></div>
+				<div class="item0"><a href="./?tag=men">男裝</a></div>
+				<div class="item1"><a href="./?tag=accessories">配件</a></div>
+			</nav>
+			<div class="feature">
+				<form class="item" action="./">
+					<input type="text" class="search" name="tag" />
+				</form>
+				<a href="cart.html" class="item cart">
+					<div id="cart-qty" class="qty">0</div>
+				</a>
+				<a href="profile.html" class="item member">
+					<img src="imgs/member.png" />
+				</a>
+			</div>
+		</header>
+		<nav class="mobile"></nav>
+		<main>
+			<div class="view">
+				<div id="cart" class="cart">
+					<div id="" class="row title">
+						<div class="variant">&nbsp;</div>
+						<div class="qty">數量</div>
+						<div class="price">單價</div>
+						<div class="subtotal">小計</div>
+						<div class="remove"></div>
+					</div>
+					<div id="list" class="list">
+					</div>
+				</div>
+				<div class="target">
+					<div class="country">
+						<span class="text">配送國家</span>
+						<select id="location" name="location">
+							<option value="taiwan">台灣</option>
+							<option value="island">離島</option>
+						</select>
+					</div>
+					<div class="shipping">
+						<span class="text">付款方式</span>
+						<select id="shipping" name="payment">
+							<option value="cash_on_delivery">貨到付款</option>
+							<option value="credit_card" selected>信用卡</option>
+						</select>
+					</div>
+				</div>
+				<div class="reminder">
+					<div>※ 提醒您：</div>
+					<div>● 請填寫正確收件人資訊，避免包裹配送不達</div>
+					<div>● 請填寫正確收件人姓名 ( 與證件相符 )，避免無法領取</div>
+				</div>
+				<div class="recipient">
+					<div class="title">收件資料</div>
+					<div class="line">
+						<div class="text">收件人姓名</div>
+						<div class="input">
+							<input type="text" name="recipient_name" id="recipient-name" />
+						</div>
+					</div>
+					<div class="line">
+						<div class="text">Email</div>
+						<div class="input">
+							<input type="text" name="recipient_email" id="recipient-email" />
+						</div>
+					</div>
+					<div class="line">
+						<div class="text">手機號碼</div>
+						<div class="input">
+							<input type="text" name="recipient_phone" id="recipient-phone" />
+						</div>
+					</div>
+					<div class="line">
+						<div class="text">收件地址</div>
+						<div class="input">
+							<input type="text" name="recipient_address" id="recipient-address" />
+						</div>
+					</div>
+					<div class="line">
+						<div class="text">配送時間</div>
+						<div class="input">
+							<label onclick="choiceTime('morning')">
+								<input type="radio" value="morning" name="recipient_time" />
+								<span class="time"> 08:00 - 12:00</span>
+							</label>
+							<label onclick="choiceTime('afternoon')">
+								<input type="radio" value="afternoon" name="recipient_time" />
+								<span class="time"> 14:00 - 18:00</span>
+							</label>
+							<label onclick="choiceTime('anytime')">
+								<input type="radio" value="anytime" name="recipient_time" checked />
+								<span class="time"> 不指定</span>
+							</label>
+						</div>
+					</div>
+				</div>
+				<div id="payment" class="payment">
+					<div class="title">付款資料</div>
+					<div class="line">
+						<div class="text">信用卡號碼</div>
+						<div class="input">
+							<div class="tpfield" id="card-number"></div>
+						</div>
+					</div>
+					<div class="line">
+						<div class="text">有效期限</div>
+						<div class="input">
+							<div class="tpfield" id="card-expiration-date"></div>
+						</div>
+					</div>
+					<div class="line">
+						<div class="text">安全碼</div>
+						<div class="input">
+							<div class="tpfield" id="card-ccv"></div>
+						</div>
+					</div>
+				</div>
+				<div class="confirm">
+					<div class="row">
+						<div class="title">總金額</div>
+						<div class="price"><span class="unit">NTD. </span><span id="subtotal"></span></div>
+					</div>
+					<div class="row">
+						<div class="title">運費</div>
+						<div class="price"><span class="unit">NTD. 60</span><span id="freight"></span></div>
+					</div>
+					<div class="row">
+						<div class="separator"></div>
+					</div>
+					<div class="row">
+						<div class="title">應付金額</div>
+						<div class="price"><span class="unit">NTD. </span><span id="total"></span></div>
+					</div>
+					<div class="row">
+						<button id="checkout" onclick="checkPaymentInf()">確認付款</button>
+					</div>
+				</div>
+			</div>
+		</main>
+		<footer>
+			<div class="view">
+				<div class="link link-0">
+					<div class="item10">關於 Stylish</div>
+					<div class="item10">服務條款</div>
+					<div class="item10">隱私政策</div>
+				</div>
+				<div class="link link-1">
+					<div class="item10">聯絡我們</div>
+					<div class="item11">FAQ</div>
+				</div>
+				<div class="social">
+					<img src="imgs/line.png" />
+					<img src="imgs/twitter.png" />
+					<img src="imgs/facebook.png" />
+				</div>
+				<div class="copyright">
+					&copy; 2020. All rights reserved.
+				</div>
+			</div>
+		</footer>
+	<script src="https://js.tappaysdk.com/tpdirect/v4"></script>
+	<script src="./js/cart.js"></script>
+	</body>
 </html>

@@ -1,4 +1,14 @@
-fetch("api/1.0/marketing/campaigns")
+function countCart() {
+  const cart_str = localStorage.getItem('userCart');
+  if (cart_str) {
+    const cart = JSON.parse(cart_str);
+    const cart_count = document.getElementById('cart-qty');
+    cart_count.textContent = cart.length;
+  }
+}
+
+function getCampaign() {
+  fetch("api/1.0/marketing/campaigns")
   .then((response) => response.json())
   .then(function (data) {
     for (let i = 0; i < data.data.length; i++) {
@@ -22,8 +32,10 @@ fetch("api/1.0/marketing/campaigns")
   })
   .catch(function (error) {
   });
+}
 
-fetch("api/1.0/products/all")
+function getProducts() {
+  fetch("api/1.0/products/all")
   .then((response) => response.json())
   .then(function (data) {
     for (let i = 0; i < data.data.length; i++) {
@@ -58,3 +70,12 @@ fetch("api/1.0/products/all")
   })
   .catch(function (error) {
   });
+}
+
+function init() {
+  countCart()
+  getCampaign();
+  getProducts();
+}
+
+init();

@@ -2,13 +2,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Stylish 產品資訊</title>
-    <link rel="stylesheet" type="text/css" href="./css/thankyou.css" media="all" />
-    <!-- <script src="js/lib.js"></script> -->
-    <!-- <script src="product.js"></script> -->
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="ecommerce website. updated at 20201220." />
+		<title>Stylish 付款成功</title>
+		<link rel="stylesheet" type="text/css" href="./css/thankyou.css" media="all" />
   </head>
-
   <body>
     <header>
       <div class="padding-mobile"></div>
@@ -60,28 +58,6 @@
         </div>
       </div>
     </footer>
-    <script>
-      const data = {
-        "token": localStorage.getItem("userToken")
-      }
-      fetch("api/1.0/user/profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      })
-        .then((res) => res.json())
-        .then((body) => {
-          if (body.error) {
-            alert(body.error);
-          } else {
-            const userName = `${body.name}`
-            const orderNum = localStorage.getItem("userOrder");
-            const user = document.getElementById('response');
-            const order = document.getElementById('order');
-            user.textContent = `Dear ${userName},`;
-            order.textContent = `Thanks for your order, number is ${orderNum} !`;
-          }
-        });
-    </script>
+    <script src="./js/thankyou.js"></script>
   </body>
 </html>

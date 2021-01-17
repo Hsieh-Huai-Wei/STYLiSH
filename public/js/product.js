@@ -171,10 +171,7 @@ const data = async() => {
   } else {
     document.querySelector(".value").value = 0;
   }
-  
   await currentRender(preventObj, variants);
-  // console.log(preventObj)
-  // console.log("variants", variants);
 }
 
 function currentRender(data, variants) {
@@ -322,62 +319,50 @@ let cart = document.querySelector(".add-cart");
 
 cart.addEventListener("click", () => {
   // save product info.
-  let data = localStorage.getItem('productData');
-  let purchase = JSON.parse(data);
-  cartList.product_id = purchase.data.id;
-  cartList.title = purchase.data.title;
-  cartList.price = parseInt(purchase.data.price.split(".")[1]);
-  cartList.main_image = purchase.data.main_image;
-  cartList.color_code = preventObj.color_code;
-  cartList.size = preventObj.size;
-  cartList.count = document.querySelector(".value").value;
-  // console.log(cartList);
-  localStorage.setItem('userCart', JSON.stringify(cartList));
-
-  if (localStorage.getItem("userToken")) {
-    const data = {
-      "token": localStorage.getItem("userToken")
-    }
-    fetch("api/1.0/user/profile", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data),
-    })
-      .then((res) => res.json())
-      .then((body) => {
-        if (body.error) {
-          alert("登入逾時，請重新登入")
-          window.location.replace("/login.html");
-        } else {
-          window.location.replace('/cart.html')
-        }
-      });
-  } else if (localStorage.getItem("fbToken")) {
-    const data = {
-      "token": localStorage.getItem("fbToken")
-    }
-    fetch("api/1.0/user/profile", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data),
-    })
-      .then((res) => res.json())
-      .then((body) => {
-        // console.log(body)
-        if (body.error) {
-          // alert(body.error);
-          alert("登入逾時，請重新登入")
-          window.location.replace("/login.html");
-        } else {
-          window.location.replace('/cart.html')
-        }
-      });
-  } else {
-    alert("請先登入會員");
-    window.location.replace("/login.html");
+  const data = localStorage.getItem('productData');
+  const purchase = JSON.parse(data);
+  const addProduct = {
+    product_id: purchase.data.id,
+    title: purchase.data.title,
+    price: parseInt(purchase.data.price.split(".")[1]),
+    main_image: purchase.data.main_image,
+    color_code: preventObj.color_code,
+    size: preventObj.size,
+    count: document.querySelector(".value").value
   }
+  if (localStorage.getItem('userCart')) {
+    const cartList_str = localStorage.getItem('userCart');
+    const cartList = JSON.parse(cartList_str);
+    const new_cartList = checkCartList(cartList, addProduct);
+    localStorage.setItem('userCart', JSON.stringify(new_cartList));
+  } else {
+    const insertCart = [addProduct];
+    localStorage.setItem('userCart', JSON.stringify(insertCart));
+  };
+  countCart();
+  alert('已成功加入購物車！')
 });
+
+function checkCartList(cartList, addProduct) {
+  for (let i=0; i<cartList.length; i++) {
+    if (cartList[i].product_id === addProduct.product_id && cartList[i].size === addProduct.size && cartList[i].color_code === addProduct.color_code) {
+      const new_count = Number(cartList[i].count) + Number(addProduct.count);
+      cartList[i].count = new_count;
+      cartList[i].price = addProduct.price;
+      return cartList;
+    }
+  }
+  cartList.push(addProduct);
+  return cartList;
+}
+
+function countCart() {
+  const cart_str = localStorage.getItem('userCart');
+  if (cart_str) {
+    const cart = JSON.parse(cart_str);
+    const cart_count = document.getElementById('cart-qty');
+    cart_count.textContent = cart.length;
+  }
+}
+
+countCart()
