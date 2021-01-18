@@ -257,7 +257,7 @@ function renderProduct(data) {
     details.prepend(name);
 
     // render color
-    for (let j = data.data.colors.length - 1; j >= 0; j--) {
+    for (let j = 0; j < data.data.colors.length; j++) {
       let color = document.createElement("div");
       color.className = "color";
       color.name = `#${data.data.colors[j]}`;
