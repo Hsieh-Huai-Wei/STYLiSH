@@ -268,7 +268,7 @@ function renderProduct(data) {
     }
 
     // render size
-    for (let j = data.data.sizes.length - 1; j >= 0; j--) {
+    for (let j = 0; j < data.data.sizes.length; j++) {
       let size = document.createElement("div");
       size.className = "size";
       size.name = `#${data.data.sizes[j]}`;
