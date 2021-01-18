@@ -66,6 +66,8 @@ const getCampaigns = async (req, res, next) => {
       }
       campaignsObj[i].picture = picturesArray;
     }
+    console.log(HOST_S3)
+    console.log(process.env)
     campaignsObjS.data = campaignsObj;
     redis.set("campaigns", JSON.stringify(campaignsObjS));
     res.json(campaignsObjS);
