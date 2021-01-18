@@ -61,11 +61,13 @@ const getCampaigns = async (req, res, next) => {
       let x = campaignsObj[i].picture.split(",").length;
       for (let j = 0; j < x; j++) {
         picturesArray.push(
-          HOST_S3 + "/uploads/" + campaignsObj[i].picture.split(",")[j]
+          HOST_S3 + "uploads/" + campaignsObj[i].picture.split(",")[j]
         );
       }
       campaignsObj[i].picture = picturesArray;
     }
+    console.log(HOST_S3)
+    console.log(process.env)
     campaignsObjS.data = campaignsObj;
     redis.set("campaigns", JSON.stringify(campaignsObjS));
     res.json(campaignsObjS);

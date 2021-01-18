@@ -18,6 +18,7 @@ function getCampaign() {
       a.className = "visual";
       a.href = `/product.html?id=${data.data[i].product_id}`;
       a.style.backgroundImage = `url('${data.data[i].picture[0]}')`;
+      console.log(`url('${data.data[i].picture[0]}')`)
       let storyText = data.data[i].story.split("/");
       storyDisplay = "";
       for (let j = 0; j < storyText.length; j++) {
