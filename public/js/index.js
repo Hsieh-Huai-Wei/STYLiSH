@@ -15,10 +15,9 @@ function getCampaign() {
       let a = document.createElement("a");
       let story = document.createElement("div");
       let keyvisual = document.querySelector(".keyvisual");
-
       a.className = "visual";
       a.href = `/product.html?id=${data.data[i].product_id}`;
-      a.style.backgroundImage = `url('${data.data[i].picture}')`;
+      a.style.backgroundImage = `url('${data.data[i].picture[0]}')`;
       let storyText = data.data[i].story.split("/");
       storyDisplay = "";
       for (let j = 0; j < storyText.length; j++) {
