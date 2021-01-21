@@ -71,6 +71,12 @@ const createProduct = async (req, res) => {
 // redis以前 product
 const getProducts = async (req, res, next) => {
   try {
+    console.log(req.params)
+    console.log(req.params.category)
+    console.log(req.query)
+    console.log(req.query.keyword)
+    console.log(req.query.id)
+    return;
     const hostName = `https://as-raymond0116-image.s3.us-east-2.amazonaws.com/`;
     let productObjS = {};
     let productCount = await Product.countP(
@@ -78,6 +84,8 @@ const getProducts = async (req, res, next) => {
       req.query.keyword,
       req.query.id
     );
+    console.log(req)
+    console.log(req.params)
     let allPages = Math.floor((productCount - 1) / 6);
     // define user query paging
     if (isNaN(req.query.paging) || req.query.paging <= 0) {

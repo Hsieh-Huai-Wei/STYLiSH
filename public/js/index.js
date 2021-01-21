@@ -8,74 +8,84 @@ function countCart() {
 }
 
 function getCampaign() {
-  fetch("api/1.0/marketing/campaigns")
-  .then((response) => response.json())
-  .then(function (data) {
-    for (let i = 0; i < data.data.length; i++) {
-      let a = document.createElement("a");
-      let story = document.createElement("div");
-      let keyvisual = document.querySelector(".keyvisual");
-      a.className = "visual";
-      a.href = `/product.html?id=${data.data[i].product_id}`;
-      a.style.backgroundImage = `url('${data.data[i].picture[0]}')`;
-      console.log(`url('${data.data[i].picture[0]}')`)
-      let storyText = data.data[i].story.split("/");
-      storyDisplay = "";
-      for (let j = 0; j < storyText.length; j++) {
-        storyDisplay += storyText[j] + "<br>";
-      }
-      story.className = "story";
+  fetch('api/1.0/marketing/campaigns')
+  .then(response => response.json())
+  .then(campaigns => {
+    campaigns.data.forEach(campaign => {
+      const a = document.createElement('a');
+      const story = document.createElement('div');
+      const keyvisual = document.querySelector('.keyvisual');
+      a.className = 'visual';
+      a.href = `/product.html?id=${campaign.product_id}`;
+      a.style.backgroundImage = `url('${campaign.picture[0]}')`;
+      const storyText = campaign.story.split('/');
+      let storyDisplay = '';
+      storyText.forEach(text => storyDisplay += text + '<br>');
+      story.className = 'story';
       story.innerHTML = storyDisplay;
       a.appendChild(story);
       keyvisual.appendChild(a);
-    }
+    })
   })
-  .catch(function (error) {
-  });
+  .catch((error) => console.log(error))
 }
 
 function getProducts() {
-  fetch("api/1.0/products/all")
-  .then((response) => response.json())
-  .then(function (data) {
-    for (let i = 0; i < data.data.length; i++) {
-      let a = document.createElement("a");
-      let img = document.createElement("img");
-      let colors = document.createElement("div");
-      let name = document.createElement("div");
-      let price = document.createElement("div");
-      let products = document.querySelector(".products");
-      a.className = "product";
+  fetch(`api/1.0/products/tag`)
+  .then(response => response.json())
+  .then(products => {
+    products.data.forEach(product => {
+      const a = document.createElement('a');
+      const img = document.createElement('img');
+      const colors = document.createElement('div');
+      const name = document.createElement('div');
+      const price = document.createElement('div');
+      const products = document.querySelector('.products');
+      a.className = 'product';
       a.href = `/product.html?id=${[i + 1]}`;
-      img.src = `${data.data[i].main_image}`;
-      colors.className = "colors";
-
-      for (let j = 0; j < data.data[i].colors.length; j++) {
-        let color = document.createElement("div");
-        color.className = "color";
-        color.style.backgroundColor = `#${data.data[i].colors[j].code}`;
+      img.src = `${product.main_image}`;
+      colors.className = 'colors';
+      const color = document.createElement('div');
+      product.colors.forEach(color => {
+        color.className = 'color';
+        color.style.backgroundColor = `#${color.code}`;
         colors.appendChild(color);
-      }
-
-      name.className = "name";
-      name.innerHTML = `${data.data[i].title}`;
-      price.className = "price";
-      price.innerHTML = `${data.data[i].price}`;
+      })
+      name.className = 'name';
+      name.innerHTML = `${product.title}`;
+      price.className = 'price';
+      price.innerHTML = `${product.price}`;
       a.appendChild(img);
       a.appendChild(colors);
       a.appendChild(name);
       a.appendChild(price);
       products.appendChild(a);
-    }
+    })
   })
-  .catch(function (error) {
-  });
+  .catch((error) => console.log(error))
 }
+
+function removeDiv() {
+
+}
+
+// function init() {
+//   countCart();
+//   getCampaign();
+//   removeDiv();
+//   getProducts();
+// }
 
 function init() {
-  countCart()
-  getCampaign();
-  getProducts();
+  let a = new URLSearchParams(window.location.search)
+  console.log(a.get('name'))
+  console.log(a.getAll('name'))
+  let b = new URLSearchParams(document.location.search)
+  console.log(b.get('name'))
+  console.log(b.getAll('name'))
+  let c = new URLSearchParams(location.search)
+  console.log(c.get('name'))
+  console.log(c.getAll('name'))
 }
 
-init();
+document.addEventListener('DOMContentLoaded', init())
