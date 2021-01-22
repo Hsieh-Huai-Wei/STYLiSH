@@ -71,12 +71,6 @@ const createProduct = async (req, res) => {
 // redis以前 product
 const getProducts = async (req, res, next) => {
   try {
-    console.log(req.params)
-    console.log(req.params.category)
-    console.log(req.query)
-    console.log(req.query.keyword)
-    console.log(req.query.id)
-    return;
     const hostName = `https://as-raymond0116-image.s3.us-east-2.amazonaws.com/`;
     let productObjS = {};
     let productCount = await Product.countP(

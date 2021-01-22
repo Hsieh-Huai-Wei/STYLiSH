@@ -152,9 +152,9 @@ qty.addEventListener("click", (event) => {
   }
 });
 
-const data = async() => {
+async function init() {
   await saveData();
-  let data = await getData();
+  const data = await getData();
   await renderProduct(JSON.parse(data));
   let variants = JSON.parse(data).data.variants;
   preventObj.color_code = document.getElementsByClassName('color')[0].getAttribute('value')
@@ -366,3 +366,6 @@ function countCart() {
 }
 
 countCart()
+
+
+document.addEventListener('DOMContentLoaded', init())

@@ -14,7 +14,7 @@ function getCampaign() {
     campaigns.data.forEach(campaign => {
       const a = document.createElement('a');
       const story = document.createElement('div');
-      const keyvisual = document.querySelector('.keyvisual');
+      const key_visual = document.querySelector('.keyvisual');
       a.className = 'visual';
       a.href = `/product.html?id=${campaign.product_id}`;
       a.style.backgroundImage = `url('${campaign.picture[0]}')`;
@@ -24,68 +24,67 @@ function getCampaign() {
       story.className = 'story';
       story.innerHTML = storyDisplay;
       a.appendChild(story);
-      keyvisual.appendChild(a);
+      key_visual.appendChild(a);
     })
   })
   .catch((error) => console.log(error))
 }
 
-function getProducts() {
-  fetch(`api/1.0/products/tag`)
+function getProducts(tag) {
+  fetch(`api/1.0/products/${tag}`)
   .then(response => response.json())
   .then(products => {
-    products.data.forEach(product => {
+    for (let product_index = 0; product_index<products.data.length; product_index++) {
       const a = document.createElement('a');
       const img = document.createElement('img');
-      const colors = document.createElement('div');
+      const color_box = document.createElement('div');
       const name = document.createElement('div');
       const price = document.createElement('div');
-      const products = document.querySelector('.products');
+      const products_box = document.querySelector('.products');
       a.className = 'product';
-      a.href = `/product.html?id=${[i + 1]}`;
-      img.src = `${product.main_image}`;
-      colors.className = 'colors';
-      const color = document.createElement('div');
-      product.colors.forEach(color => {
-        color.className = 'color';
-        color.style.backgroundColor = `#${color.code}`;
-        colors.appendChild(color);
+      a.href = `/product.html?id=${[product_index + 1]}`;
+      img.src = `${products.data[product_index].main_image}`;
+      color_box.className = 'colors';
+      products.data[product_index].colors.forEach(color => {
+        const color_div = document.createElement('div');
+        color_div.className = 'color';
+        color_div.style.backgroundColor = `#${color.code}`;
+        color_box.appendChild(color_div);
       })
       name.className = 'name';
-      name.innerHTML = `${product.title}`;
+      name.innerHTML = `${products.data[product_index].title}`;
       price.className = 'price';
-      price.innerHTML = `${product.price}`;
+      price.innerHTML = `${products.data[product_index].price}`;
       a.appendChild(img);
-      a.appendChild(colors);
+      a.appendChild(color_box);
       a.appendChild(name);
       a.appendChild(price);
-      products.appendChild(a);
-    })
+      products_box.appendChild(a);
+    }
   })
   .catch((error) => console.log(error))
 }
 
 function removeDiv() {
-
+  const product_list = document.querySelector('#products');
+  const view = document.querySelector('.view');
+  const product_box = document.createElement('div');
+  product_list.remove();
+  product_box.id = 'products';
+  product_box.classList = 'products';
+  view.appendChild(product_box);
 }
 
-// function init() {
-//   countCart();
-//   getCampaign();
-//   removeDiv();
-//   getProducts();
-// }
-
-function init() {
-  let a = new URLSearchParams(window.location.search)
-  console.log(a.get('name'))
-  console.log(a.getAll('name'))
-  let b = new URLSearchParams(document.location.search)
-  console.log(b.get('name'))
-  console.log(b.getAll('name'))
-  let c = new URLSearchParams(location.search)
-  console.log(c.get('name'))
-  console.log(c.getAll('name'))
+async function init() {
+  removeDiv();
+  const url = new URLSearchParams(window.location.search);
+  if (url.get('tag') === null) {
+    await getProducts('all');
+  } else {
+    await getProducts(url.get('tag'));
+  } 
+  await getCampaign();
+  countCart();
 }
 
 document.addEventListener('DOMContentLoaded', init())
