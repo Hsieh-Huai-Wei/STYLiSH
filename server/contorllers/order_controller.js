@@ -63,6 +63,7 @@ const createOrder = async (req, res) => {
       data.number = orderNumber;
       let results = {};
       results.data = data;
+      console.log(results)
       res.json(results);
     });
   };

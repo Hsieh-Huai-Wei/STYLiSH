@@ -198,7 +198,7 @@ async function checkPaymentInf () {
     alert(prime.msg)
     return window.location.replace("/cart.html");
   }
-  const body = {
+  const payment_inf = {
     prime: prime,
     total_price: 130,
     location: locations,
@@ -210,15 +210,9 @@ async function checkPaymentInf () {
     recipient_time: recipient_time,
     cart: cart,
   }
-  fetch("api/1.0/order/checkout", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  })
-    .then((res) => { res.json })
-    .then((body)=>{
-      return window.location.replace("/thankyou.html");
-  })
+  const payment_url = 'api/1.0/order/checkout';
+  const payment_status = await fetchDataByPost(payment_url, payment_inf);
+  window.location.replace("/thankyou.html");
 }
 
 function getCartProduct() {
