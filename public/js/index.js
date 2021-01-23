@@ -1,3 +1,24 @@
+async function fetchDataByGet(url) {
+  const res_json = await fetch(url, {
+    method: 'GET',
+    headers: new Headers({
+      'Content-Type': 'application/json'
+    })
+  });
+  return res_json.json();
+}
+
+async function fetchDataByPost(url, data) {
+  const res_json = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: new Headers({
+      'Content-Type': 'application/json'
+    })
+  });
+  return res_json.json();
+}
+
 function countCart() {
   const cart_str = localStorage.getItem('userCart');
   if (cart_str) {
@@ -7,10 +28,10 @@ function countCart() {
   }
 }
 
-function getCampaign() {
-  fetch('api/1.0/marketing/campaigns')
-  .then(response => response.json())
-  .then(campaigns => {
+async function getCampaign() {
+  try {
+    const campaign_url = 'api/1.0/marketing/campaigns';
+    const campaigns = await fetchDataByGet(campaign_url);
     campaigns.data.forEach(campaign => {
       const a = document.createElement('a');
       const story = document.createElement('div');
@@ -25,15 +46,16 @@ function getCampaign() {
       story.innerHTML = storyDisplay;
       a.appendChild(story);
       key_visual.appendChild(a);
-    })
-  })
-  .catch((error) => console.log(error))
+    });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-function getProducts(tag) {
-  fetch(`api/1.0/products/${tag}`)
-  .then(response => response.json())
-  .then(products => {
+async function getProducts(tag) {
+  try {
+    const products_url = `api/1.0/products/${tag}`;
+    const products = await fetchDataByGet(products_url);
     for (let product_index = 0; product_index<products.data.length; product_index++) {
       const a = document.createElement('a');
       const img = document.createElement('img');
@@ -61,8 +83,9 @@ function getProducts(tag) {
       a.appendChild(price);
       products_box.appendChild(a);
     }
-  })
-  .catch((error) => console.log(error))
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 function removeDiv() {
