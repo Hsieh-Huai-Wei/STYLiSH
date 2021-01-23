@@ -1,24 +1,3 @@
-async function fetchDataByGet(url) {
-  const res_json = await fetch(url, {
-    method: 'GET',
-    headers: new Headers({
-      'Content-Type': 'application/json'
-    })
-  });
-  return res_json.json();
-}
-
-function fetchDataByPost(url, data) {
-  const res_json = fetch(url, {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: new Headers({
-      'Content-Type': 'application/json'
-    })
-  });
-  return res_json.json();
-}
-
 const product_detail = new Object();
 const mainImage = document.createElement('div');
 const product_name = document.createElement('div');
@@ -120,6 +99,16 @@ cart.addEventListener('click', () => {
   countCart();
   alert('已成功加入購物車！')
 });
+
+async function fetchDataByGet(url) {
+  const res_json = await fetch(url, {
+    method: 'GET',
+    headers: new Headers({
+      'Content-Type': 'application/json'
+    })
+  });
+  return res_json.json();
+};
 
 function renderSize() {
   const variants =  product_detail.data.variants;

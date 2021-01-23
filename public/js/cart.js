@@ -1,3 +1,25 @@
+async function fetchDataByGet(url) {
+  const res_json = await fetch(url, {
+    method: 'GET',
+    headers: new Headers({
+      'Content-Type': 'application/json'
+    })
+  });
+  return res_json.json();
+}
+
+async function fetchDataByPost(url, data) {
+  const res_json = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: new Headers({
+      'Content-Type': 'application/json'
+    })
+  });
+  return res_json.json();
+}
+
+
 let payment = 'credit_card';
 let recipient_time = 'anytime';
 const credit_card_payment_inf = document.getElementById("payment");
@@ -221,6 +243,10 @@ function countTotal() {
   total_price.innerText = price + 60;
 }
 
-checkUserLogIn();
-countCart()
-countTotal();
+function init() {
+  checkUserLogIn();
+  countCart()
+  countTotal();
+}
+
+document.addEventListener('DOMContentLoaded', init())

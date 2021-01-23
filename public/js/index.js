@@ -8,17 +8,6 @@ async function fetchDataByGet(url) {
   return res_json.json();
 }
 
-async function fetchDataByPost(url, data) {
-  const res_json = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: new Headers({
-      'Content-Type': 'application/json'
-    })
-  });
-  return res_json.json();
-}
-
 function countCart() {
   const cart_str = localStorage.getItem('userCart');
   if (cart_str) {
