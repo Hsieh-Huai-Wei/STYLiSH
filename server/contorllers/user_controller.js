@@ -106,6 +106,7 @@ const signIn = async (req, res) => {
   if (!checkResult.check) return res.send(checkResult);
   const userPwd = pwdHash(userData.pwd);
   const checkEmail = await User.checkSignIn(userData.email, userPwd)
+  console.log(checkEmail)
   if (checkEmail.length === 0) return res.json({
     status: 404,
     msg: "信箱或密碼不正確!",

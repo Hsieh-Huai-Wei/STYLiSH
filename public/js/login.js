@@ -1,49 +1,13 @@
-function signIn() {
-  const data = {
-    "email": document.getElementById("email").value,
-    "pwd": document.getElementById("pwd").value,
-  }
-  fetch(`api/1.0/user/signin`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data),
-  }).then((res) => res.json())
-    .then((body) => {
-      if (body.status !== undefined) {
-        alert(body.msg);
-      } else {
-        const token = body.data.access_token
-        localStorage.setItem('userToken', token);
-        window.location.replace('/profile.html');
-      }
-    });
-};
-
-function statusChangeCallback(response) {
-  if (response.status === "connected") {
-    const body = {
-      access_token: response.authResponse.accessToken,
-    };
-    fetch("api/1.0/fbsignin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
-      .then((res) => res.json())
-      .then((body) => {
-        console.log(body)
-        const token = body.data.access_token
-        localStorage.setItem('fbToken', token);
-        window.location.replace('/profile.html');
-      });
-  } else {
-    // Not logged into your webpage or we are unable to tell.
-    // document.getElementById("status").innerHTML =
-    //   "Please log " + "into this webpage.";
-  }
-}
+(function (d, s, id) {
+  // Load the SDK asynchronously
+  var js,
+    fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s);
+  js.id = id;
+  js.src = "https://connect.facebook.net/en_US/sdk.js";
+  fjs.parentNode.insertBefore(js, fjs);
+})(document, "script", "facebook-jssdk");
 
 function checkLoginState() {
   // Called when a person is finished with the Login Button.
@@ -67,16 +31,51 @@ window.fbAsyncInit = function () {
   });
 };
 
-(function (d, s, id) {
-  // Load the SDK asynchronously
-  var js,
-    fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s);
-  js.id = id;
-  js.src = "https://connect.facebook.net/en_US/sdk.js";
-  fjs.parentNode.insertBefore(js, fjs);
-})(document, "script", "facebook-jssdk");
+function statusChangeCallback(response) {
+  if (response.status === "connected") {
+    const old_token = {
+      access_token: response.authResponse.accessToken,
+    };
+    const login_url = 'api/1.0/fbsignin';
+    const log_in = await fetchDataByPost(login_url, old_token);
+    if (log_in.error) {
+      alert('伺服器似乎有狀況，請稍後再測試');
+    } else {
+      const new_token = log_in.data.access_token;
+      localStorage.setItem('fbToken', new_token);
+      window.location.replace('/profile.html');
+    }
+  } else {
+    alert ('請登入會員！')
+  }
+}
+
+async function fetchDataByPost(url, data) {
+  const res_json = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: new Headers({
+      'Content-Type': 'application/json'
+    })
+  });
+  return res_json.json();
+}
+
+function signIn() {
+  const user_inf = {
+    "email": document.getElementById("email").value,
+    "pwd": document.getElementById("pwd").value,
+  }
+  const sign_url = 'api/1.0/user/signin';
+  const sign_in = fetchDataByPost(sign_url, user_inf);
+  if (sign_in.status !== undefined) {
+    alert(sign_in.msg);
+  } else {
+    const token = sign_in.data.access_token
+    localStorage.setItem('userToken', token);
+    window.location.replace('/profile.html');
+  }
+};
 
 function countCart() {
   const cart_str = localStorage.getItem('userCart');
@@ -87,4 +86,4 @@ function countCart() {
   }
 }
 
-countCart();
+document.addEventListener('DOMContentLoaded', countCart());

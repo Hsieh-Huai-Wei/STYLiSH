@@ -1,4 +1,4 @@
-const product_detail = new Object();
+let product_detail = new Object();
 const mainImage = document.createElement('div');
 const product_name = document.createElement('div');
 const id = document.createElement('div');
@@ -23,15 +23,10 @@ const cart = document.querySelector('.add-cart');
 colorBox.addEventListener('click', (event) => {
   const color = document.querySelectorAll('.color');
   if (event.target.getAttribute('code') !== null) {
-    // color reset
     color.forEach(item => item.className = 'color');
-
-    // setting preventObj
     event.target.className = 'color current';
     currentColor = event.target.getAttribute('code');
-    preventObj.color_code = currentColor;
-    
-    // check
+    product_detail.color_code = currentColor;
     checkSize();
   }
 });
@@ -39,21 +34,16 @@ colorBox.addEventListener('click', (event) => {
 sizeBox.addEventListener('click', (event) => {
   const size = document.querySelectorAll('.size');
   if (event.target.getAttribute('code') !== null && event.target.getAttribute('class') !== 'size disabled') {
-    // size reset
     size.forEach(item => item.className = 'size');
-
-    // setting preventObj
     event.target.className = 'size current';
     currentSize = event.target.getAttribute('code');
-    preventObj.size = currentSize;
-
-    // check
+    product_detail.size = currentSize;
     checkSize();
   }
 });
 
 qty.addEventListener('click', (event) => {
-  const stock = preventObj.stock;
+  const stock = product_detail.stock;
   const cal = document.querySelector('.value');
   if (stock !== 0) {
     if (event.target.className === 'add') {
@@ -83,8 +73,8 @@ cart.addEventListener('click', () => {
     title: purchase.data.title,
     price: parseInt(purchase.data.price.split('.')[1]),
     main_image: purchase.data.main_image,
-    color_code: preventObj.color_code,
-    size: preventObj.size,
+    color_code: product_detail.color_code,
+    size: product_detail.size,
     count: document.querySelector('.value').value
   }
   if (localStorage.getItem('userCart')) {
@@ -112,19 +102,14 @@ async function fetchDataByGet(url) {
 
 function renderSize() {
   const variants =  product_detail.data.variants;
-  // disabled size
   const size_box = document.getElementsByClassName('size');
   Array.from(size_box).forEach(size => {
     size.setAttribute("class", "size disabled");
   });
-
-  // find enabled size
-  const size_arr = [];
+  const size_arr = new Array();
   variants.forEach(variant => {
-    if (variant.color_code === preventObj.color_code) size_arr.push(variant.size);
+    if (variant.color_code === product_detail.color_code) size_arr.push(variant.size);
   });
-
-  // display exist size
   Array.from(size_box).forEach(size => {
     size_arr.find(item => {
       if (item === size.innerHTML) return size.setAttribute('class', 'size');
@@ -135,7 +120,7 @@ function renderSize() {
 
 function checkSize() {
   const size_arr = renderSize();
-  const size = size_arr.find(item => item === preventObj.size);
+  const size = size_arr.find(item => item === product_detail.size);
   checkStock(size);
 }
 
@@ -144,21 +129,21 @@ function checkStock(size) {
   const sizeDiv = document.querySelectorAll('.size');
   if (size) {
     const stock = variants.find((item) => {
-      if (item.color_code === preventObj.color_code && item.size === preventObj.size) {
+      if (item.color_code === product_detail.color_code && item.size === product_detail.size) {
         return item.stock;
       }
     })
-    preventObj.stock = stock.stock;
+    product_detail.stock = stock.stock;
   } else {
     const size = variants.find((item) => {
-      if (item.color_code === preventObj.color_code) {
+      if (item.color_code === product_detail.color_code) {
         return item.size;
       }
     })
-    preventObj.size = size.size;
+    product_detail.size = size.size;
   }
   sizeDiv.forEach(size => {
-    if (size.getAttribute('value') === preventObj.size) {
+    if (size.getAttribute('value') === product_detail.size) {
       size.setAttribute('class', 'size current');
     }
   })
@@ -183,57 +168,56 @@ async function getProduct() {
     const product_url = `api/1.0/products/details?id=${id}`;
     const product = await fetchDataByGet(product_url)
     localStorage.setItem('productData', JSON.stringify(product));
-    product_detail = product;
     return product;
   } catch (error) {
     console.log(error)
   }
 }
 
-function renderProduct() {
+function renderProduct(product) {
   return new Promise((resolve) => {
     mainImage.setAttribute('id', 'product-main-image');
     mainImage.className = 'name';
-    img.src = `${product_detail.data.main_image}`;
+    img.src = `${product.data.main_image}`;
     mainImage.appendChild(img);
     view.prepend(mainImage);
 
     // product image, title, number, price
     product_name.setAttribute('id', 'product-name');
     product_name.className = 'name';
-    product_name.innerHTML = `${product_detail.data.title}`;
+    product_name.innerHTML = `${product.data.title}`;
     id.setAttribute('id', 'product-id');
     id.className = 'id';
-    id.innerHTML = `${product_detail.data.id}`;
+    id.innerHTML = `${product.data.id}`;
     price.setAttribute('id', 'product-price');
     price.className = 'price';
-    price.innerHTML = `${product_detail.data.price}`;
+    price.innerHTML = `${product.data.price}`;
     details.prepend(price);
     details.prepend(id);
     details.prepend(product_name);
 
     // render color
-    for (let j = 0; j < product_detail.data.colors.length; j++) {
-      const color = document.createElement('div');
-      color.className = 'color';
-      color.name = `#${product_detail.data.colors[j]}`;
-      color.style.backgroundColor = `#${product_detail.data.colors[j].code}`;
-      color.setAttribute('code', `${product_detail.data.colors[j].code}`);
-      color.setAttribute('value', `${product_detail.data.colors[j].code}`);
-      colorBox.appendChild(color);
-    }
+    product.data.colors.forEach(color => {
+      const color_box = document.createElement('div');
+      color_box.className = 'color';
+      color_box.name = `#${color}`;
+      color_box.style.backgroundColor = `#${color.code}`;
+      color_box.setAttribute('code', `${color.code}`);
+      color_box.setAttribute('value', `${color.code}`);
+      colorBox.appendChild(color_box);
+    })
 
     // render size
-    for (let j = 0; j < product_detail.data.sizes.length; j++) {
-      const size = document.createElement('div');
-      size.className = 'size';
-      size.name = `#${product_detail.data.sizes[j]}`;
-      size.innerHTML = `${product_detail.data.sizes[j]}`;
-      size.style.backgroundColor = `#${product_detail.data.sizes[j]}`;
-      size.setAttribute('code', `${product_detail.data.sizes[j]}`);
-      size.setAttribute('value', `${product_detail.data.sizes[j]}`);
-      sizeBox.appendChild(size);
-    }
+    product.data.sizes.forEach(size => {
+      const size_box = document.createElement('div');
+      size_box.className = 'size';
+      size_box.name = `#${size}`;
+      size_box.innerHTML = `${size}`;
+      size_box.style.backgroundColor = `#${size}`;
+      size_box.setAttribute('code', `${size}`);
+      size_box.setAttribute('value', `${size}`);
+      sizeBox.appendChild(size_box);
+    });
 
     // render stock
     btnAdd.className = 'add';
@@ -248,24 +232,22 @@ function renderProduct() {
     qty.prepend(btnSub);
 
     // product summary
-    let summary1 = `${product_detail.data.note}<br><br>`;
-    let texture = `${product_detail.data.texture}`.split('/');
-    summary2 = '';
-    for (let i = 0; i < texture.length; i++) {
-      summary2 += texture[i] + '<br>';
-    }
-    let summary3 = `<br>清洗：${product_detail.data.wash}<br>產地：${product_detail.data.place}`;
+    const summary1 = product.data.note + '<br><br>';
+    const texture = product.data.texture.split('/');
+    let summary2 = '';
+    texture.forEach(text => summary2 += text + '<br>');
+    const summary3 = '<br>清洗：' + product.data.wash + '<br>產地：' + product.data.place;
     summary.innerHTML = summary1 + summary2 + summary3;
 
     // product story
-    story.innerHTML = `${product_detail.data.description}`;
+    story.innerHTML = product.data.description;
 
     // product images
-    for (let j = 0; j < product_detail.data.images.length; j++) {
+    product.data.images.forEach(image => {
       const img = document.createElement('img');
-      img.src = `${product_detail.data.images[j]}`;
+      img.src = image;
       images.appendChild(img);
-    }
+    })
     resolve();
   })
 }
@@ -301,22 +283,23 @@ function countCart() {
 }
 
 async function init() {
-  await getProduct();
-  await renderProduct();
+  const product = await getProduct();
+  await renderProduct(product);
+  product_detail = product;
   const variants = product_detail.data.variants;
-  preventObj.color_code = document.getElementsByClassName('color')[0].getAttribute('value')
+  product_detail.color_code = document.getElementsByClassName('color')[0].getAttribute('value')
   variants.forEach(variant => {
-    if (variant.color_code === preventObj.color_code) {
-      preventObj.size = variant.size;
-      preventObj.stock = variant.stock;
+    if (variant.color_code === product_detail.color_code) {
+      product_detail.size = variant.size;
+      product_detail.stock = variant.stock;
     }
   })
-  if (preventObj.stock !== 0) {
+  if (product_detail.stock !== 0) {
     document.querySelector('.value').value = 1;
   } else {
     document.querySelector('.value').value = 0;
   }
-  await currentRender(preventObj, variants);
+  await currentRender(product_detail);
   countCart();
 }
 

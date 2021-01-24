@@ -22,7 +22,9 @@ const signUp = async (data) => {
 };
 
 const checkSignIn = async (userEmail, userPwd) => {
+  console.log(userEmail, userPwd)
   const result = await query('SELECT * FROM user WHERE email = ? AND password = ?',[userEmail, userPwd]);
+  console.log(result)
   return result;
 };
 
