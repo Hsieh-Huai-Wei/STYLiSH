@@ -18,28 +18,28 @@ const selectProduct = async (data) => {
   return result;
 }
 
-const selectVariant = async (colorCode, size, productId) => {
-  const result = await query('SELECT id, color_id, size_id, product_id FROM variants WHERE color_id = ? AND size_id = ? AND product_id = ?', [colorCode, size, productId]);
+const selectVariant = async (data) => {
+  const result = await query('SELECT id, color_id, size_id, product_id FROM variants WHERE color_id = ? AND size_id = ? AND product_id = ?', [data.color, data.size, data.id]);
   return result;
 }
 
-const updateVariant = async (userStock, id) => {
-  const result = await query('UPDATE variants SET stock = ? WHERE variants.id = ?', [userStock, id]);
+const updateVariant = async (data) => {
+  const result = await query('UPDATE variants SET stock = ? WHERE variants.id = ?', [data.stock, data.id]);
   return result;
 }
 
-const insertVariant = async (colorCode, size, productId, userStock) => {
-  const result = await query('INSERT INTO variants SET color_id = ?, size_id = ?, product_id = ?, stock = ?', [colorCode, size, productId, userStock]);
+const insertVariant = async (data) => {
+  const result = await query('INSERT INTO variants SET color_id = ?, size_id = ?, product_id = ?, stock = ?', [data.color, data.size, data.id, data.stock]);
   return result;
 }
 
-const selectClass = async (userClass) => {
-  const result = await query('SELECT id FROM stylish.attributes WHERE class = ?', [userClass]);
+const selectClass = async (classification) => {
+  const result = await query('SELECT id FROM stylish.attributes WHERE class = ?', [classification]);
   return result;
 }
 
-const insertProduct = async (data, classId) => {
-  const result = await query('INSERT INTO product SET number = ?,attributes_id = ?, title = ?, description = ?, price = ?, texture = ?, wash = ?, place = ?, note = ?, story = ?, main_image = ?, images = ?', [ data.id, classId, data.title, data.description, data.price, data.texture, data.wash, data.place, data.note, data.story, data.main_image, data.images, ]);
+const insertProduct = async (data, class_id) => {
+  const result = await query('INSERT INTO product SET number = ?,attributes_id = ?, title = ?, description = ?, price = ?, texture = ?, wash = ?, place = ?, note = ?, story = ?, main_image = ?, images = ?', [ data.id, class_id, data.title, data.description, data.price, data.texture, data.wash, data.place, data.note, data.story, data.main_image, data.images, ]);
   return result;
 }
 
@@ -71,8 +71,8 @@ function sorting(category, keyword, id) {
 const countP = async (category, keyword, id) => {
   let sql = `SELECT COUNT(id) AS count FROM product AS p `;
   sql += sorting(category, keyword, id);
-  const result = await query(sql)
-  return JSON.parse(JSON.stringify(result[0].count));
+  const result = await query(sql);
+  return result[0].count;
 }
 
 const resultP = async (category, paging, keyword, id) => {

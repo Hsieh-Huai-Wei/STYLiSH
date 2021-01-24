@@ -24,10 +24,10 @@ const searchCampaign = async (data) => {
   return result;
 };
 
-const createCampaign = async (productId, data) => {
+const createCampaign = async (data) => {
   const result = await query(
     'INSERT INTO campaigns SET product_id = ?, picture = ?, story = ?',
-    [productId, data.pictures, data.story]
+    [data.id, data.pictures, data.story]
   );
   return result;
 };
