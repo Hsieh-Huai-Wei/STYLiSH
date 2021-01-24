@@ -1,4 +1,4 @@
-const { query } = require("../../util/dbcon");
+const { query } = require('../../util/dbcon');
 
 const checkProduct = async (data) => {
   const result = await query('SELECT number FROM stylish.product WHERE number = ?', [data]);
@@ -45,23 +45,23 @@ const insertProduct = async (data, classId) => {
 
 // catch use query url
 function sorting(category, keyword, id) {
-  let sql = "";
-  if (category === "women") {
+  let sql = '';
+  if (category === 'women') {
     let id = 1;
     sql += `WHERE p.attributes_id = ${id}`;
-  } else if (category === "men") {
+  } else if (category === 'men') {
     let id = 2;
     sql += `WHERE p.attributes_id = ${id}`;
-  } else if (category === "accessories") {
+  } else if (category === 'accessories') {
     let id = 3;
     sql += `WHERE p.attributes_id = ${id}`;
-  } else if (category === "all") {
-  } else if (category === "search") {
-    sql += `WHERE p.title LIKE "%${keyword}%"`;
-  } else if (category === "details") {
+  } else if (category === 'all') {
+  } else if (category === 'search') {
+    sql += `WHERE p.title LIKE '%${keyword}%'`;
+  } else if (category === 'details') {
     sql += `WHERE p.id = ${id} `;
   } else {
-    const err = new Error("...");
+    const err = new Error('...');
     throw err;
   }
   return sql;

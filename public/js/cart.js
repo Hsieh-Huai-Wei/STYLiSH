@@ -1,52 +1,52 @@
-const credit_card_payment_inf = document.getElementById("payment");
-const shipping = document.getElementById("shipping");
+const credit_card_payment_inf = document.getElementById('payment');
+const shipping = document.getElementById('shipping');
 let payment = 'credit_card';
 let recipient_time = 'anytime';
 
 // Tap pay setting
 TPDirect.setupSDK(
   12348,
-  "app_pa1pQcKoY22IlnSXq5m5WP5jFKzoRG58VEXpT7wU62ud7mMbDOGzCYIlzzLF",
-  "sandbox"
+  'app_pa1pQcKoY22IlnSXq5m5WP5jFKzoRG58VEXpT7wU62ud7mMbDOGzCYIlzzLF',
+  'sandbox'
 );
 
 TPDirect.card.setup({
   fields: {
-    list: "#list",
+    list: '#list',
     number: {
       // css selector
-      element: "#card-number",
-      placeholder: "**** **** **** ****",
+      element: '#card-number',
+      placeholder: '**** **** **** ****',
     },
     expirationDate: {
       // DOM object
-      element: document.getElementById("card-expiration-date"),
-      placeholder: "MM / YY",
+      element: document.getElementById('card-expiration-date'),
+      placeholder: 'MM / YY',
     },
     ccv: {
-      element: "#card-ccv",
-      placeholder: "後三碼",
+      element: '#card-ccv',
+      placeholder: '後三碼',
     },
   },
   styles: {
     input: {
-      color: "gray",
+      color: 'gray',
     },
-    ".valid": {
-      color: "green",
+    '.valid': {
+      color: 'green',
     },
-    ".invalid": {
-      color: "red",
+    '.invalid': {
+      color: 'red',
     },
-    "@media screen and (max-width: 400px)": {
+    '@media screen and (max-width: 400px)': {
       input: {
-        color: "orange",
+        color: 'orange',
       },
     },
   },
 });
 
-shipping.addEventListener("change", ()=>{
+shipping.addEventListener('change', ()=>{
   if (shipping.value === 'credit_card') {
     payment = 'credit_card';
     credit_card_payment_inf.classList.remove('hidden_credit')
@@ -101,20 +101,20 @@ function checkCart() {
   cart.forEach(data => {
     const total_price = data.count*data.price;
     cart_list.innerHTML += `
-      <div class="row cart-list">
-        <div class="detail">
-          <img src="${data.main_image}" alt="">
-          <div class="product_inf">
-            <div class="title">${data.title}</div>
-            <div class="color"><div class="choice-color" style="background-color: #${data.color_code}"></div></div>
-            <div class="size">${data.size}</div>
+      <div class='row cart-list'>
+        <div class='detail'>
+          <img src='${data.main_image}' alt=''>
+          <div class='product_inf'>
+            <div class='title'>${data.title}</div>
+            <div class='color'><div class='choice-color' style='background-color: #${data.color_code}'></div></div>
+            <div class='size'>${data.size}</div>
           </div>
         </div>
-        <div class="pay_inf">
-          <div class="count">${data.count}</div>
-          <div class="single_price">NTD. ${data.price}</div>
-          <div class="total_price">NTD. ${total_price}</div>
-          <img class="delete" src="./imgs/delete.png" alt="" onclick="deleteProduct(${i})">
+        <div class='pay_inf'>
+          <div class='count'>${data.count}</div>
+          <div class='single_price'>NTD. ${data.price}</div>
+          <div class='total_price'>NTD. ${total_price}</div>
+          <img class='delete' src='./imgs/delete.png' alt='' onclick='deleteProduct(${i})'>
         </div>
       </div>
     `;
@@ -124,7 +124,7 @@ function checkCart() {
 function deleteProduct(pos) {
   const cart = getCartProduct();
   const list = document.getElementById('list');
-  const div = document.createElement("div");
+  const div = document.createElement('div');
   const cart_html = document.getElementById('cart');
   cart.splice(pos,1);
   localStorage.setItem('userCart', JSON.stringify(cart));
@@ -152,17 +152,17 @@ function getCartProduct() {
 
 async function checkPaymentInf() {
   const cart = getCartProduct();
-  const recipient_name = document.getElementById("recipient-name").value;
-  const recipient_email = document.getElementById("recipient-email").value;
-  const recipient_phone = document.getElementById("recipient-phone").value;
-  const recipient_address = document.getElementById("recipient-address").value;
-  const locations = document.getElementById("location").value;
+  const recipient_name = document.getElementById('recipient-name').value;
+  const recipient_email = document.getElementById('recipient-email').value;
+  const recipient_phone = document.getElementById('recipient-phone').value;
+  const recipient_address = document.getElementById('recipient-address').value;
+  const locations = document.getElementById('location').value;
   if (!recipient_name || !recipient_email || !recipient_phone || !recipient_address) return alert('收件資料不完成，請填寫收件資料！');
   let prime = '';
   if (payment === 'credit_card') prime = await getPrime();
   if (prime.msg) {
     alert(prime.msg);
-    return window.location.replace("/cart.html");
+    return window.location.replace('/cart.html');
   }
   const payment_inf = {
     prime: prime,
@@ -179,32 +179,32 @@ async function checkPaymentInf() {
   const payment_url = 'api/1.0/order/checkout';
   const payment_status = await fetchDataByPost(payment_url, payment_inf);
   if (payment_status.status !== undefined) return alert(body.msg);
-  window.location.replace("/thankyou.html");
+  window.location.replace('/thankyou.html');
 }
 
 function checkUserLogIn() {
-  if (localStorage.getItem("userToken") || localStorage.getItem("fbToken")) {
+  if (localStorage.getItem('userToken') || localStorage.getItem('fbToken')) {
     const token = new Object();
-    if (localStorage.getItem("userToken")) {
+    if (localStorage.getItem('userToken')) {
       data = {
-        "token": localStorage.getItem("userToken")
+        'token': localStorage.getItem('userToken')
       }
     } else {
       data = {
-        "token": localStorage.getItem("fbToken")
+        'token': localStorage.getItem('fbToken')
       }
     }
     const profile_url = 'api/1.0/user/profile';
     const profile = await fetchDataByPost(profile_url, token);
     if (profile.error) {
-      alert("登入逾時，請重新登入");
-      window.location.replace("/login.html"); 
+      alert('登入逾時，請重新登入');
+      window.location.replace('/login.html'); 
     } else {
       checkCart();
     }
   } else {
-    alert("請先登入會員");
-    window.location.replace("/login.html");
+    alert('請先登入會員');
+    window.location.replace('/login.html');
   }
 }
 

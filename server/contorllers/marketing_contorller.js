@@ -1,7 +1,7 @@
-require("dotenv").config();
+require('dotenv').config();
 const { HOST_S3 } = process.env;
-const Marketing = require("../models/marketing_model");
-const redis = require("../../util/redis");
+const Marketing = require('../models/marketing_model');
+const redis = require('../../util/redis');
 
 const createCampaign = async (req, res, next) => {
   let data = {
@@ -9,38 +9,38 @@ const createCampaign = async (req, res, next) => {
   };
 
   let result = [];
-  let pictures = req.files["pictures"];
+  let pictures = req.files['pictures'];
   for (let i = 0; i < pictures.length; i++) {
-    result.push(pictures[i]["filename"]);
+    result.push(pictures[i]['filename']);
   }
   data.pictures = result.toString();
   data.productID = req.body.number;
   const searchResult = await Marketing.searchCampaign(data);
   if (searchResult.length === 0) {
-    const err = new Error("No campaign in Redis.");
+    const err = new Error('No campaign in Redis.');
     err.status = 400;
     next(err);
   } else {
     let productId = searchResult[0].id;
     await Marketing.createCampaign(productId, data.pictures, data.story);
     try {
-      redis.del("campaigns", (err, res) => {
+      redis.del('campaigns', (err, res) => {
         if (err) throw err;
       });
     } catch (e) {
-      console.log("Delete cache failed");
+      console.log('Delete cache failed');
     }
-    res.send("OK");
+    res.send('OK');
   }
 };
 
 const getCampaigns = async (req, res, next) => {
   try {
-    const cache = await redis.getCache("campaigns");
-    console.log("from redis");
+    const cache = await redis.getCache('campaigns');
+    console.log('from redis');
     return res.json(cache);
   } catch (e) {
-    console.log("from db");
+    console.log('from db');
     let campaignsObjS = {};
     let campaignsCount = await Marketing.countCam();
     let allCamPages = Math.floor((campaignsCount - 1) / 6);
@@ -58,10 +58,10 @@ const getCampaigns = async (req, res, next) => {
     let campaignsObj = await Marketing.resultCam(limit, paging);
     for (let i = 0; i < campaignsObj.length; i++) {
       let picturesArray = [];
-      let x = campaignsObj[i].picture.split(",").length;
+      let x = campaignsObj[i].picture.split(',').length;
       for (let j = 0; j < x; j++) {
         picturesArray.push(
-          HOST_S3 + "uploads/" + campaignsObj[i].picture.split(",")[j]
+          HOST_S3 + 'uploads/' + campaignsObj[i].picture.split(',')[j]
         );
       }
       campaignsObj[i].picture = picturesArray;
@@ -69,7 +69,7 @@ const getCampaigns = async (req, res, next) => {
     console.log(HOST_S3)
     console.log(process.env)
     campaignsObjS.data = campaignsObj;
-    redis.set("campaigns", JSON.stringify(campaignsObjS));
+    redis.set('campaigns', JSON.stringify(campaignsObjS));
     res.json(campaignsObjS);
   }
 };

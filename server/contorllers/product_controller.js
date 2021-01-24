@@ -1,4 +1,4 @@
-const Product = require("../models/product_model");
+const Product = require('../models/product_model');
 
 const createProduct = async (req, res) => {
   const checkProduct = req.body.id;
@@ -17,10 +17,10 @@ const createProduct = async (req, res) => {
     if (checkVariant.length >= 1) {
       const id = checkProductId[0].id;
       await Product.updateVariant(userStock, id);
-      res.send("variants update OK");
+      res.send('variants update OK');
     } else if (checkVariant.length === 0) {
       await Product.insertVariant(colorCode, size, productId, userStock);
-      res.send("variants insert OK");
+      res.send('variants insert OK');
     } else {
     }
   } else if (check.length === 0) {
@@ -37,14 +37,14 @@ const createProduct = async (req, res) => {
       color_code: req.body.color_code,
       size: req.body.sizes,
       stock: req.body.stock,
-      main_image: req.files["main_image"][0].key.split("/")[1],
+      main_image: req.files['main_image'][0].key.split('/')[1],
     };
     //you cannot save array to mysql, so you need to transfer to string
     let result = [];
     //because req.files is a array (contain object)
-    let images = req.files["images"];
+    let images = req.files['images'];
     for (let i = 0; i < images.length; i++) {
-      result.push(images[i].key.split("/")[1]);
+      result.push(images[i].key.split('/')[1]);
     }
     //array transfer to string
     data.images = result.toString();
@@ -62,7 +62,7 @@ const createProduct = async (req, res) => {
     const checkProductId = await Product.selectProduct(checkProduct);
     const productId = checkProductId[0].id;
     await Product.insertVariant(colorCode, size, productId, data.stock);
-    res.send("overall table record inserted");
+    res.send('overall table record inserted');
   } else {
     throw err;
   }
@@ -89,7 +89,7 @@ const getProducts = async (req, res, next) => {
     } else {
       paging = 0;
     }
-    // insert "next_paging" display
+    // insert 'next_paging' display
     if (paging < allPages) {
       productObjS.next_paging = paging + 1;
     }
@@ -109,13 +109,13 @@ const getProducts = async (req, res, next) => {
     let variantsObj = JSON.parse(JSON.stringify(await Product.resultV(productF)));
     for (let i = 0; i < productObj.length; i++) {
       productObj[i].main_image =
-        hostName + "uploads/" + productObj[i].main_image;
+        hostName + 'uploads/' + productObj[i].main_image;
     }
     for (let i = 0; i < productObj.length; i++) {
       let imagesArray = [];
-      for (let j = 0; j < productObj[i].images.split(",").length; j++) {
+      for (let j = 0; j < productObj[i].images.split(',').length; j++) {
         imagesArray.push(
-          hostName + "uploads/" + productObj[i].images.split(",")[j]
+          hostName + 'uploads/' + productObj[i].images.split(',')[j]
         );
       }
       productObj[i].images = imagesArray;
@@ -149,7 +149,7 @@ const getProducts = async (req, res, next) => {
         }
       }
     }
-    if (req.params.category === "details") {
+    if (req.params.category === 'details') {
       productObjS.data = productObj[0];
       res.json(productObjS);
     } else {

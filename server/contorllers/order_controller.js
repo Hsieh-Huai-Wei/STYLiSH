@@ -6,7 +6,7 @@ function verifyData(data) {
     return result = {
       check: false,
       status: 404,
-      msg: "信箱驗證錯誤，請輸入符合規範之信箱！"
+      msg: '信箱驗證錯誤，請輸入符合規範之信箱！'
     }
   }
 }

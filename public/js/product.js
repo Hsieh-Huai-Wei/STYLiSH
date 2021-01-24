@@ -104,7 +104,7 @@ function renderSize() {
   const variants =  product_detail.data.variants;
   const size_box = document.getElementsByClassName('size');
   Array.from(size_box).forEach(size => {
-    size.setAttribute("class", "size disabled");
+    size.setAttribute('class', 'size disabled');
   });
   const size_arr = new Array();
   variants.forEach(variant => {

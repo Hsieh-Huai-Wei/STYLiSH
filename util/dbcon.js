@@ -1,6 +1,6 @@
-require("dotenv").config();
-const mysql = require("mysql");
-const { promisify } = require("util"); // util from native nodejs library
+require('dotenv').config();
+const mysql = require('mysql');
+const { promisify } = require('util'); // util from native nodejs library
 const { HOST, USERNAME2, PASSWORD, DATABASE } = process.env;
 
 // DB connection

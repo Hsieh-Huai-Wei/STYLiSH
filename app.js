@@ -1,16 +1,16 @@
 // require
-require("dotenv").config();
+require('dotenv').config();
 const { NODE_ENV, PORT, PORT_TEST, API_VERSION} = process.env;
 const port = NODE_ENV == 'test' ? PORT_TEST : PORT;
-const express = require("express");
-const bodyParser = require("body-parser");
+const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
 
-app.set("json spaces", 2);
+app.set('json spaces', 2);
 
 // let body converted to JSON
-app.use(express.static("public"));
-app.use("/admin", express.static("public"));
+app.use(express.static('public'));
+app.use('/admin', express.static('public'));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -23,7 +23,6 @@ app.use('/api/' + API_VERSION,
     require('./server/routes/marketing_route'),
     require('./server/routes/user_route'),
     require('./server/routes/order_route'),
-    require('./server/routes/midterm_route')
   ]
 );
 
