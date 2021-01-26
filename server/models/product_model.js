@@ -44,7 +44,7 @@ const insertProduct = async (data, class_id) => {
 }
 
 // catch use query url
-function sorting(category, keyword, id) {
+function bindSorting(category, keyword, id) {
   let sql = '';
   if (category === 'women') {
     let id = 1;
@@ -68,39 +68,39 @@ function sorting(category, keyword, id) {
 }
 
 // How many products in database
-const countP = async (category, keyword, id) => {
+const countProducts = async (category, keyword, id) => {
   let sql = `SELECT COUNT(id) AS count FROM product AS p `;
-  sql += sorting(category, keyword, id);
+  sql += bindSorting(category, keyword, id);
   const result = await query(sql);
   return result[0].count;
 }
 
-const resultP = async (category, paging, keyword, id) => {
+const getProducts = async (category, paging, keyword, id) => {
   const limit = 6;
   const offset = paging * limit;
   let sql = `
     SELECT 
       p.number AS id, p.title, p.description, p.price, p.texture, p.wash, p.place, p.note, p.story, p.main_image, p.images
     FROM product AS p `;
-  sql += sorting(category, keyword, id);
+  sql += bindSorting(category, keyword, id);
   sql += ' ORDER BY p.id ASC LIMIT ? OFFSET ?';
   const result = await query(sql, [limit, offset]);
   return result;
 }
 
-const resultS = async (productF) => {
+const getSize = async (productF) => {
   const result = await query('SELECT size.size, product.number FROM variants INNER JOIN size ON variants.size_id = size.id INNER JOIN product ON variants.product_id = product.id WHERE product.number IN (?) GROUP BY product.id, size.id;', [productF]);
   return result;
 }
 
-const resultC = async (productF) => {
+const getColor = async (productF) => {
   const result = await query('SELECT color.code, color.name, product.number FROM variants INNER JOIN color ON variants.color_id = color.id INNER JOIN product ON variants.product_id = product.id WHERE product.number IN (?) GROUP BY product.id, color.id;', [productF]);
   return result;
 }
 
 
 
-const resultV = async (productF) => {
+const getVariants = async (productF) => {
   const result = await query('SELECT color.code, size.size, stock, product.number FROM variants INNER JOIN color ON variants.color_id = color.id INNER JOIN size ON variants.size_id = size.id INNER JOIN product ON variants.product_id = product.id WHERE product.number IN (?) GROUP BY product.id, color.id, size.id, stock;', [productF]);
   return result;
 }
@@ -115,9 +115,9 @@ module.exports = {
   insertVariant,
   selectClass,
   insertProduct,
-  countP,
-  resultP,
-  resultS,
-  resultC,
-  resultV,
+  countProducts,
+  getProducts,
+  getSize,
+  getColor,
+  getVariants,
 };

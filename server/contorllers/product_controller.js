@@ -2,7 +2,7 @@ require('dotenv').config();
 const { HOST_S3 } = process.env;
 const Product = require('../models/product_model');
 
-function findProductData(product_detail) {
+async function findProductData(product_detail) {
   const product_inf = new Object();
   const color = await Product.selectColor(product_detail.color_code);
   const size = await Product.selectSize(product_detail.sizes);
@@ -67,7 +67,7 @@ const createProduct = async (req, res) => {
 const getProducts = async (req, res, next) => {
   try {
     const products = new Object();
-    const count = await Product.countP(
+    const count = await Product.countProducts(
       req.params.category,
       req.query.keyword,
       req.query.id
@@ -83,16 +83,16 @@ const getProducts = async (req, res, next) => {
     if (paging < all_pages) {
       products.next_paging = paging + 1;
     }
-    const product_list = await Product.resultP(
+    const product_list = await Product.getProducts(
       req.params.category,
       paging,
       req.query.keyword,
       req.query.id
     );
     const product_id = product_list.map(product => product.id);
-    const product_size = await Product.resultS(product_id);
-    const product_color = await Product.resultC(product_id);
-    const product_variants = await Product.resultV(product_id);
+    const product_size = await Product.getSize(product_id);
+    const product_color = await Product.getColor(product_id);
+    const product_variants = await Product.getVariants(product_id);
 
     product_list.forEach(product => {
       product.main_image = HOST_S3 + 'uploads/' + product.main_image;

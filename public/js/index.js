@@ -89,12 +89,18 @@ function removeDiv() {
 
 async function init() {
   removeDiv();
-  const url = new URLSearchParams(window.location.search);
-  if (url.get('tag') === null) {
-    await getProducts('all');
+  const browser_url = new URLSearchParams(window.location.search);
+  let api_url = '';
+  console.log(browser_url.get('tag'))
+  console.log(browser_url.get('keyword'))
+  if (browser_url.get('tag') !== null) {
+    api_url += browser_url.get('tag');
+  } else if (browser_url.get('keyword') !== null) {
+    api_url += 'search?keyword=' + browser_url.get('keyword');
   } else {
-    await getProducts(url.get('tag'));
-  } 
+    api_url += 'all'
+  }
+  await getProducts(api_url);
   await getCampaign();
   countCart();
 }
