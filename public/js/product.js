@@ -1,334 +1,81 @@
-const urlParams = new URLSearchParams(window.location.search);
-const idquery = urlParams.get("id");
+let product_detail = new Object();
+const mainImage = document.createElement('div');
+const product_name = document.createElement('div');
+const id = document.createElement('div');
+const price = document.createElement('div');
+const img = document.createElement('img');
+const view = document.querySelector('#viewM');
+const details = document.querySelector('.details');
+const colors = document.querySelector('.colors');
+const titleC = document.querySelector('#titleC');
+const colorBox = document.querySelector('.colorBox');
+const titleS = document.querySelector('#titleS');
+const sizeBox = document.querySelector('.sizeBox');
+const summary = document.querySelector('.summary');
+const story = document.querySelector('.story');
+const images = document.querySelector('.images');
+const btnAdd = document.createElement('button');
+const btnSub = document.createElement('button');
+const stockNum = document.createElement('input');
+const qty = document.querySelector('#product-qty');
+const cart = document.querySelector('.add-cart');
 
-let preventObj = {};
-
-// init choice
-let mainImage = document.createElement("div");
-let name = document.createElement("div");
-let id = document.createElement("div");
-let price = document.createElement("div");
-let img = document.createElement("img");
-let view = document.querySelector("#viewM");
-let details = document.querySelector(".details");
-let colors = document.querySelector(".colors");
-let titleC = document.querySelector("#titleC");
-let colorBox = document.querySelector(".colorBox");
-let titleS = document.querySelector("#titleS");
-let sizeBox = document.querySelector(".sizeBox");
-let summary = document.querySelector(".summary");
-let story = document.querySelector(".story");
-let images = document.querySelector(".images");
-
-// click color
-colorBox.addEventListener("click", (event) => {
-  let data = localStorage.getItem('productData');
-  let variants = JSON.parse(data).data.variants;
-
-  if (event.target.getAttribute("code") !== null) {
-    // color reset
-    for (let i = 0; i < document.querySelectorAll(".color").length; i++) {
-      document.querySelectorAll(".color")[i].className = "color";
-    }
-
-    // setting preventObj
-    event.target.className = "color current";
-    currentColor = event.target.getAttribute("code");
-    preventObj.color_code = currentColor;
-    
-    // check
-    let sizeOK = checkSize(variants, preventObj);
-    checkStock(sizeOK, variants, preventObj);
+colorBox.addEventListener('click', (event) => {
+  const color = document.querySelectorAll('.color');
+  if (event.target.getAttribute('code') !== null) {
+    color.forEach(item => item.className = 'color');
+    event.target.className = 'color current';
+    currentColor = event.target.getAttribute('code');
+    product_detail.color_code = currentColor;
+    checkSize();
   }
 });
 
-// click size
-sizeBox.addEventListener("click", (event) => {
-  let data = localStorage.getItem('productData');
-  let variants = JSON.parse(data).data.variants;
-  if (event.target.getAttribute("code") !== null && event.target.getAttribute('class') !== "size disabled") {
-    // size reset
-    for (let i = 0; i < document.querySelectorAll(".size").length; i++) {
-      document.querySelectorAll(".size")[i].className = "size";
-    }
-
-    // setting preventObj
-    event.target.className = "size current";
-    currentSize = event.target.getAttribute("code");
-    preventObj.size = currentSize;
-
-    // check
-    let sizeOK = checkSize(variants, preventObj);
-    checkStock(sizeOK, variants, preventObj);
-
+sizeBox.addEventListener('click', (event) => {
+  const size = document.querySelectorAll('.size');
+  if (event.target.getAttribute('code') !== null && event.target.getAttribute('class') !== 'size disabled') {
+    size.forEach(item => item.className = 'size');
+    event.target.className = 'size current';
+    currentSize = event.target.getAttribute('code');
+    product_detail.size = currentSize;
+    checkSize();
   }
 });
 
-function checkSize(variants, preventObj) {
-  // disabled size
-  let divSize = document.getElementsByClassName('size'); // array
-  for (let k = 0; k < divSize.length; k++) {
-    divSize[k].setAttribute("class", "size disabled");
-  }
-  // find abled size
-  let sizeArr = [];
-  for (let i = 0; i < variants.length; i++) {
-    if (variants[i].color_code === preventObj.color_code) {
-      sizeArr.push(variants[i].size)
-    }
-  }
-  // display exist size
-  for (let i = 0; i < divSize.length; i++) {
-    sizeArr.find((item) => {
-      if (item === divSize[i].innerHTML) {
-        return divSize[i].setAttribute("class", "size")
-      }
-    })
-  };
-  let sizeOK = sizeArr.find((item) => {
-    return item === preventObj.size
-  })
-  return sizeOK;
-}
-
-function checkStock(sizeOK, variants, preventObj) {
-  const sizeDiv = document.querySelectorAll('.size');
-  if (sizeOK) {
-    for (let i = 0; i < sizeDiv.length; i++) {
-      if (sizeDiv[i].getAttribute('value') === preventObj.size) {
-        sizeDiv[i].setAttribute("class", "size current");
-        break;
-      }
-    }
-    let stock = variants.find((item) => {
-      if (item.color_code === preventObj.color_code && item.size === preventObj.size) {
-        return item.stock;
-      }
-    })
-    preventObj.stock = stock.stock;
-  } else {
-    let size = variants.find((item) => {
-      if (item.color_code === preventObj.color_code) {
-        return item.size
-      }
-    })
-    preventObj.size = size.size;
-    preventObj.stock = size.stock;
-    for (let i = 0; i < sizeDiv.length; i++) {
-      if (sizeDiv[i].getAttribute('value') === preventObj.size) {
-        sizeDiv[i].setAttribute("class", "size current");
-        break;
-      }
-    }
-  }
-}
-
-let btnAdd = document.createElement("button");
-let btnSub = document.createElement("button");
-let stockNum = document.createElement("input");
-let qty = document.querySelector('#product-qty');
-
-
-qty.addEventListener("click", (event) => {
-  const stock = preventObj.stock;
+qty.addEventListener('click', (event) => {
+  const stock = product_detail.stock;
+  const cal = document.querySelector('.value');
   if (stock !== 0) {
-    if (event.target.className === "add") {
-      if (Number(document.querySelector(".value").value) < stock) {
-        document.querySelector(".value").value = parseInt(document.querySelector(".value").value) + 1;
+    if (event.target.className === 'add') {
+      if (Number(cal.value) < stock) {
+        cal.value = parseInt(cal.value) + 1;
       } else {
-        document.querySelector(".value").value = stock;
+        cal.value = stock;
       }
-    } else if (event.target.className === "sub") {
-      if (Number(document.querySelector(".value").value) === 1) {
-        document.querySelector(".value").value = 1
-      } else if (Number(document.querySelector(".value").value) > stock) {
-        document.querySelector(".value").value = stock;
+    } else if (event.target.className === 'sub') {
+      if (Number(cal.value) === 1) {
+        cal.value = 1
+      } else if (Number(cal.value) > stock) {
+        cal.value = stock;
       } else {
-        document.querySelector(".value").value = parseInt(document.querySelector(".value").value) - 1;
+        cal.value = parseInt(cal.value) - 1;
       }
     }
   } else {
-    document.querySelector(".value").value = 0;
+    cal.value = 0;
   }
 });
 
-const data = async() => {
-  await saveData();
-  let data = await getData();
-  await renderProduct(JSON.parse(data));
-  let variants = JSON.parse(data).data.variants;
-  preventObj.color_code = document.getElementsByClassName('color')[0].getAttribute('value')
-
-  for(let i=0; i<variants.length; i++){
-    if (variants[i].color_code === preventObj.color_code){
-      preventObj.size = variants[i].size;
-      preventObj.stock = variants[i].stock ;
-      break;
-    }
-  }
-  if (preventObj.stock !== 0) {
-    document.querySelector(".value").value = 1;
-  } else {
-    document.querySelector(".value").value = 0;
-  }
-  await currentRender(preventObj, variants);
-}
-
-function currentRender(data, variants) {
-  return new Promise ((resolve, reject)=>{
-    // disabled size
-    let divSize = document.getElementsByClassName('size'); // array
-    for (let k = 0; k < divSize.length; k++) {
-      divSize[k].setAttribute("class", "size disabled");
-    }
-    // find abled size
-    let sizeArr = [];
-    for (let i = 0; i < variants.length; i++) {
-      if (variants[i].color_code === data.color_code) {
-        sizeArr.push(variants[i].size)
-      }
-    }
-    // display exist size
-    for (let i = 0; i < divSize.length; i++) {
-      sizeArr.find((item) => {
-        if (item === divSize[i].innerHTML) {
-          return divSize[i].setAttribute("class", "size")
-        }
-      })
-    };
-
-    const color = document.querySelectorAll('.color');
-    const size = document.querySelectorAll('.size');
-    for (let i = 0; i < color.length; i++) {
-      if (color[i].getAttribute('value') === data.color_code) {
-        color[i].setAttribute("class", "color current");
-        break;
-      }
-    }; 
-    for (let i = 0; i < size.length; i++) {
-      if (size[i].getAttribute('value') === data.size) {
-        size[i].setAttribute("class", "size current");
-        break;
-      }
-    } 
-    resolve();
-  })
-}
-
-function saveData() {
-  return fetch(`api/1.0/products/details?id=${idquery}`)
-    .then((response) => response.json())
-    .then((data) => {
-      // save data in localstorge
-      localStorage.setItem('productData', JSON.stringify(data));
-    })
-    .catch((error) => {
-      // console.log(error);
-    });
-}
-
-function getData() {
-  let result = localStorage.getItem('productData');
-  return result;
-}
-
-function renderProduct(data) {
-  return new Promise( (resolve, reject) => {
-    cartList = {};
-
-    mainImage.setAttribute("id", "product-main-image");
-    mainImage.className = "name";
-    img.src = `${data.data.main_image}`;
-    mainImage.appendChild(img);
-    view.prepend(mainImage);
-
-    // product image, title, number, price
-    name.setAttribute("id", "product-name");
-    name.className = "name";
-    name.innerHTML = `${data.data.title}`;
-    id.setAttribute("id", "product-id");
-    id.className = "id";
-    id.innerHTML = `${data.data.id}`;
-    price.setAttribute("id", "product-price");
-    price.className = "price";
-    price.innerHTML = `${data.data.price}`;
-    details.prepend(price);
-    details.prepend(id);
-    details.prepend(name);
-
-    // render color
-    for (let j = 0; j < data.data.colors.length; j++) {
-      let color = document.createElement("div");
-      color.className = "color";
-      color.name = `#${data.data.colors[j]}`;
-      color.style.backgroundColor = `#${data.data.colors[j].code}`;
-      color.setAttribute("code", `${data.data.colors[j].code}`);
-      color.setAttribute("value", `${data.data.colors[j].code}`);
-      colorBox.appendChild(color);
-    }
-
-    // render size
-    for (let j = 0; j < data.data.sizes.length; j++) {
-      let size = document.createElement("div");
-      size.className = "size";
-      size.name = `#${data.data.sizes[j]}`;
-      size.innerHTML = `${data.data.sizes[j]}`;
-      size.style.backgroundColor = `#${data.data.sizes[j]}`;
-      size.setAttribute("code", `${data.data.sizes[j]}`);
-      size.setAttribute("value", `${data.data.sizes[j]}`);
-      sizeBox.appendChild(size);
-    }
-
-    // render stock
-    btnAdd.className = "add";
-    btnAdd.innerHTML = "+";
-    btnSub.className = "sub";
-    btnSub.innerHTML = "-";
-    stockNum.className = "value";
-    stockNum.setAttribute('value', 0);
-    stockNum.setAttribute('disabled', "disabled");
-    qty.prepend(btnAdd);
-    qty.prepend(stockNum);
-    qty.prepend(btnSub);
-
-    // product summary
-    let summary1 = `${data.data.note}<br><br>`;
-    let texture = `${data.data.texture}`.split("/");
-    summary2 = "";
-    for (let i = 0; i < texture.length; i++) {
-      summary2 += texture[i] + "<br>";
-    }
-    let summary3 = `<br>清洗：${data.data.wash}<br>產地：${data.data.place}`;
-    summary.innerHTML = summary1 + summary2 + summary3;
-
-    // product story
-    story.innerHTML = `${data.data.description}`;
-
-    // product images
-    for (let j = 0; j < data.data.images.length; j++) {
-      let img = document.createElement("img");
-      img.src = `${data.data.images[j]}`;
-      images.appendChild(img);
-    }
-    resolve();
-  })
-}
-
-// add cart
-let cart = document.querySelector(".add-cart");
-
-cart.addEventListener("click", () => {
-  // save product info.
-  const data = localStorage.getItem('productData');
-  const purchase = JSON.parse(data);
+cart.addEventListener('click', () => {
+  const purchase = product_detail;
   const addProduct = {
     product_id: purchase.data.id,
     title: purchase.data.title,
-    price: parseInt(purchase.data.price.split(".")[1]),
+    price: parseInt(purchase.data.price.split('.')[1]),
     main_image: purchase.data.main_image,
-    color_code: preventObj.color_code,
-    size: preventObj.size,
-    count: document.querySelector(".value").value
+    color_code: product_detail.color_code,
+    size: product_detail.size,
+    count: document.querySelector('.value').value
   }
   if (localStorage.getItem('userCart')) {
     const cartList_str = localStorage.getItem('userCart');
@@ -343,17 +90,187 @@ cart.addEventListener("click", () => {
   alert('已成功加入購物車！')
 });
 
-function checkCartList(cartList, addProduct) {
-  for (let i=0; i<cartList.length; i++) {
-    if (cartList[i].product_id === addProduct.product_id && cartList[i].size === addProduct.size && cartList[i].color_code === addProduct.color_code) {
-      const new_count = Number(cartList[i].count) + Number(addProduct.count);
-      cartList[i].count = new_count;
-      cartList[i].price = addProduct.price;
-      return cartList;
-    }
+async function fetchDataByGet(url) {
+  const res_json = await fetch(url, {
+    method: 'GET',
+    headers: new Headers({
+      'Content-Type': 'application/json'
+    })
+  });
+  return res_json.json();
+};
+
+function renderSize() {
+  const variants =  product_detail.data.variants;
+  const size_box = document.getElementsByClassName('size');
+  Array.from(size_box).forEach(size => {
+    size.setAttribute('class', 'size disabled');
+  });
+  const size_arr = new Array();
+  variants.forEach(variant => {
+    if (variant.color_code === product_detail.color_code) size_arr.push(variant.size);
+  });
+  Array.from(size_box).forEach(size => {
+    size_arr.find(item => {
+      if (item === size.innerHTML) return size.setAttribute('class', 'size');
+    });
+  });
+  return size_arr;
+}
+
+function checkSize() {
+  const size_arr = renderSize();
+  const size = size_arr.find(item => item === product_detail.size);
+  checkStock(size);
+}
+
+function checkStock(size) {
+  const variants =  product_detail.data.variants;
+  const sizeDiv = document.querySelectorAll('.size');
+  if (size) {
+    const stock = variants.find((item) => {
+      if (item.color_code === product_detail.color_code && item.size === product_detail.size) {
+        return item.stock;
+      }
+    })
+    product_detail.stock = stock.stock;
+  } else {
+    const size = variants.find((item) => {
+      if (item.color_code === product_detail.color_code) {
+        return item.size;
+      }
+    })
+    product_detail.size = size.size;
   }
+  sizeDiv.forEach(size => {
+    if (size.getAttribute('value') === product_detail.size) {
+      size.setAttribute('class', 'size current');
+    }
+  })
+}
+
+function checkCartList(cartList, addProduct) {
+  cartList.forEach(item => {
+    if (item.product_id === addProduct.product_id && item.size === addProduct.size && item.color_code === addProduct.color_code) {
+      const new_count = Number(item.count) + Number(addProduct.count);
+      item.count = new_count;
+      item.price = addProduct.price;
+    }
+  })
   cartList.push(addProduct);
   return cartList;
+}
+
+async function getProduct() {
+  try {
+    const url = new URLSearchParams(window.location.search);
+    const id = url.get('id');
+    const product_url = `api/1.0/products/details?id=${id}`;
+    const product = await fetchDataByGet(product_url)
+    localStorage.setItem('productData', JSON.stringify(product));
+    return product;
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+function renderProduct(product) {
+  return new Promise((resolve) => {
+    mainImage.setAttribute('id', 'product-main-image');
+    mainImage.className = 'name';
+    img.src = `${product.data.main_image}`;
+    mainImage.appendChild(img);
+    view.prepend(mainImage);
+
+    // product image, title, number, price
+    product_name.setAttribute('id', 'product-name');
+    product_name.className = 'name';
+    product_name.innerHTML = `${product.data.title}`;
+    id.setAttribute('id', 'product-id');
+    id.className = 'id';
+    id.innerHTML = `${product.data.id}`;
+    price.setAttribute('id', 'product-price');
+    price.className = 'price';
+    price.innerHTML = `${product.data.price}`;
+    details.prepend(price);
+    details.prepend(id);
+    details.prepend(product_name);
+
+    // render color
+    product.data.colors.forEach(color => {
+      const color_box = document.createElement('div');
+      color_box.className = 'color';
+      color_box.name = `#${color}`;
+      color_box.style.backgroundColor = `#${color.code}`;
+      color_box.setAttribute('code', `${color.code}`);
+      color_box.setAttribute('value', `${color.code}`);
+      colorBox.appendChild(color_box);
+    })
+
+    // render size
+    product.data.sizes.forEach(size => {
+      const size_box = document.createElement('div');
+      size_box.className = 'size';
+      size_box.name = `#${size}`;
+      size_box.innerHTML = `${size}`;
+      size_box.style.backgroundColor = `#${size}`;
+      size_box.setAttribute('code', `${size}`);
+      size_box.setAttribute('value', `${size}`);
+      sizeBox.appendChild(size_box);
+    });
+
+    // render stock
+    btnAdd.className = 'add';
+    btnAdd.innerHTML = '+';
+    btnSub.className = 'sub';
+    btnSub.innerHTML = '-';
+    stockNum.className = 'value';
+    stockNum.setAttribute('value', 0);
+    stockNum.setAttribute('disabled', 'disabled');
+    qty.prepend(btnAdd);
+    qty.prepend(stockNum);
+    qty.prepend(btnSub);
+
+    // product summary
+    const summary1 = product.data.note + '<br><br>';
+    const texture = product.data.texture.split('/');
+    let summary2 = '';
+    texture.forEach(text => summary2 += text + '<br>');
+    const summary3 = '<br>清洗：' + product.data.wash + '<br>產地：' + product.data.place;
+    summary.innerHTML = summary1 + summary2 + summary3;
+
+    // product story
+    story.innerHTML = product.data.description;
+
+    // product images
+    product.data.images.forEach(image => {
+      const img = document.createElement('img');
+      img.src = image;
+      images.appendChild(img);
+    })
+    resolve();
+  })
+}
+
+function currentRender(data) {
+  return new Promise ((resolve) => {
+    renderSize();
+    const color = document.querySelectorAll('.color');
+    const size = document.querySelectorAll('.size');
+    color.forEach(item => {
+      if (item.getAttribute('value') === data.color_code) {
+        item.setAttribute('class', 'color current');
+        return;
+      };
+    });
+    size.forEach(item => {
+      if (item.getAttribute('value') === data.size) {
+        item.setAttribute('class', 'size current');
+        return;
+      };
+    });
+    resolve();
+  })
 }
 
 function countCart() {
@@ -365,4 +282,25 @@ function countCart() {
   }
 }
 
-countCart()
+async function init() {
+  const product = await getProduct();
+  await renderProduct(product);
+  product_detail = product;
+  const variants = product_detail.data.variants;
+  product_detail.color_code = document.getElementsByClassName('color')[0].getAttribute('value')
+  variants.forEach(variant => {
+    if (variant.color_code === product_detail.color_code) {
+      product_detail.size = variant.size;
+      product_detail.stock = variant.stock;
+    }
+  })
+  if (product_detail.stock !== 0) {
+    document.querySelector('.value').value = 1;
+  } else {
+    document.querySelector('.value').value = 0;
+  }
+  await currentRender(product_detail);
+  countCart();
+}
+
+document.addEventListener('DOMContentLoaded', init())

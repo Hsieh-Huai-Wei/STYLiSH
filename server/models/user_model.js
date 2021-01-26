@@ -1,13 +1,13 @@
-const { query } = require("../../util/dbcon");
+const { query } = require('../../util/dbcon');
 
 const checkSignUp = async (data) => {
-  const result = await query("SELECT * FROM user WHERE email = ?", [data]);
+  const result = await query('SELECT * FROM user WHERE email = ?', [data]);
   return result;
 }
 
 const signUp = async (data) => {
   try {
-    const result = await query("INSERT INTO user SET number = ?, name = ?, email = ?, password = ?, picture = ?, provider_id = ?, access_token = ?, access_expired = ?",[data.number,
+    const result = await query('INSERT INTO user SET number = ?, name = ?, email = ?, password = ?, picture = ?, provider_id = ?, access_token = ?, access_expired = ?',[data.number,
       data.name,
       data.email,
       data.password,

@@ -1,26 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Adding Marketing Campaigns API</title>
-
-</head>
-
-<body>
-  <div id="container">
-    <h1>Adding Marketing Campaigns API</h1>
-    <form action="/admin/campaign" method="POST" enctype="multipart/form-data">
-      Product number : <input name="number" type="text" value="" /><br />
-      Pictures :
-      <input multiple type="file" name="pictures" class="btn btn-info" /></input><br />
-      Story : <input name="story" type="text" value="" /><br />
-
-      <input type="submit" value="Submit" />
-    </form>
-  </div>
-
-</body>
-
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adding New Campaign</title>
+    <link rel="stylesheet" href="./css/campaign.css">
+  </head>
+  <body>
+    <div id="container" class="box">
+      <h1>Adding Marketing Campaign</h1>
+      <form action="/admin/campaign" method="POST" enctype="multipart/form-data">
+        <p>Campaign ID</p>
+        <input class="item" name="number" type="text" value="" />
+        <p>Story</p>
+        <textarea class="item" name="story" cols="30" rows="5"></textarea>
+        <p>Main Picture</p>
+        <input class="image_box item" name="pictures" type="file" class="btn btn-info" /></input>
+        <button class="btn" type="submit" value="Submit">Submit</button>
+      </form>
+    </div>
+  </body>
 </html>
