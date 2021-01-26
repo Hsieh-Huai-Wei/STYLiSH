@@ -1,30 +1,35 @@
-const Product = require("../models/product_model");
+require('dotenv').config();
+const { HOST_S3 } = process.env;
+const Product = require('../models/product_model');
+
+async function findProductData(product_detail) {
+  const product_inf = new Object();
+  const color = await Product.selectColor(product_detail.color_code);
+  const size = await Product.selectSize(product_detail.sizes);
+  const product_number = await Product.selectProduct(product_detail.id);
+  product_inf = {
+    color: color[0].id,
+    size: size[0].id,
+    id: product_number[0].id,
+  }
+  return product_inf;
+};
 
 const createProduct = async (req, res) => {
-  const checkProduct = req.body.id;
-  const check = await Product.checkProduct(checkProduct);
-  if (check.length === 1) {
-    const userCode = req.body.color_code;
-    const checkCode = await Product.selectColor(userCode);
-    const colorCode = checkCode[0].id;
-    const userSize = req.body.sizes;
-    const checkSize = await Product.selectSize(userSize);
-    const size = checkSize[0].id;
-    const checkProductId = await Product.selectProduct(checkProduct);
-    const productId = checkProductId[0].id;
-    const checkVariant = await Product.selectVariant(colorCode, size, productId);
-    const userStock = req.body.stock;
-    if (checkVariant.length >= 1) {
-      const id = checkProductId[0].id;
-      await Product.updateVariant(userStock, id);
-      res.send("variants update OK");
-    } else if (checkVariant.length === 0) {
-      await Product.insertVariant(colorCode, size, productId, userStock);
-      res.send("variants insert OK");
-    } else {
+  const product = await Product.checkProduct(req.body.id);
+  if (product.length === 1) {
+    const product_inf = findProductData(req.body);
+    const variant = await Product.selectVariant(product_inf);
+    product_inf.stock = product_detail.stock;
+    if (variant.length >= 1) {
+      await Product.updateVariant(product_inf);
+      res.send('variants update OK');
+    } else if (variant.length === 0) {
+      await Product.insertVariant(product_inf);
+      res.send('variants insert OK');
     }
-  } else if (check.length === 0) {
-    let data = {
+  } else if (product.length === 0) {
+    const data = {
       id: req.body.id,
       title: req.body.title,
       description: req.body.description,
@@ -37,49 +42,37 @@ const createProduct = async (req, res) => {
       color_code: req.body.color_code,
       size: req.body.sizes,
       stock: req.body.stock,
-      main_image: req.files["main_image"][0].key.split("/")[1],
+      main_image: req.files['main_image'][0].key.split('/')[1],
     };
     //you cannot save array to mysql, so you need to transfer to string
-    let result = [];
+    const images_urls = new Array();
     //because req.files is a array (contain object)
-    let images = req.files["images"];
-    for (let i = 0; i < images.length; i++) {
-      result.push(images[i].key.split("/")[1]);
-    }
+    const images = req.files['images'];
+    images.forEach(image => images_urls.push(image.key.split('/')[1]));
     //array transfer to string
-    data.images = result.toString();
+    data.images = images_urls.toString();
     //insert data function
-    const userClass = req.body.class;
-    const classResult = await Product.selectClass(userClass);
-    const classId = classResult[0].id;
-    await Product.insertProduct(data, classId)
-    const userCode = req.body.color_code;
-    const checkCode = await Product.selectColor(userCode);
-    const colorCode = checkCode[0].id;
-    const userSize = req.body.sizes;
-    const checkSize = await Product.selectSize(userSize);
-    const size = checkSize[0].id;
-    const checkProductId = await Product.selectProduct(checkProduct);
-    const productId = checkProductId[0].id;
-    await Product.insertVariant(colorCode, size, productId, data.stock);
-    res.send("overall table record inserted");
+    const classification = await Product.selectClass(req.body.class);
+    const class_id = classification[0].id;
+    await Product.insertProduct(data, class_id);
+    const product_inf = findProductData(data);
+    product_inf.stock = data.stock;
+    await Product.insertVariant(product_inf);
+    res.send('overall table record inserted');
   } else {
     throw err;
   }
 };
 
-// redis以前 product
 const getProducts = async (req, res, next) => {
   try {
-    const hostName = `https://as-raymond0116-image.s3.us-east-2.amazonaws.com/`;
-    let productObjS = {};
-    let productCount = await Product.countP(
+    const products = new Object();
+    const count = await Product.countProducts(
       req.params.category,
       req.query.keyword,
       req.query.id
     );
-    let allPages = Math.floor((productCount - 1) / 6);
-    // define user query paging
+    const all_pages = Math.floor((count - 1) / 6);
     if (isNaN(req.query.paging) || req.query.paging <= 0) {
       paging = 0;
     } else if (req.query.paging > 0) {
@@ -87,72 +80,63 @@ const getProducts = async (req, res, next) => {
     } else {
       paging = 0;
     }
-    // insert "next_paging" display
-    if (paging < allPages) {
-      productObjS.next_paging = paging + 1;
+    if (paging < all_pages) {
+      products.next_paging = paging + 1;
     }
-    let productObj = JSON.parse(
-      JSON.stringify(
-        await Product.resultP(
-          req.params.category,
-          paging,
-          req.query.keyword,
-          req.query.id
-        )
-      )
+    const product_list = await Product.getProducts(
+      req.params.category,
+      paging,
+      req.query.keyword,
+      req.query.id
     );
-    let productF = productObj.map((obj) => obj.id); //五筆資料
-    let sizeObj = JSON.parse(JSON.stringify(await Product.resultS(productF)));
-    let colorObj = JSON.parse(JSON.stringify(await Product.resultC(productF)));
-    let variantsObj = JSON.parse(JSON.stringify(await Product.resultV(productF)));
-    for (let i = 0; i < productObj.length; i++) {
-      productObj[i].main_image =
-        hostName + "uploads/" + productObj[i].main_image;
-    }
-    for (let i = 0; i < productObj.length; i++) {
-      let imagesArray = [];
-      for (let j = 0; j < productObj[i].images.split(",").length; j++) {
-        imagesArray.push(
-          hostName + "uploads/" + productObj[i].images.split(",")[j]
+    const product_id = product_list.map(product => product.id);
+    const product_size = await Product.getSize(product_id);
+    const product_color = await Product.getColor(product_id);
+    const product_variants = await Product.getVariants(product_id);
+
+    product_list.forEach(product => {
+      product.main_image = HOST_S3 + 'uploads/' + product.main_image;
+      const pictures_urls = new Array();
+      const pictures = product.images.split(',');
+      pictures.forEach(picture => {
+        pictures_urls.push(
+          HOST_S3 + 'uploads/' + picture
         );
-      }
-      productObj[i].images = imagesArray;
-    }
-    for (let i = 0; i < productObj.length; i++) {
-      productObj[i].sizes = [];
-      for (item of sizeObj) {
-        if (item.number === productObj[i].id) {
-          productObj[i].sizes.push(item.size);
+      });
+      product.images = pictures_urls;
+      product.sizes = new Array();
+      for (size of product_size) {
+        if (size.number === product.id) {
+          product.sizes.push(size.size);
         }
       }
-
-      productObj[i].colors = [];
-      for (item of colorObj) {
-        if (item.number === productObj[i].id) {
+      product.colors = new Array();
+      for (color of product_color) {
+        if (color.number === product.id) {
           data = {};
-          data.code = item.code;
-          data.name = item.name;
-          productObj[i].colors.push(data);
+          data.code = color.code;
+          data.name = color.name;
+          product.colors.push(data);
         }
       }
+      product.variants = new Array();
+      for (variant of product_variants) {
+        if (variant.number === product.id) {
+          data = new Object();
+          data.color_code = variant.code;
+          data.size = variant.size;
+          data.stock = variant.stock;
+          product.variants.push(data);
+        }
+      }
+    });
 
-      productObj[i].variants = [];
-      for (item of variantsObj) {
-        if (item.number === productObj[i].id) {
-          data = {};
-          data.color_code = item.code;
-          data.size = item.size;
-          data.stock = item.stock;
-          productObj[i].variants.push(data);
-        }
-      }
-    }
-    if (req.params.category === "details") {
-      productObjS.data = productObj[0];
-      res.json(productObjS);
+    if (req.params.category === 'details') {
+      products.data = product_list[0];
+      res.json(products);
     } else {
-      productObjS.data = productObj;
-      res.json(productObjS);
+      products.data = product_list;
+      res.json(products);
     }
   } catch (e) {
     res.sendStatus(500);

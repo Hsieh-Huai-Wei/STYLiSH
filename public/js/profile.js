@@ -1,46 +1,40 @@
-if (localStorage.getItem('userToken')) {
-  const data = {
-    'token': localStorage.getItem('userToken')
-  }
-  fetch('api/1.0/user/profile', {
+async function fetchDataByPost(url, data) {
+  const res_json = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
     body: JSON.stringify(data),
-  })
-    .then((res) => res.json())
-    .then((body) => {
-      if (body.error) {
-        alert('登入逾時，請重新登入！')
-        window.location.replace('/login.html');
-      } else {
-        renderUserInf(body);
-      }
-    });
-} else if (localStorage.getItem('fbToken')) {
-  const data = {
-    'token': localStorage.getItem('fbToken')
+    headers: new Headers({
+      'Content-Type': 'application/json'
+    })
+  });
+  return res_json.json();
+}
+
+function checkUserLogIn() {
+  const native_token = localStorage.getItem('userToken');
+  const fb_token = localStorage.getItem('fbToken');
+  if (!native_token || !fb_token) {
+    alert('請先登入會員');
+    window.location.replace('/login.html');
+    return;
+  };
+  const token = new Object();
+  if (native_token) {
+    token = {
+      'token': localStorage.getItem('userToken')
+    }
+  } else if (fb_token) {
+    token = {
+      'token': localStorage.getItem('fbToken')
+    }
   }
-  fetch('api/1.0/user/profile', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data),
-  })
-    .then((res) => res.json())
-    .then((body) => {
-      if (body.error) {
-        alert('登入逾時，請重新登入')
-        window.location.replace('/login.html');
-      } else {
-        renderUserInf(body);
-      }
-    });
-} else {
-  alert('請先登入會員');
-  window.location.replace('/login.html');
+  const login_url = 'api/1.0/user/profile';
+  const login_status = fetchDataByPost(login_url, token);
+  if (login_status.error) {
+    alert('登入逾時，請重新登入！');
+    window.location.replace('/login.html');
+  } else {
+    renderUserInf(body);
+  }
 }
 
 function renderUserInf (data) {
@@ -60,4 +54,9 @@ function countCart() {
   }
 }
 
-countCart()
+function init() {
+  checkUserLogIn();
+  countCart();
+}
+
+document.addEventListener('DOMContentLoaded', init());
