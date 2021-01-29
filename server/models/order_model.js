@@ -1,7 +1,7 @@
 const { query } = require('../../util/dbcon');
 
 const checkout = async (data) => {
-  const result = await query('SELECT id FROM stylish.user WHERE email = ?', [data])
+  const result = await query('SELECT id FROM stylish.user WHERE email = ?', [data]);
   return result;
 };
 

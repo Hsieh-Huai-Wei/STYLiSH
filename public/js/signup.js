@@ -1,21 +1,21 @@
+/* global app, FB */
 (function (d, s, id) {
   // Load the SDK asynchronously
-  var js,
-    fjs = d.getElementsByTagName(s)[0];
+  const fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) return;
-  js = d.createElement(s);
+  const js = d.createElement(s);
   js.id = id;
   js.src = 'https://connect.facebook.net/en_US/sdk.js';
   fjs.parentNode.insertBefore(js, fjs);
 })(document, 'script', 'facebook-jssdk');
 
-function checkLoginState() {
+app.checkLoginState = function () {
   // Called when a person is finished with the Login Button.
   FB.getLoginStatus(function (response) {
     // See the onlogin handler
     statusChangeCallback(response);
   });
-}
+};
 
 window.fbAsyncInit = function () {
   FB.init({
@@ -31,7 +31,7 @@ window.fbAsyncInit = function () {
   });
 };
 
-function statusChangeCallback(response) {
+async function statusChangeCallback(response) {
   if (response.status === 'connected') {
     const old_token = {
       access_token: response.authResponse.accessToken,
@@ -46,7 +46,7 @@ function statusChangeCallback(response) {
       window.location.replace('/profile.html');
     }
   } else {
-    alert ('請登入會員！')
+    alert ('請登入會員！');
   }
 }
 
@@ -61,7 +61,7 @@ async function fetchDataByPost(url, data) {
   return res_json.json();
 }
 
-async function signUp() {
+app.signUp = async function () {
   const user_inf = {
     'name': document.getElementById('name').value,
     'email': document.getElementById('email').value,

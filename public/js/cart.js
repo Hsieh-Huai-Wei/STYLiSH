@@ -1,83 +1,79 @@
+/* global app */
+
 const credit_card_payment_inf = document.getElementById('payment');
 const shipping = document.getElementById('shipping');
 let payment = 'credit_card';
 let recipient_time = 'anytime';
 
 // Tap pay setting
-TPDirect.setupSDK(
-  12348,
-  'app_pa1pQcKoY22IlnSXq5m5WP5jFKzoRG58VEXpT7wU62ud7mMbDOGzCYIlzzLF',
-  'sandbox'
-);
+function TPDirect() {
 
-TPDirect.card.setup({
-  fields: {
-    list: '#list',
-    number: {
-      // css selector
-      element: '#card-number',
-      placeholder: '**** **** **** ****',
-    },
-    expirationDate: {
-      // DOM object
-      element: document.getElementById('card-expiration-date'),
-      placeholder: 'MM / YY',
-    },
-    ccv: {
-      element: '#card-ccv',
-      placeholder: '後三碼',
-    },
-  },
-  styles: {
-    input: {
-      color: 'gray',
-    },
-    '.valid': {
-      color: 'green',
-    },
-    '.invalid': {
-      color: 'red',
-    },
-    '@media screen and (max-width: 400px)': {
-      input: {
-        color: 'orange',
+  TPDirect.setupSDK(
+    12348,
+    'app_pa1pQcKoY22IlnSXq5m5WP5jFKzoRG58VEXpT7wU62ud7mMbDOGzCYIlzzLF',
+    'sandbox'
+  );
+
+  TPDirect.card.setup({
+    fields: {
+      list: '#list',
+      number: {
+        // css selector
+        element: '#card-number',
+        placeholder: '**** **** **** ****',
+      },
+      expirationDate: {
+        // DOM object
+        element: document.getElementById('card-expiration-date'),
+        placeholder: 'MM / YY',
+      },
+      ccv: {
+        element: '#card-ccv',
+        placeholder: '後三碼',
       },
     },
-  },
-});
+    styles: {
+      input: {
+        color: 'gray',
+      },
+      '.valid': {
+        color: 'green',
+      },
+      '.invalid': {
+        color: 'red',
+      },
+      '@media screen and (max-width: 400px)': {
+        input: {
+          color: 'orange',
+        },
+      },
+    },
+  });
 
-shipping.addEventListener('change', ()=>{
-  if (shipping.value === 'credit_card') {
-    payment = 'credit_card';
-    credit_card_payment_inf.classList.remove('hidden_credit')
-  } else {
-    payment = 'cash_on_delivery';
-    credit_card_payment_inf.classList.add('hidden_credit')
-  }
-})
+  shipping.addEventListener('change', ()=>{
+    if (shipping.value === 'credit_card') {
+      payment = 'credit_card';
+      credit_card_payment_inf.classList.remove('hidden_credit');
+    } else {
+      payment = 'cash_on_delivery';
+      credit_card_payment_inf.classList.add('hidden_credit');
+    }
+  });
+
+}
 
 function getPrime() {
   return new Promise((resolve) => {
     const tappaySataus = TPDirect.card.getTappayFieldsStatus();
     const error_msg = {
       msg: '信用卡付款失敗，請確認信用卡資訊是否填寫正確！',
-    }
+    };
     if (tappaySataus.canGetPrime === false) return error_msg;
     TPDirect.card.getPrime((result)=>{
       if (result.status === 0) resolve(result.card.prime);
       resolve(error_msg);
     });
-  })
-}
-
-async function fetchDataByGet(url) {
-  const res_json = await fetch(url, {
-    method: 'GET',
-    headers: new Headers({
-      'Content-Type': 'application/json'
-    })
   });
-  return res_json.json();
 }
 
 async function fetchDataByPost(url, data) {
@@ -98,30 +94,30 @@ function checkCart() {
     cart_list.innerHTML=`<h4 style='margin-left:20px;'>${cart.msg}</h4>`;
     return;
   }
-  cart.forEach(data => {
-    const total_price = data.count*data.price;
+  for (let i=0; i< cart.length ;i++) {
+    const total_price = cart[i].count*cart[i].price;
     cart_list.innerHTML += `
       <div class='row cart-list'>
         <div class='detail'>
-          <img src='${data.main_image}' alt=''>
+          <img src='${cart[i].main_image}' alt=''>
           <div class='product_inf'>
-            <div class='title'>${data.title}</div>
-            <div class='color'><div class='choice-color' style='background-color: #${data.color_code}'></div></div>
-            <div class='size'>${data.size}</div>
+            <div class='title'>${cart[i].title}</div>
+            <div class='color'><div class='choice-color' style='background-color: #${cart[i].color_code}'></div></div>
+            <div class='size'>${cart[i].size}</div>
           </div>
         </div>
         <div class='pay_inf'>
-          <div class='count'>${data.count}</div>
-          <div class='single_price'>NTD. ${data.price}</div>
+          <div class='count'>${cart[i].count}</div>
+          <div class='single_price'>NTD. ${cart[i].price}</div>
           <div class='total_price'>NTD. ${total_price}</div>
           <img class='delete' src='./imgs/delete.png' alt='' onclick='deleteProduct(${i})'>
         </div>
       </div>
     `;
-  });
+  }
 }
 
-function deleteProduct(pos) {
+app.deleteProduct = function (pos) {
   const cart = getCartProduct();
   const list = document.getElementById('list');
   const div = document.createElement('div');
@@ -135,22 +131,22 @@ function deleteProduct(pos) {
   countCart();
   checkCart();
   countTotal();
-}
+};
 
-function choiceTime(time) {
+app.choiceTime = function (time) {
   recipient_time = time;
-}
+};
 
 function getCartProduct() {
   const cart_str = localStorage.getItem('userCart');
   const cart = JSON.parse(cart_str);
   if (!cart_str || cart.length === 0) {
-    return { msg: '購物車空空的耶！'}
+    return { msg: '購物車空空的耶！'};
   }
   return cart;
 }
 
-async function checkPaymentInf() {
+app.checkPaymentInf = async function() {
   const cart = getCartProduct();
   const recipient_name = document.getElementById('recipient-name').value;
   const recipient_email = document.getElementById('recipient-email').value;
@@ -175,30 +171,26 @@ async function checkPaymentInf() {
     recipient_address: recipient_address,
     recipient_time: recipient_time,
     cart: cart,
-  }
+  };
   const payment_url = 'api/1.0/order/checkout';
   const payment_status = await fetchDataByPost(payment_url, payment_inf);
-  if (payment_status.status !== undefined) return alert(body.msg);
+  if (payment_status.status !== undefined) return alert(payment_status.msg);
   window.location.replace('/thankyou.html');
-}
+};
 
-function checkUserLogIn() {
+async function checkUserLogIn() {
   if (localStorage.getItem('userToken') || localStorage.getItem('fbToken')) {
     const token = new Object();
     if (localStorage.getItem('userToken')) {
-      data = {
-        'token': localStorage.getItem('userToken')
-      }
+      token['token'] = localStorage.getItem('userToken');
     } else {
-      data = {
-        'token': localStorage.getItem('fbToken')
-      }
+      token['token'] = localStorage.getItem('fbToken');
     }
     const profile_url = 'api/1.0/user/profile';
     const profile = await fetchDataByPost(profile_url, token);
     if (profile.error) {
       alert('登入逾時，請重新登入');
-      window.location.replace('/login.html'); 
+      window.location.replace('/login.html');
     } else {
       checkCart();
     }
@@ -224,15 +216,16 @@ function countTotal() {
   let price = 0;
   cart_list.forEach(cart => {
     price += Number(cart.count) * Number(cart.price);
-  })
+  });
   subtotal.innerHTML = price;
   total_price.innerText = price + 60;
 }
 
 function init() {
+  TPDirect();
   checkUserLogIn();
-  countCart()
+  countCart();
   countTotal();
 }
 
-document.addEventListener('DOMContentLoaded', init())
+document.addEventListener('DOMContentLoaded', init());

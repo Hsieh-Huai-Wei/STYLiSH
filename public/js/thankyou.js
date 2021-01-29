@@ -6,4 +6,4 @@ function init() {
   localStorage.removeItem('userCart');
 }
 
-document.addEventListener('DOMContentLoaded', init())
+document.addEventListener('DOMContentLoaded', init());

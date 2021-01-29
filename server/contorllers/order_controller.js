@@ -1,22 +1,23 @@
-const order = require('../models/order_model');
+const Order = require('../models/order_model');
 const axios = require('axios').default;
 
 function verifyData(data) {
   if (data.email.split('@').length !== 2) {
-    return result = {
+    const result = {
       check: false,
       status: 404,
       msg: '信箱驗證錯誤，請輸入符合規範之信箱！'
-    }
+    };
+    return result;
   }
 }
 
 const createOrder = async (req, res) => {
-  
+
   const checkResult = verifyData(res.body.recipient_email);
   if (!checkResult.check) return res.send(checkResult);
-  let prime = req.body.prime;
-  let orderNumber = Math.round(Math.random() * 1e10) + 1;
+  const prime = req.body.prime;
+  const orderNumber = Math.round(Math.random() * 1e10) + 1;
 
   const post_data = {
     prime: prime,
@@ -42,9 +43,9 @@ const createOrder = async (req, res) => {
           'partner_PHgswvYEk4QY6oy3n8X3CwiQCVQmv91ZcFoD5VrkGFXo8N7BFiLUxzeG',
       },
     })
-    .then(async (response) => {
-      const result = await order.checkout(req.body.recipient_email);
-      let paymentInf = {
+    .then(async () => {
+      await Order.checkout(req.body.recipient_email);
+      const paymentInf = {
         order_number: orderNumber,
         user_id: 74,
         prime: 'paid',
@@ -57,18 +58,17 @@ const createOrder = async (req, res) => {
         time: req.body.recipient_time,
         price: req.body.total_price,
         cart: JSON.stringify(req.body.cart)
-      }
-      await order.insertOrder(paymentInf);
-      await order.selectOrder(paymentInf);
-      data = {};
-      data.number = orderNumber;
-      let results = {};
-      results.data = data;
-      console.log(results)
-      res.json(results);
+      };
+      await Order.insertOrder(paymentInf);
+      await Order.selectOrder(paymentInf);
+      const result = new Object();
+      result.data = {
+        'number': orderNumber
+      };
+      res.json(result);
     });
   };
 
 module.exports = {
   createOrder
-}
+};

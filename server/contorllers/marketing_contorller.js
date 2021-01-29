@@ -38,6 +38,7 @@ const getCampaigns = async (req, res, next) => {
     const products = new Object();
     const campaignsCount = await Marketing.countCam();
     const allCamPages = Math.floor((campaignsCount - 1) / 6);
+    let paging = 0;
     if (isNaN(req.query.paging) || req.query.paging <= 0) {
       paging = 0;
     } else if (req.query.paging > 0) {
@@ -59,7 +60,7 @@ const getCampaigns = async (req, res, next) => {
         );
       });
       detail.picture = pictures_urls;
-    })
+    });
     products.data = campaign_inf;
     redis.set('campaigns', JSON.stringify(products));
     res.json(products);

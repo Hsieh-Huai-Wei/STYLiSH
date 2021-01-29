@@ -1,7 +1,7 @@
 const { query } = require('../../util/dbcon');
 const redis = require('../../util/redis');
 
-const hostName = `https://as-raymond0116-image.s3.us-east-2.amazonaws.com/`;
+const hostName = 'https://as-raymond0116-image.s3.us-east-2.amazonaws.com/';
 
 const countCam = async () => {
   const result = await query('SELECT COUNT(id) AS count FROM campaigns');
@@ -37,9 +37,10 @@ const getCampaigns = async (req, res, next) => {
     const cache = await redis.getCache('campaigns');
     return res.json(cache);
   } catch (e) {
-    let campaignsObjS = {};
-    let campaignsCount = await query('SELECT COUNT(id) AS count FROM campaigns');
-    let allCamPages = Math.floor((campaignsCount - 1) / 6);
+    const campaignsObjS = new Object();
+    const campaignsCount = await query('SELECT COUNT(id) AS count FROM campaigns');
+    const allCamPages = Math.floor((campaignsCount - 1) / 6);
+    let paging = 0;
     if (isNaN(req.query.paging) || req.query.paging <= 0) {
       paging = 0;
     } else if (req.query.paging > 0) {
@@ -48,12 +49,12 @@ const getCampaigns = async (req, res, next) => {
       paging = 0;
     }
     if (paging < allCamPages) {
-      campaignsObjs.next_paging = paging + 1;
+      campaignsObjS.next_paging = paging + 1;
     }
-    let campaignsObj = JSON.parse(JSON.stringify(await resultCam()));
+    const campaignsObj = JSON.parse(JSON.stringify(await resultCam()));
     for (let i = 0; i < campaignsObj.length; i++) {
-      let picturesArray = [];
-      let x = campaignsObj[i].picture.split(',').length;
+      const picturesArray = [];
+      const x = campaignsObj[i].picture.split(',').length;
       for (let j = 0; j < x; j++) {
         picturesArray.push(
           hostName + 'uploads/' + campaignsObj[i].picture.split(',')[j]
@@ -62,7 +63,7 @@ const getCampaigns = async (req, res, next) => {
       campaignsObj[i].picture = picturesArray;
     }
     campaignsObjS.data = campaignsObj;
-    redis.set('campaigns', JSON.stringify(campaignsObjS))
+    redis.set('campaigns', JSON.stringify(campaignsObjS));
     res.json(campaignsObjS);
   }
 };

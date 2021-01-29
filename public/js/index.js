@@ -61,7 +61,7 @@ async function getProducts(tag) {
         color_div.className = 'color';
         color_div.style.backgroundColor = `#${color.code}`;
         color_box.appendChild(color_div);
-      })
+      });
       name.className = 'name';
       name.innerHTML = `${products.data[product_index].title}`;
       price.className = 'price';
@@ -73,7 +73,7 @@ async function getProducts(tag) {
       products_box.appendChild(a);
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 }
 
@@ -91,18 +91,16 @@ async function init() {
   removeDiv();
   const browser_url = new URLSearchParams(window.location.search);
   let api_url = '';
-  console.log(browser_url.get('tag'))
-  console.log(browser_url.get('keyword'))
   if (browser_url.get('tag') !== null) {
     api_url += browser_url.get('tag');
   } else if (browser_url.get('keyword') !== null) {
     api_url += 'search?keyword=' + browser_url.get('keyword');
   } else {
-    api_url += 'all'
+    api_url += 'all';
   }
   await getProducts(api_url);
   await getCampaign();
   countCart();
 }
 
-document.addEventListener('DOMContentLoaded', init())
+document.addEventListener('DOMContentLoaded', init());

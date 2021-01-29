@@ -3,7 +3,7 @@ const { query } = require('../../util/dbcon');
 const checkSignUp = async (data) => {
   const result = await query('SELECT * FROM user WHERE email = ?', [data]);
   return result;
-}
+};
 
 const signUp = async (data) => {
   try {
@@ -14,7 +14,7 @@ const signUp = async (data) => {
       data.picture,
       data.provider_id,
       data.access_token,
-      data.access_expired])
+      data.access_expired]);
     return result;
   } catch (err) {
     return {err};
