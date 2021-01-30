@@ -4,18 +4,20 @@ const axios = require('axios').default;
 function verifyData(data) {
   if (data.email.split('@').length !== 2) {
     const result = {
-      check: false,
-      status: 404,
-      msg: '信箱驗證錯誤，請輸入符合規範之信箱！'
+      error: '信箱驗證失敗！'
     };
     return result;
-  }
+  };
+  const result = {
+    msg: '信箱成功失敗！'
+  };
+  return result;
 }
 
 const createOrder = async (req, res) => {
 
   const checkResult = verifyData(res.body.recipient_email);
-  if (!checkResult.check) return res.send(checkResult);
+  if (checkResult.error) return res.status(400).send(checkResult);
   const prime = req.body.prime;
   const orderNumber = Math.round(Math.random() * 1e10) + 1;
 
@@ -65,7 +67,7 @@ const createOrder = async (req, res) => {
       result.data = {
         'number': orderNumber
       };
-      res.json(result);
+      res.status(200).json(result);
     });
   };
 

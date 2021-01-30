@@ -1,14 +1,11 @@
 const { query } = require('../../util/dbcon');
-const redis = require('../../util/redis');
 
-const hostName = 'https://as-raymond0116-image.s3.us-east-2.amazonaws.com/';
-
-const countCam = async () => {
+const countCampaigns = async () => {
   const result = await query('SELECT COUNT(id) AS count FROM campaigns');
   return result[0].count;
 };
 
-const resultCam = async (limit, paging) => {
+const getCampaigns = async (limit, paging) => {
   const offset = limit*paging;
   const result = await query('SELECT product_id, picture, story FROM stylish.campaigns ORDER BY campaigns.id ASC LIMIT ? OFFSET ?', [limit, offset]);
   return result;
@@ -32,45 +29,8 @@ const createCampaign = async (data) => {
   return result;
 };
 
-const getCampaigns = async (req, res, next) => {
-  try {
-    const cache = await redis.getCache('campaigns');
-    return res.json(cache);
-  } catch (e) {
-    const campaignsObjS = new Object();
-    const campaignsCount = await query('SELECT COUNT(id) AS count FROM campaigns');
-    const allCamPages = Math.floor((campaignsCount - 1) / 6);
-    let paging = 0;
-    if (isNaN(req.query.paging) || req.query.paging <= 0) {
-      paging = 0;
-    } else if (req.query.paging > 0) {
-      paging = parseInt(req.query.paging);
-    } else {
-      paging = 0;
-    }
-    if (paging < allCamPages) {
-      campaignsObjS.next_paging = paging + 1;
-    }
-    const campaignsObj = JSON.parse(JSON.stringify(await resultCam()));
-    for (let i = 0; i < campaignsObj.length; i++) {
-      const picturesArray = [];
-      const x = campaignsObj[i].picture.split(',').length;
-      for (let j = 0; j < x; j++) {
-        picturesArray.push(
-          hostName + 'uploads/' + campaignsObj[i].picture.split(',')[j]
-        );
-      }
-      campaignsObj[i].picture = picturesArray;
-    }
-    campaignsObjS.data = campaignsObj;
-    redis.set('campaigns', JSON.stringify(campaignsObjS));
-    res.json(campaignsObjS);
-  }
-};
-
 module.exports = {
-  countCam,
-  resultCam,
+  countCampaigns,
   option,
   searchCampaign,
   createCampaign,

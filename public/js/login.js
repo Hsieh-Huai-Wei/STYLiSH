@@ -32,21 +32,23 @@ window.fbAsyncInit = function () {
 };
 
 async function statusChangeCallback(response) {
-  if (response.status === 'connected') {
-    const old_token = {
-      access_token: response.authResponse.accessToken,
-    };
-    const login_url = 'api/1.0/fbsignin';
-    const log_in = await fetchDataByPost(login_url, old_token);
-    if (log_in.error) {
-      alert('伺服器似乎有狀況，請稍後再測試');
-    } else {
+  try {
+    if (response.status === 'connected') {
+      const old_token = {
+        access_token: response.authResponse.accessToken,
+      };
+      const login_url = 'api/1.0/fbsignin';
+      const log_in = await fetchDataByPost(login_url, old_token);
+      if (log_in.error) return alert(log_in.error.msg);
       const new_token = log_in.data.access_token;
       localStorage.setItem('fbToken', new_token);
       window.location.replace('/profile.html');
+    } else {
+      alert ('請登入會員！');
     }
-  } else {
-    alert ('請登入會員！');
+  } catch (error) {
+    console.log(error.msg)
+    alert(error.msg);
   }
 }
 
@@ -62,18 +64,20 @@ async function fetchDataByPost(url, data) {
 }
 
 app.signIn = async function () {
-  const user_inf = {
-    'email': document.getElementById('email').value,
-    'pwd': document.getElementById('pwd').value,
-  };
-  const sign_url = 'api/1.0/user/signin';
-  const sign_in = await fetchDataByPost(sign_url, user_inf);
-  if (sign_in.status !== undefined) {
-    alert(sign_in.msg);
-  } else {
+  try {
+    const user_inf = {
+      'email': document.getElementById('email').value,
+      'pwd': document.getElementById('pwd').value,
+    };
+    const sign_url = 'api/1.0/user/signin';
+    const sign_in = await fetchDataByPost(sign_url, user_inf);
+    if (sign_in.error) return alert(sign_in.error.msg);
     const token = sign_in.data.access_token;
     localStorage.setItem('userToken', token);
     window.location.replace('/profile.html');
+  } catch (error) {
+    console.log(error.msg)
+    alert(error.msg);
   }
 };
 

@@ -162,10 +162,12 @@ async function getProduct() {
     const id = url.get('id');
     const product_url = `api/1.0/products/details?id=${id}`;
     const product = await fetchDataByGet(product_url);
+    if (product.error) return alert(product.error.msg);
     localStorage.setItem('productData', JSON.stringify(product));
     return product;
   } catch (error) {
-    console.log(error);
+    console.log(error.msg);
+    alert(error.msg);
   }
 }
 
@@ -278,24 +280,29 @@ function countCart() {
 }
 
 async function init() {
-  const product = await getProduct();
-  await renderProduct(product);
-  product_detail = product;
-  const variants = product_detail.data.variants;
-  product_detail.color_code = document.getElementsByClassName('color')[0].getAttribute('value');
-  variants.forEach(variant => {
-    if (variant.color_code === product_detail.color_code) {
-      product_detail.size = variant.size;
-      product_detail.stock = variant.stock;
+  try {
+    const product = await getProduct();
+    await renderProduct(product);
+    product_detail = product;
+    const variants = product_detail.data.variants;
+    product_detail.color_code = document.getElementsByClassName('color')[0].getAttribute('value');
+    variants.forEach(variant => {
+      if (variant.color_code === product_detail.color_code) {
+        product_detail.size = variant.size;
+        product_detail.stock = variant.stock;
+      }
+    });
+    if (product_detail.stock !== 0) {
+      document.querySelector('.value').value = 1;
+    } else {
+      document.querySelector('.value').value = 0;
     }
-  });
-  if (product_detail.stock !== 0) {
-    document.querySelector('.value').value = 1;
-  } else {
-    document.querySelector('.value').value = 0;
+    await currentRender(product_detail);
+    countCart();
+  } catch (error) {
+    console.log(error.msg);
+    alert(error.msg);
   }
-  await currentRender(product_detail);
-  countCart();
 }
 
 document.addEventListener('DOMContentLoaded', init());

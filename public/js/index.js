@@ -21,6 +21,7 @@ async function getCampaign() {
   try {
     const campaign_url = 'api/1.0/marketing/campaigns';
     const campaigns = await fetchDataByGet(campaign_url);
+    if (campaigns.error) return alert(campaigns.error.msg);
     campaigns.data.forEach(campaign => {
       const a = document.createElement('a');
       const story = document.createElement('div');
@@ -37,7 +38,8 @@ async function getCampaign() {
       key_visual.appendChild(a);
     });
   } catch (error) {
-    console.log(error);
+    console.log(error.msg);
+    alert(error.msg)
   }
 }
 
@@ -45,6 +47,7 @@ async function getProducts(tag) {
   try {
     const products_url = `api/1.0/products/${tag}`;
     const products = await fetchDataByGet(products_url);
+    if (products.error) return alert(products.error.msg);
     for (let product_index = 0; product_index<products.data.length; product_index++) {
       const a = document.createElement('a');
       const img = document.createElement('img');
@@ -88,19 +91,24 @@ function removeDiv() {
 }
 
 async function init() {
-  removeDiv();
-  const browser_url = new URLSearchParams(window.location.search);
-  let api_url = '';
-  if (browser_url.get('tag') !== null) {
-    api_url += browser_url.get('tag');
-  } else if (browser_url.get('keyword') !== null) {
-    api_url += 'search?keyword=' + browser_url.get('keyword');
-  } else {
-    api_url += 'all';
+  try {
+    removeDiv();
+    const browser_url = new URLSearchParams(window.location.search);
+    let api_url = '';
+    if (browser_url.get('tag') !== null) {
+      api_url += browser_url.get('tag');
+    } else if (browser_url.get('keyword') !== null) {
+      api_url += 'search?keyword=' + browser_url.get('keyword');
+    } else {
+      api_url += 'all';
+    }
+    await getProducts(api_url);
+    await getCampaign();
+    countCart();
+  } catch (error) {
+   console.log(error.msg);
+   alert(error.msg); 
   }
-  await getProducts(api_url);
-  await getCampaign();
-  countCart();
 }
 
 document.addEventListener('DOMContentLoaded', init());

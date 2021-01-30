@@ -14,7 +14,7 @@ async function findProductData(product_detail) {
   return product_inf;
 }
 
-const createProduct = async (req, res) => {
+const createProduct = async (req, res, next) => {
   try {
     const product = await Product.checkProduct(req.body.id);
     if (product.length === 1) {
@@ -24,10 +24,10 @@ const createProduct = async (req, res) => {
       product_count.stock = req.body.stock;
       if (variant.length >= 1) {
         await Product.updateVariant(product_count);
-        res.send('variants update OK');
+        res.status(201).json({msg: '此產品數量已成功更新!'});
       } else if (variant.length === 0) {
         await Product.insertVariant(product_count);
-        res.send('variants insert OK');
+        res.status(201).json({msg: '此產品數量已成功寫入!'});
       }
     } else if (product.length === 0) {
       const data = {
@@ -59,10 +59,10 @@ const createProduct = async (req, res) => {
       const product_count = findProductData(data);
       product_count.stock = data.stock;
       await Product.insertVariant(product_count);
-      res.send('overall table record inserted');
+      res.status(201).json({msg: '此產品數量已成功建立!'});
     }
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -136,13 +136,13 @@ const getProducts = async (req, res, next) => {
 
     if (req.params.category === 'details') {
       products.data = product_list[0];
-      res.json(products);
+      res.status(200).json(products);
     } else {
       products.data = product_list;
-      res.json(products);
+      res.status(200).json(products);
     }
-  } catch (e) {
-    res.sendStatus(500);
+  } catch (error) {
+    next(error);
   }
 };
 

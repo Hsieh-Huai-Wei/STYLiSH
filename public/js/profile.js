@@ -10,26 +10,31 @@ async function fetchDataByPost(url, data) {
 }
 
 async function checkUserLogIn() {
-  const native_token = localStorage.getItem('userToken');
-  const fb_token = localStorage.getItem('fbToken');
-  if (!native_token || !fb_token) {
-    alert('請先登入會員');
-    window.location.replace('/login.html');
-    return;
-  }
-  const token = new Object();
-  if (native_token) {
-    token['token'] = localStorage.getItem('userToken');
-  } else if (fb_token) {
-    token['token'] = localStorage.getItem('fbToken');
-  }
-  const login_url = 'api/1.0/user/profile';
-  const login = await fetchDataByPost(login_url, token);
-  if (login.error) {
-    alert('登入逾時，請重新登入！');
-    window.location.replace('/login.html');
-  } else {
-    renderUserInf(login);
+  try {
+    const native_token = localStorage.getItem('userToken');
+    const fb_token = localStorage.getItem('fbToken');
+    if (!native_token || !fb_token) {
+      alert('請先登入會員');
+      window.location.replace('/login.html');
+      return;
+    }
+    const token = new Object();
+    if (native_token) {
+      token['token'] = localStorage.getItem('userToken');
+    } else if (fb_token) {
+      token['token'] = localStorage.getItem('fbToken');
+    }
+    const login_url = 'api/1.0/user/profile';
+    const login = await fetchDataByPost(login_url, token);
+    if (login.error) {
+      alert('登入逾時，請重新登入！');
+      window.location.replace('/login.html');
+    } else {
+      renderUserInf(login);
+    }
+  } catch (error) {
+    console.log(error.msg);
+    alert(error.msg);
   }
 }
 

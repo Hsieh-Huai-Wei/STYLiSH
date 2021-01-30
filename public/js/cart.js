@@ -147,56 +147,66 @@ function getCartProduct() {
 }
 
 app.checkPaymentInf = async function() {
-  const cart = getCartProduct();
-  const recipient_name = document.getElementById('recipient-name').value;
-  const recipient_email = document.getElementById('recipient-email').value;
-  const recipient_phone = document.getElementById('recipient-phone').value;
-  const recipient_address = document.getElementById('recipient-address').value;
-  const locations = document.getElementById('location').value;
-  if (!recipient_name || !recipient_email || !recipient_phone || !recipient_address) return alert('收件資料不完成，請填寫收件資料！');
-  let prime = '';
-  if (payment === 'credit_card') prime = await getPrime();
-  if (prime.msg) {
-    alert(prime.msg);
-    return window.location.replace('/cart.html');
+  try {
+    const cart = getCartProduct();
+    const recipient_name = document.getElementById('recipient-name').value;
+    const recipient_email = document.getElementById('recipient-email').value;
+    const recipient_phone = document.getElementById('recipient-phone').value;
+    const recipient_address = document.getElementById('recipient-address').value;
+    const locations = document.getElementById('location').value;
+    if (!recipient_name || !recipient_email || !recipient_phone || !recipient_address) return alert('收件資料不完成，請填寫收件資料！');
+    let prime = '';
+    if (payment === 'credit_card') prime = await getPrime();
+    if (prime.msg) {
+      alert(prime.msg);
+      return window.location.replace('/cart.html');
+    }
+    const payment_inf = {
+      prime: prime,
+      total_price: 130,
+      location: locations,
+      shipping: payment,
+      recipient_name: recipient_name,
+      recipient_email: recipient_email,
+      recipient_phone: recipient_phone,
+      recipient_address: recipient_address,
+      recipient_time: recipient_time,
+      cart: cart,
+    };
+    const payment_url = 'api/1.0/order/checkout';
+    const payment_status = await fetchDataByPost(payment_url, payment_inf);
+    if (payment_status.error) return alert(payment_status.error.msg);
+    window.location.replace('/thankyou.html');
+  } catch (error) {
+    console.log(error.msg);
+    alert(error.msg);
   }
-  const payment_inf = {
-    prime: prime,
-    total_price: 130,
-    location: locations,
-    shipping: payment,
-    recipient_name: recipient_name,
-    recipient_email: recipient_email,
-    recipient_phone: recipient_phone,
-    recipient_address: recipient_address,
-    recipient_time: recipient_time,
-    cart: cart,
-  };
-  const payment_url = 'api/1.0/order/checkout';
-  const payment_status = await fetchDataByPost(payment_url, payment_inf);
-  if (payment_status.status !== undefined) return alert(payment_status.msg);
-  window.location.replace('/thankyou.html');
 };
 
 async function checkUserLogIn() {
-  if (localStorage.getItem('userToken') || localStorage.getItem('fbToken')) {
-    const token = new Object();
-    if (localStorage.getItem('userToken')) {
-      token['token'] = localStorage.getItem('userToken');
+  try {
+    if (localStorage.getItem('userToken') || localStorage.getItem('fbToken')) {
+      const token = new Object();
+      if (localStorage.getItem('userToken')) {
+        token['token'] = localStorage.getItem('userToken');
+      } else {
+        token['token'] = localStorage.getItem('fbToken');
+      }
+      const profile_url = 'api/1.0/user/profile';
+      const profile = await fetchDataByPost(profile_url, token);
+      if (profile.error) {
+        alert('登入逾時，請重新登入');
+        window.location.replace('/login.html');
+      } else {
+        checkCart();
+      }
     } else {
-      token['token'] = localStorage.getItem('fbToken');
-    }
-    const profile_url = 'api/1.0/user/profile';
-    const profile = await fetchDataByPost(profile_url, token);
-    if (profile.error) {
-      alert('登入逾時，請重新登入');
+      alert('請先登入會員');
       window.location.replace('/login.html');
-    } else {
-      checkCart();
     }
-  } else {
-    alert('請先登入會員');
-    window.location.replace('/login.html');
+  } catch (error) {
+    console.log(error.msg);
+    alert(error.msg);
   }
 }
 
