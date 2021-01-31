@@ -28,9 +28,11 @@ app.use('/api/' + API_VERSION,
 
 // Error handling
 app.use((err, req, res, next) => {
-  res.status(err.status || 500);
-  res.json({ error: err.message });
   console.log(err)
+  let msg = '伺服器似乎有狀況，請稍後再試!'
+  if (err) msg = err;
+  res.status(err.status || 500);
+  res.json({ error: msg });
 });
 
 app.listen(port, () => {

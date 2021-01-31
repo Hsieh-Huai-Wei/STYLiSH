@@ -3,64 +3,66 @@ const { HOST_S3 } = process.env;
 const Product = require('../models/product_model');
 
 async function findProductData(product_detail) {
-  const product_inf = new Object();
   const color = await Product.selectColor(product_detail.color_code);
   const size = await Product.selectSize(product_detail.sizes);
   const product_number = await Product.selectProduct(product_detail.id);
-  product_inf = {
+  const product_inf = {
     color: color[0].id,
     size: size[0].id,
     id: product_number[0].id,
-  }
+  };
   return product_inf;
-};
+}
 
-const createProduct = async (req, res) => {
-  const product = await Product.checkProduct(req.body.id);
-  if (product.length === 1) {
-    const product_inf = findProductData(req.body);
-    const variant = await Product.selectVariant(product_inf);
-    product_inf.stock = product_detail.stock;
-    if (variant.length >= 1) {
-      await Product.updateVariant(product_inf);
-      res.send('variants update OK');
-    } else if (variant.length === 0) {
-      await Product.insertVariant(product_inf);
-      res.send('variants insert OK');
+const createProduct = async (req, res, next) => {
+  try {
+    const product = await Product.checkProduct(req.body.id);
+    if (product.length === 1) {
+      const product_data = findProductData(req.body);
+      const variant = await Product.selectVariant(product_data);
+      const product_count = new Object();
+      product_count.stock = req.body.stock;
+      if (variant.length >= 1) {
+        await Product.updateVariant(product_count);
+        res.status(201).json({msg: '此產品數量已成功更新!'});
+      } else if (variant.length === 0) {
+        await Product.insertVariant(product_count);
+        res.status(201).json({msg: '此產品數量已成功寫入!'});
+      }
+    } else if (product.length === 0) {
+      const data = {
+        id: req.body.id,
+        title: req.body.title,
+        description: req.body.description,
+        price: req.body.price,
+        texture: req.body.texture,
+        wash: req.body.wash,
+        place: req.body.place,
+        note: req.body.note,
+        story: req.body.story,
+        color_code: req.body.color_code,
+        size: req.body.sizes,
+        stock: req.body.stock,
+        main_image: req.files['main_image'][0].key.split('/')[1],
+      };
+      // Cannot save array to mysql, so you need to transfer to string
+      const images_urls = new Array();
+      // req.files is a array (contain object)
+      const images = req.files['images'];
+      images.forEach(image => images_urls.push(image.key.split('/')[1]));
+      // array transfer to string
+      data.images = images_urls.toString();
+      // insert data function
+      const classification = await Product.selectClass(req.body.class);
+      const class_id = classification[0].id;
+      await Product.insertProduct(data, class_id);
+      const product_count = findProductData(data);
+      product_count.stock = data.stock;
+      await Product.insertVariant(product_count);
+      res.status(201).json({msg: '此產品數量已成功建立!'});
     }
-  } else if (product.length === 0) {
-    const data = {
-      id: req.body.id,
-      title: req.body.title,
-      description: req.body.description,
-      price: req.body.price,
-      texture: req.body.texture,
-      wash: req.body.wash,
-      place: req.body.place,
-      note: req.body.note,
-      story: req.body.story,
-      color_code: req.body.color_code,
-      size: req.body.sizes,
-      stock: req.body.stock,
-      main_image: req.files['main_image'][0].key.split('/')[1],
-    };
-    //you cannot save array to mysql, so you need to transfer to string
-    const images_urls = new Array();
-    //because req.files is a array (contain object)
-    const images = req.files['images'];
-    images.forEach(image => images_urls.push(image.key.split('/')[1]));
-    //array transfer to string
-    data.images = images_urls.toString();
-    //insert data function
-    const classification = await Product.selectClass(req.body.class);
-    const class_id = classification[0].id;
-    await Product.insertProduct(data, class_id);
-    const product_inf = findProductData(data);
-    product_inf.stock = data.stock;
-    await Product.insertVariant(product_inf);
-    res.send('overall table record inserted');
-  } else {
-    throw err;
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -72,7 +74,9 @@ const getProducts = async (req, res, next) => {
       req.query.keyword,
       req.query.id
     );
+    if (count === 0) return res.status(200).json({msg: '尚無產品上架!'});
     const all_pages = Math.floor((count - 1) / 6);
+    let paging = 0;
     if (isNaN(req.query.paging) || req.query.paging <= 0) {
       paging = 0;
     } else if (req.query.paging > 0) {
@@ -89,6 +93,7 @@ const getProducts = async (req, res, next) => {
       req.query.keyword,
       req.query.id
     );
+    if (product_list.length === 0) return res.status(200).json({msg: '尚無產品上架!'});
     const product_id = product_list.map(product => product.id);
     const product_size = await Product.getSize(product_id);
     const product_color = await Product.getColor(product_id);
@@ -105,24 +110,24 @@ const getProducts = async (req, res, next) => {
       });
       product.images = pictures_urls;
       product.sizes = new Array();
-      for (size of product_size) {
+      for (const size of product_size) {
         if (size.number === product.id) {
           product.sizes.push(size.size);
         }
       }
       product.colors = new Array();
-      for (color of product_color) {
+      for (const color of product_color) {
         if (color.number === product.id) {
-          data = {};
+          const data = new Object();
           data.code = color.code;
           data.name = color.name;
           product.colors.push(data);
         }
       }
       product.variants = new Array();
-      for (variant of product_variants) {
+      for (const variant of product_variants) {
         if (variant.number === product.id) {
-          data = new Object();
+          const data = new Object();
           data.color_code = variant.code;
           data.size = variant.size;
           data.stock = variant.stock;
@@ -133,13 +138,13 @@ const getProducts = async (req, res, next) => {
 
     if (req.params.category === 'details') {
       products.data = product_list[0];
-      res.json(products);
+      res.status(200).json(products);
     } else {
       products.data = product_list;
-      res.json(products);
+      res.status(200).json(products);
     }
-  } catch (e) {
-    res.sendStatus(500);
+  } catch (error) {
+    next(error);
   }
 };
 

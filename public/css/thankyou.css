@@ -2,10 +2,23 @@
 
 main {
   min-height: calc(100vh - 20rem);
+  display: flex;
+  justify-content: center;
 }
 
 .main {
-  height: 10px;
+  width: 500px;
+  height: 200px;
+  text-align: center;
+  border: 1px solid;
+  box-shadow: 0 0 5px #bbbbbb;
+  border-radius: 10px;
+  margin-top: 50px;
+  padding: 20px;
+}
+
+.more {
+  margin-top: 20px;
 }
 
 #response, #order {

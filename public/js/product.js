@@ -6,10 +6,7 @@ const price = document.createElement('div');
 const img = document.createElement('img');
 const view = document.querySelector('#viewM');
 const details = document.querySelector('.details');
-const colors = document.querySelector('.colors');
-const titleC = document.querySelector('#titleC');
 const colorBox = document.querySelector('.colorBox');
-const titleS = document.querySelector('#titleS');
 const sizeBox = document.querySelector('.sizeBox');
 const summary = document.querySelector('.summary');
 const story = document.querySelector('.story');
@@ -25,8 +22,7 @@ colorBox.addEventListener('click', (event) => {
   if (event.target.getAttribute('code') !== null) {
     color.forEach(item => item.className = 'color');
     event.target.className = 'color current';
-    currentColor = event.target.getAttribute('code');
-    product_detail.color_code = currentColor;
+    product_detail.color_code = event.target.getAttribute('code');
     checkSize();
   }
 });
@@ -36,8 +32,7 @@ sizeBox.addEventListener('click', (event) => {
   if (event.target.getAttribute('code') !== null && event.target.getAttribute('class') !== 'size disabled') {
     size.forEach(item => item.className = 'size');
     event.target.className = 'size current';
-    currentSize = event.target.getAttribute('code');
-    product_detail.size = currentSize;
+    product_detail.size = event.target.getAttribute('code');
     checkSize();
   }
 });
@@ -54,7 +49,7 @@ qty.addEventListener('click', (event) => {
       }
     } else if (event.target.className === 'sub') {
       if (Number(cal.value) === 1) {
-        cal.value = 1
+        cal.value = 1;
       } else if (Number(cal.value) > stock) {
         cal.value = stock;
       } else {
@@ -76,7 +71,7 @@ cart.addEventListener('click', () => {
     color_code: product_detail.color_code,
     size: product_detail.size,
     count: document.querySelector('.value').value
-  }
+  };
   if (localStorage.getItem('userCart')) {
     const cartList_str = localStorage.getItem('userCart');
     const cartList = JSON.parse(cartList_str);
@@ -85,20 +80,10 @@ cart.addEventListener('click', () => {
   } else {
     const insertCart = [addProduct];
     localStorage.setItem('userCart', JSON.stringify(insertCart));
-  };
+  }
   countCart();
-  alert('已成功加入購物車！')
+  alert('已成功加入購物車！');
 });
-
-async function fetchDataByGet(url) {
-  const res_json = await fetch(url, {
-    method: 'GET',
-    headers: new Headers({
-      'Content-Type': 'application/json'
-    })
-  });
-  return res_json.json();
-};
 
 function renderSize() {
   const variants =  product_detail.data.variants;
@@ -132,21 +117,21 @@ function checkStock(size) {
       if (item.color_code === product_detail.color_code && item.size === product_detail.size) {
         return item.stock;
       }
-    })
+    });
     product_detail.stock = stock.stock;
   } else {
     const size = variants.find((item) => {
       if (item.color_code === product_detail.color_code) {
         return item.size;
       }
-    })
+    });
     product_detail.size = size.size;
   }
   sizeDiv.forEach(size => {
     if (size.getAttribute('value') === product_detail.size) {
       size.setAttribute('class', 'size current');
     }
-  })
+  });
 }
 
 function checkCartList(cartList, addProduct) {
@@ -156,7 +141,7 @@ function checkCartList(cartList, addProduct) {
       item.count = new_count;
       item.price = addProduct.price;
     }
-  })
+  });
   cartList.push(addProduct);
   return cartList;
 }
@@ -166,11 +151,13 @@ async function getProduct() {
     const url = new URLSearchParams(window.location.search);
     const id = url.get('id');
     const product_url = `api/1.0/products/details?id=${id}`;
-    const product = await fetchDataByGet(product_url)
+    const product = await fetchDataByGet(product_url);
+    if (product.error) return alert(product.error.msg);
     localStorage.setItem('productData', JSON.stringify(product));
     return product;
   } catch (error) {
-    console.log(error)
+    console.log(error);
+    alert('伺服器有問題，請稍後再試！'); 
   }
 }
 
@@ -205,7 +192,7 @@ function renderProduct(product) {
       color_box.setAttribute('code', `${color.code}`);
       color_box.setAttribute('value', `${color.code}`);
       colorBox.appendChild(color_box);
-    })
+    });
 
     // render size
     product.data.sizes.forEach(size => {
@@ -247,9 +234,9 @@ function renderProduct(product) {
       const img = document.createElement('img');
       img.src = image;
       images.appendChild(img);
-    })
+    });
     resolve();
-  })
+  });
 }
 
 function currentRender(data) {
@@ -261,46 +248,42 @@ function currentRender(data) {
       if (item.getAttribute('value') === data.color_code) {
         item.setAttribute('class', 'color current');
         return;
-      };
+      }
     });
     size.forEach(item => {
       if (item.getAttribute('value') === data.size) {
         item.setAttribute('class', 'size current');
         return;
-      };
+      }
     });
     resolve();
-  })
-}
-
-function countCart() {
-  const cart_str = localStorage.getItem('userCart');
-  if (cart_str) {
-    const cart = JSON.parse(cart_str);
-    const cart_count = document.getElementById('cart-qty');
-    cart_count.textContent = cart.length;
-  }
+  });
 }
 
 async function init() {
-  const product = await getProduct();
-  await renderProduct(product);
-  product_detail = product;
-  const variants = product_detail.data.variants;
-  product_detail.color_code = document.getElementsByClassName('color')[0].getAttribute('value')
-  variants.forEach(variant => {
-    if (variant.color_code === product_detail.color_code) {
-      product_detail.size = variant.size;
-      product_detail.stock = variant.stock;
+  try {
+    const product = await getProduct();
+    await renderProduct(product);
+    product_detail = product;
+    const variants = product_detail.data.variants;
+    product_detail.color_code = document.getElementsByClassName('color')[0].getAttribute('value');
+    variants.forEach(variant => {
+      if (variant.color_code === product_detail.color_code) {
+        product_detail.size = variant.size;
+        product_detail.stock = variant.stock;
+      }
+    });
+    if (product_detail.stock !== 0) {
+      document.querySelector('.value').value = 1;
+    } else {
+      document.querySelector('.value').value = 0;
     }
-  })
-  if (product_detail.stock !== 0) {
-    document.querySelector('.value').value = 1;
-  } else {
-    document.querySelector('.value').value = 0;
+    await currentRender(product_detail);
+    countCart();
+  } catch (error) {
+    console.log(error);
+    alert('伺服器有問題，請稍後再試！'); 
   }
-  await currentRender(product_detail);
-  countCart();
 }
 
-document.addEventListener('DOMContentLoaded', init())
+document.addEventListener('DOMContentLoaded', init());

@@ -1,26 +1,9 @@
-async function fetchDataByGet(url) {
-  const res_json = await fetch(url, {
-    method: 'GET',
-    headers: new Headers({
-      'Content-Type': 'application/json'
-    })
-  });
-  return res_json.json();
-}
-
-function countCart() {
-  const cart_str = localStorage.getItem('userCart');
-  if (cart_str) {
-    const cart = JSON.parse(cart_str);
-    const cart_count = document.getElementById('cart-qty');
-    cart_count.textContent = cart.length;
-  }
-}
-
 async function getCampaign() {
   try {
     const campaign_url = 'api/1.0/marketing/campaigns';
     const campaigns = await fetchDataByGet(campaign_url);
+    if (campaigns.error) return alert(campaigns.error);
+    if (campaigns.msg) return alert(campaigns.msg);
     campaigns.data.forEach(campaign => {
       const a = document.createElement('a');
       const story = document.createElement('div');
@@ -38,6 +21,7 @@ async function getCampaign() {
     });
   } catch (error) {
     console.log(error);
+    alert('伺服器有問題，請稍後再試！'); 
   }
 }
 
@@ -45,7 +29,9 @@ async function getProducts(tag) {
   try {
     const products_url = `api/1.0/products/${tag}`;
     const products = await fetchDataByGet(products_url);
-    for (let product_index = 0; product_index<products.data.length; product_index++) {
+    if (products.error) return alert(products.error);
+    if (products.msg) return alert(products.msg);
+    for (let i = 0; i<products.data.length; i++) {
       const a = document.createElement('a');
       const img = document.createElement('img');
       const color_box = document.createElement('div');
@@ -53,19 +39,19 @@ async function getProducts(tag) {
       const price = document.createElement('div');
       const products_box = document.querySelector('.products');
       a.className = 'product';
-      a.href = `/product.html?id=${[product_index + 1]}`;
-      img.src = `${products.data[product_index].main_image}`;
+      a.href = `/product.html?id=${[i + 1]}`;
+      img.src = `${products.data[i].main_image}`;
       color_box.className = 'colors';
-      products.data[product_index].colors.forEach(color => {
+      products.data[i].colors.forEach(color => {
         const color_div = document.createElement('div');
         color_div.className = 'color';
         color_div.style.backgroundColor = `#${color.code}`;
         color_box.appendChild(color_div);
-      })
+      });
       name.className = 'name';
-      name.innerHTML = `${products.data[product_index].title}`;
+      name.innerHTML = `${products.data[i].title}`;
       price.className = 'price';
-      price.innerHTML = `${products.data[product_index].price}`;
+      price.innerHTML = `${products.data[i].price}`;
       a.appendChild(img);
       a.appendChild(color_box);
       a.appendChild(name);
@@ -73,7 +59,8 @@ async function getProducts(tag) {
       products_box.appendChild(a);
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
+    alert('伺服器有問題，請稍後再試！'); 
   }
 }
 
@@ -88,21 +75,24 @@ function removeDiv() {
 }
 
 async function init() {
-  removeDiv();
-  const browser_url = new URLSearchParams(window.location.search);
-  let api_url = '';
-  console.log(browser_url.get('tag'))
-  console.log(browser_url.get('keyword'))
-  if (browser_url.get('tag') !== null) {
-    api_url += browser_url.get('tag');
-  } else if (browser_url.get('keyword') !== null) {
-    api_url += 'search?keyword=' + browser_url.get('keyword');
-  } else {
-    api_url += 'all'
+  try {
+    removeDiv();
+    const browser_url = new URLSearchParams(window.location.search);
+    let api_url = '';
+    if (browser_url.get('tag') !== null) {
+      api_url += browser_url.get('tag');
+    } else if (browser_url.get('keyword') !== null) {
+      api_url += 'search?keyword=' + browser_url.get('keyword');
+    } else {
+      api_url += 'all';
+    }
+    await getProducts(api_url);
+    await getCampaign();
+    countCart();
+  } catch (error) {
+   console.log(error);
+   alert('伺服器有問題，請稍後再試！'); 
   }
-  await getProducts(api_url);
-  await getCampaign();
-  countCart();
 }
 
-document.addEventListener('DOMContentLoaded', init())
+document.addEventListener('DOMContentLoaded', init());
