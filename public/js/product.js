@@ -85,16 +85,6 @@ cart.addEventListener('click', () => {
   alert('已成功加入購物車！');
 });
 
-async function fetchDataByGet(url) {
-  const res_json = await fetch(url, {
-    method: 'GET',
-    headers: new Headers({
-      'Content-Type': 'application/json'
-    })
-  });
-  return res_json.json();
-}
-
 function renderSize() {
   const variants =  product_detail.data.variants;
   const size_box = document.getElementsByClassName('size');
@@ -166,8 +156,8 @@ async function getProduct() {
     localStorage.setItem('productData', JSON.stringify(product));
     return product;
   } catch (error) {
-    console.log(error.msg);
-    alert(error.msg);
+    console.log(error);
+    alert('伺服器有問題，請稍後再試！'); 
   }
 }
 
@@ -270,15 +260,6 @@ function currentRender(data) {
   });
 }
 
-function countCart() {
-  const cart_str = localStorage.getItem('userCart');
-  if (cart_str) {
-    const cart = JSON.parse(cart_str);
-    const cart_count = document.getElementById('cart-qty');
-    cart_count.textContent = cart.length;
-  }
-}
-
 async function init() {
   try {
     const product = await getProduct();
@@ -300,8 +281,8 @@ async function init() {
     await currentRender(product_detail);
     countCart();
   } catch (error) {
-    console.log(error.msg);
-    alert(error.msg);
+    console.log(error);
+    alert('伺服器有問題，請稍後再試！'); 
   }
 }
 

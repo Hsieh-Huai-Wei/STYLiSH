@@ -38,9 +38,9 @@
           <div class="login_form">
             <div class="ser_inf">
               <div class="column">信箱</div>
-              <input id="email" type="email" name="email" value="" />
+              <input id="email" type="email" name="email" value="" placeholder="test@test.com" />
               <div class="column">密碼</div>
-              <input id="pwd" type="password" name="pwd" value="" />
+              <input id="pwd" type="password" name="pwd" value="" placeholder="123456" />
               <div class="btns">
                 <button class="btn" onclick="signIn()">登入</button>
                 <fb:login-button scope="public_profile,email"  data-width="29px" data-size="large" onlogin="checkLoginState();" ></fb:login-button>
@@ -73,6 +73,7 @@
         </div>
       </div>
     </footer>
+    <script src="./js/util.js"></script>
     <script src = "./js/login.js"></script>
   </body>
 </html>

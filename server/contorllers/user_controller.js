@@ -72,6 +72,7 @@ const signUp = async (req, res, next) => {
       access_token:token,
       access_expired:signInDate,
     };
+    console.log(inf)
     await User.signUp(inf);
     const user = {
       id: randomID,
@@ -102,11 +103,11 @@ const signIn = async (req, res, next) => {
       pwd: req.body.pwd,
     };
     const checkResult = verifyData(userData);
-    if (!checkResult.check) return res.send(checkResult);
+    if (checkResult.error) return res.status(403).send(checkResult);
     const userPwd = pwdHash(userData.pwd);
     const checkEmail = await User.checkSignIn(userData.email, userPwd);
-    if (checkEmail.length === 0) return res.status(400).json({
-      msg: '信箱或密碼不正確!'
+    if (checkEmail.length === 0) return res.status(403).json({
+      error: '信箱或密碼不正確!'
     });
     const token = jwtSign(userData.email, expirationDate);
     await User.signIn(token, signInDate, userData.email);

@@ -9,7 +9,7 @@
   fjs.parentNode.insertBefore(js, fjs);
 })(document, 'script', 'facebook-jssdk');
 
-app.checkLoginState = function () {
+function checkLoginState() {
   // Called when a person is finished with the Login Button.
   FB.getLoginStatus(function (response) {
     // See the onlogin handler
@@ -43,27 +43,14 @@ async function statusChangeCallback(response) {
       const new_token = log_in.data.access_token;
       localStorage.setItem('fbToken', new_token);
       window.location.replace('/profile.html');
-    } else {
-      alert ('請登入會員！');
     }
   } catch (error) {
     console.log(error);
-    alert(error.msg);
+    alert('伺服器有問題，請稍後再試！'); 
   }
 }
 
-async function fetchDataByPost(url, data) {
-  const res_json = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: new Headers({
-      'Content-Type': 'application/json'
-    })
-  });
-  return res_json.json();
-}
-
-app.signUp = async function () {
+async function signUp() {
   try {
     const user_inf = {
       'name': document.getElementById('name').value,
@@ -72,23 +59,19 @@ app.signUp = async function () {
     };
     const sign_url = 'api/1.0/user/signup';
     const sign_up = await fetchDataByPost(sign_url, user_inf);
-    if (sign_up.error) return alert(sign_up.error.msg);
+    if (sign_up.error) return alert(sign_up.error);
+    if (sign_up.msg) return alert(sign_up.msg);
     const token = sign_up.data.access_token;
     localStorage.setItem('userToken', token);
     window.location.replace('/profile.html');
   } catch (error) {
     console.log(error);
-    alert(error.msg);
+    alert('伺服器有問題，請稍後再試！'); 
   }
 };
 
-function countCart() {
-  const cart_str = localStorage.getItem('userCart');
-  if (cart_str) {
-    const cart = JSON.parse(cart_str);
-    const cart_count = document.getElementById('cart-qty');
-    cart_count.textContent = cart.length;
-  }
+function init() {
+  countCart();
 }
 
-document.addEventListener('DOMContentLoaded', countCart());
+document.addEventListener('DOMContentLoaded', init());

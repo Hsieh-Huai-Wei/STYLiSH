@@ -1,19 +1,8 @@
-async function fetchDataByPost(url, data) {
-  const res_json = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: new Headers({
-      'Content-Type': 'application/json'
-    })
-  });
-  return res_json.json();
-}
-
 async function checkUserLogIn() {
   try {
     const native_token = localStorage.getItem('userToken');
     const fb_token = localStorage.getItem('fbToken');
-    if (!native_token || !fb_token) {
+    if (!native_token && !fb_token) {
       alert('請先登入會員');
       window.location.replace('/login.html');
       return;
@@ -33,8 +22,8 @@ async function checkUserLogIn() {
       renderUserInf(login);
     }
   } catch (error) {
-    console.log(error.msg);
-    alert(error.msg);
+    console.log(error);
+    alert('伺服器有問題，請稍後再試！'); 
   }
 }
 
@@ -43,15 +32,6 @@ function renderUserInf (data) {
   const email = document.getElementById('email');
   name.textContent = data.name;
   email.textContent= data.email;
-}
-
-function countCart() {
-  const cart_str = localStorage.getItem('userCart');
-  if (cart_str) {
-    const cart = JSON.parse(cart_str);
-    const cart_count = document.getElementById('cart-qty');
-    cart_count.textContent = cart.length;
-  }
 }
 
 function init() {

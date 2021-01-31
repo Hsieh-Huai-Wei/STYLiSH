@@ -9,7 +9,7 @@
   fjs.parentNode.insertBefore(js, fjs);
 })(document, 'script', 'facebook-jssdk');
 
-app.checkLoginState = function () {
+function checkLoginState() {
   // Called when a person is finished with the Login Button.
   FB.getLoginStatus(function (response) {
     // See the onlogin handler
@@ -39,7 +39,7 @@ async function statusChangeCallback(response) {
       };
       const login_url = 'api/1.0/fbsignin';
       const log_in = await fetchDataByPost(login_url, old_token);
-      if (log_in.error) return alert(log_in.error.msg);
+      if (log_in.error) return alert(log_in.error);
       const new_token = log_in.data.access_token;
       localStorage.setItem('fbToken', new_token);
       window.location.replace('/profile.html');
@@ -47,23 +47,12 @@ async function statusChangeCallback(response) {
       alert ('請登入會員！');
     }
   } catch (error) {
-    console.log(error.msg)
-    alert(error.msg);
+    console.log(error);
+    alert('伺服器有問題，請稍後再試！'); 
   }
 }
 
-async function fetchDataByPost(url, data) {
-  const res_json = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: new Headers({
-      'Content-Type': 'application/json'
-    })
-  });
-  return res_json.json();
-}
-
-app.signIn = async function () {
+async function signIn() {
   try {
     const user_inf = {
       'email': document.getElementById('email').value,
@@ -71,23 +60,18 @@ app.signIn = async function () {
     };
     const sign_url = 'api/1.0/user/signin';
     const sign_in = await fetchDataByPost(sign_url, user_inf);
-    if (sign_in.error) return alert(sign_in.error.msg);
+    if (sign_in.error) return alert(sign_in.error);
     const token = sign_in.data.access_token;
     localStorage.setItem('userToken', token);
     window.location.replace('/profile.html');
   } catch (error) {
-    console.log(error.msg)
-    alert(error.msg);
+    console.log(error);
+    alert('伺服器有問題，請稍後再試！'); 
   }
 };
 
-function countCart() {
-  const cart_str = localStorage.getItem('userCart');
-  if (cart_str) {
-    const cart = JSON.parse(cart_str);
-    const cart_count = document.getElementById('cart-qty');
-    cart_count.textContent = cart.length;
-  }
+function init() {
+  countCart()
 }
 
-document.addEventListener('DOMContentLoaded', countCart());
+document.addEventListener('DOMContentLoaded', init());

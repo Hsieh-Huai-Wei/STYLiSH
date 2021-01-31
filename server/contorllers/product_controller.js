@@ -74,6 +74,7 @@ const getProducts = async (req, res, next) => {
       req.query.keyword,
       req.query.id
     );
+    if (count === 0) return res.status(200).json({msg: '尚無產品上架!'});
     const all_pages = Math.floor((count - 1) / 6);
     let paging = 0;
     if (isNaN(req.query.paging) || req.query.paging <= 0) {
@@ -92,6 +93,7 @@ const getProducts = async (req, res, next) => {
       req.query.keyword,
       req.query.id
     );
+    if (product_list.length === 0) return res.status(200).json({msg: '尚無產品上架!'});
     const product_id = product_list.map(product => product.id);
     const product_size = await Product.getSize(product_id);
     const product_color = await Product.getColor(product_id);

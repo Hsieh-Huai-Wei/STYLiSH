@@ -10,38 +10,29 @@ const createCampaign = async (req, res, next) => {
     pictures.forEach(picture => picture_urls.push(picture['filename']));
     const product_inf = {
       story: req.body.story,
-      pictures: picture_urls.toString(),
-      id: req.body.number
+      picture: picture_urls.toString(),
+      product_id: req.body.number
     };
     const searchResult = await Marketing.searchCampaign(product_inf);
-    if (searchResult.length !== 0) {
-      const error_msg = {
-        status: 400,
-        error: '此推廣產品已存在!'
-      }
-      throw new Error (error_msg);
-    } else {
-      await Marketing.createCampaign(product_inf);
-      res.status(201).json({ msg: '此推廣產品建立成功!' });
-    }
+    if (searchResult.length !== 0) return res.status(400).json({ error: '此推廣產品已存在!' });
+    await Marketing.createCampaign(product_inf);
+    res.status(201).json({ msg: '此推廣產品建立成功!' });
   } catch (error) {
     next(error);
   }
 };
 
-const getCampaigns = async (req, res, next) => {
+async function getCampaigns (page_req) {
   try {
-    const cache = await redis.getCache('campaigns');
-    res.status(200).json(cache);
-  } catch (error) {
     const products = new Object();
     const campaignsCount = await Marketing.countCampaigns();
+    if (campaignsCount === 0) return campaignsCount;
     const allCamPages = Math.floor((campaignsCount - 1) / 6);
     let paging = 0;
-    if (isNaN(req.query.paging) || req.query.paging <= 0) {
+    if (isNaN(page_req) || page_req <= 0) {
       paging = 0;
-    } else if (req.query.paging > 0) {
-      paging = parseInt(req.query.paging);
+    } else if (page_req > 0) {
+      paging = parseInt(page_req);
     } else {
       paging = 0;
     }
@@ -52,21 +43,40 @@ const getCampaigns = async (req, res, next) => {
     const campaign_inf = await Marketing.getCampaigns(limit, paging);
     campaign_inf.forEach(detail => {
       const pictures_urls = new Array();
-      const pictures = detail.picture.split(',').length;
-      pictures.forEach(picture => {
-        pictures_urls.push(
-          HOST_S3 + 'uploads/' + picture
-        );
-      });
+      pictures_urls.push(
+        HOST_S3 + 'uploads/' + detail.picture
+      );
       detail.picture = pictures_urls;
     });
     products.data = campaign_inf;
     redis.set('campaigns', JSON.stringify(products));
-    res.status(200).json(products);
+    return products;
+  } catch (error) {
+    console.log(error);
+    return {error: '伺服器似乎有狀況，請稍後再測試!'};
+  }
+}
+
+const getCampaignsFromRedis = async (req, res, next) => {
+  try {
+    const page_req = req.query.paging;
+    const cache = await redis.getCache('campaigns');
+    if (cache.data.length === 0) {
+      const campaigns = await getCampaigns(page_req);
+      if (campaigns.error) return res.status(500).json({msg: campaigns.error});
+      if (campaigns === 0) return res.status(200).json({msg: '尚未建立推廣產品！'});
+      res.status(200).json(campaigns);
+    };
+    res.status(200).json(cache);
+  } catch (error) {
+    const campaigns = await getCampaigns(page_req);
+    if (campaigns.error) return res.status(500).json({msg: campaigns.error});
+    if (campaigns === 0) return res.status(200).json({msg: '尚未建立推廣產品！'});
+    res.status(200).json(campaigns);
   }
 };
 
 module.exports = {
   createCampaign,
-  getCampaigns,
+  getCampaignsFromRedis,
 };

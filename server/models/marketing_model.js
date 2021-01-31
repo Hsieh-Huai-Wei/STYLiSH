@@ -7,31 +7,19 @@ const countCampaigns = async () => {
 
 const getCampaigns = async (limit, paging) => {
   const offset = limit*paging;
-  const result = await query('SELECT product_id, picture, story FROM stylish.campaigns ORDER BY campaigns.id ASC LIMIT ? OFFSET ?', [limit, offset]);
-  return result;
-};
-
-const option = async (data) => {
-  const result = await query('SELECT * FROM stock.history_price WHERE(date between ? and ?) AND (close between ? and ?) ORDER BY stock_id, date DESC;', [data.start, data.end, data.lower, data.upper]);
-  return result;
+  return await query('SELECT product_id, picture, story FROM stylish.campaigns ORDER BY campaigns.id ASC LIMIT ? OFFSET ?', [limit, offset]);
 };
 
 const searchCampaign = async (data) => {
-  const result = await query('SELECT id FROM stylish.product WHERE number = ? ;', [data.productID]);
-  return result;
+  return await query('SELECT id FROM stylish.product WHERE number = ? ;', [data.productID]);
 };
 
 const createCampaign = async (data) => {
-  const result = await query(
-    'INSERT INTO campaigns SET product_id = ?, picture = ?, story = ?',
-    [data.id, data.pictures, data.story]
-  );
-  return result;
+  return await query('INSERT INTO campaigns SET  ?', [data]);
 };
 
 module.exports = {
   countCampaigns,
-  option,
   searchCampaign,
   createCampaign,
   getCampaigns

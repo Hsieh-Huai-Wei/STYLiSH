@@ -1,75 +1,74 @@
 const Order = require('../models/order_model');
+const { SECRET } = process.env;
+const User = require('../models/user_model');
+const jwt = require('jsonwebtoken');
 const axios = require('axios').default;
 
-function verifyData(data) {
-  if (data.email.split('@').length !== 2) {
-    const result = {
-      error: '信箱驗證失敗！'
+async function payByTapPay(req_body, id, orderNumber, cartList) {
+  try {
+    const post_data = {
+      prime: req_body.prime,
+      partner_key:
+        'partner_PHgswvYEk4QY6oy3n8X3CwiQCVQmv91ZcFoD5VrkGFXo8N7BFiLUxzeG',
+      merchant_id: 'AppWorksSchool_CTBC',
+      order_number: orderNumber,
+      amount: 1,
+      currency: 'TWD',
+      details: JSON.stringify(cartList),
+      cardholder: {
+        id: id,
+        name: req_body.recipient_name,
+        phone_number: req_body.recipient_phone,
+      },
+      remember: false,
     };
-    return result;
-  };
-  const result = {
-    msg: '信箱成功失敗！'
-  };
-  return result;
-}
-
-const createOrder = async (req, res) => {
-
-  const checkResult = verifyData(res.body.recipient_email);
-  if (checkResult.error) return res.status(400).send(checkResult);
-  const prime = req.body.prime;
-  const orderNumber = Math.round(Math.random() * 1e10) + 1;
-
-  const post_data = {
-    prime: prime,
-    partner_key:
-      'partner_PHgswvYEk4QY6oy3n8X3CwiQCVQmv91ZcFoD5VrkGFXo8N7BFiLUxzeG',
-    merchant_id: 'AppWorksSchool_CTBC',
-    order_number: orderNumber,
-    amount: 1,
-    currency: 'TWD',
-    details: 'An apple and a pen.',
-    cardholder: {
-      phone_number: '+886923456789',
-      name: 'jack',
-      email: 'example@gmail.com',
-    },
-    remember: false,
-  };
-
-  axios
-    .post('https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime', post_data, {
+    const pay_status = await axios.post('https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime', post_data, {
       headers: {
         'x-api-key':
           'partner_PHgswvYEk4QY6oy3n8X3CwiQCVQmv91ZcFoD5VrkGFXo8N7BFiLUxzeG',
       },
-    })
-    .then(async () => {
-      await Order.checkout(req.body.recipient_email);
-      const paymentInf = {
-        order_number: orderNumber,
-        user_id: 74,
-        prime: 'paid',
-        location: req.body.location,
-        shipping: req.body.shipping,
-        name: req.body.recipient_name,
-        email: req.body.recipient_email,
-        phone: req.body.recipient_phone,
-        address: req.body.recipient_address,
-        time: req.body.recipient_time,
-        price: req.body.total_price,
-        cart: JSON.stringify(req.body.cart)
-      };
-      await Order.insertOrder(paymentInf);
-      await Order.selectOrder(paymentInf);
-      const result = new Object();
-      result.data = {
-        'number': orderNumber
-      };
-      res.status(200).json(result);
     });
-  };
+    return pay_status;
+  } catch (error) {
+    console.log(error);
+    return {error: pay_status}
+  }
+}
+
+const createOrder = async (req, res, next) => {
+  try {
+    const decode = jwt.verify(req.body.token, SECRET);
+    const user_inf = await User.getUserID(decode.userEmail);
+    if (user_inf.length === 0) return res.status(404).json({ error: '查無此用戶，請確認是否為會員！' });
+    const orderNumber = Math.round(Math.random() * 1e5) + 1;
+    if (req.body.prime) {
+      const pay_status = await payByTapPay(req.body, user_inf[0].id, orderNumber, req.body.cart);
+      if (pay_status.error || pay_status.status !== 200) return res.status(404).json({error: '信用卡付款失敗'});
+    } 
+    const paymentInf = {
+      order_number: orderNumber,
+      user_id: user_inf[0].id,
+      prime: 'paid',
+      location: req.body.location,
+      shipping: req.body.shipping,
+      name: req.body.recipient_name,
+      phone: req.body.recipient_phone,
+      address: req.body.recipient_address,
+      time: req.body.recipient_time,
+      price: req.body.total_price,
+      cart: JSON.stringify(req.body.cart)
+    };
+    await Order.insertOrder(paymentInf);
+    await Order.selectOrder(paymentInf);
+    const result = new Object();
+    result.data = {
+      'number': orderNumber
+    };
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
 
 module.exports = {
   createOrder
