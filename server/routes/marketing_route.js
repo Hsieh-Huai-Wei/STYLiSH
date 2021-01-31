@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { wrapAsync } = require('../../util/util');
-const { getCampaigns } = require('../contorllers/marketing_contorller');
+const { getCampaignsFromRedis } = require('../contorllers/marketing_contorller');
 
-router.route('/marketing/campaigns').get(wrapAsync(getCampaigns));
+router.route('/marketing/campaigns').get(wrapAsync(getCampaignsFromRedis));
 
 module.exports = router;

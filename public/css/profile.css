@@ -32,7 +32,7 @@ header > nav {
   display: flex;
 }
 
-header > nav > .item0,
+header > nav > .category,
 header > nav > .item1 {
   flex: none;
   width: 90px;
@@ -161,13 +161,13 @@ footer > .view {
   flex-flow: row nowrap;
 }
 
-.item10 {
+.contact {
   border-right: 1px solid #ffffff;
   padding: 0px 20px;
 }
 
-.item10,
-.item11,
+.contact,
+.faq,
 .social {
   margin: 0px 20px;
 }
