@@ -133,9 +133,7 @@ async function checkPaymentInf() {
     const recipient_address = document.getElementById('recipient-address').value;
     const locations = document.getElementById('location').value;
     if (!recipient_name || !recipient_phone || !recipient_address) return alert('收件資料不完成，請填寫收件資料！');
-    const user_token = localStorage.getItem('userToken')
     const payment_inf = {
-      token: user_token,
       total_price: 130,
       location: locations,
       shipping: payment,
@@ -145,6 +143,14 @@ async function checkPaymentInf() {
       recipient_time: recipient_time,
       cart: cart,
     };
+    if (localStorage.getItem('userToken')) {
+      payment_inf.token = localStorage.getItem('userToken');
+    } else if (localStorage.getItem('fbToken')) {
+      payment_inf.token = localStorage.getItem('fbToken');
+    }
+    const cart_str = localStorage.getItem('userCart');
+    const cart_list = JSON.parse(cart_str);
+    if (!cart_str || cart_list.length === 0) return alert('請選取產品加入購物車，才可進行結帳！');
     let prime = '';
     if (payment === 'credit_card') {
       prime = await getPrime();
