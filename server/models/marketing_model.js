@@ -5,13 +5,12 @@ const countCampaigns = async () => {
   return result[0].count;
 };
 
-const getCampaigns = async (limit, paging) => {
-  const offset = limit*paging;
-  return await query('SELECT product_id, picture, story FROM stylish.campaigns ORDER BY campaigns.id ASC LIMIT ? OFFSET ?', [limit, offset]);
+const getCampaigns = async () => {
+  return await query('SELECT product_id, picture, story FROM stylish.campaigns;')
 };
 
-const searchCampaign = async (data) => {
-  return await query('SELECT id FROM stylish.product WHERE number = ? ;', [data.productID]);
+const searchCampaign = async (id) => {
+  return await query('SELECT id FROM stylish.product WHERE number = ? ;', [id]);
 };
 
 const createCampaign = async (data) => {

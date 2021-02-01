@@ -66,33 +66,51 @@ function getPrime() {
   });
 }
 
-function checkCart() {
+async function checkCart() {
   const cart_list = document.getElementById('list');
   const cart = getCartProduct();
   if (cart.msg) {
     cart_list.innerHTML=`<h4 style='margin-left:20px;'>${cart.msg}</h4>`;
     return;
-  }
+  };
+  const user_need = new Array();
+  cart.forEach(product => {
+    const product_inf = {
+      number: product.product_id,
+      size: product.size,
+      color: product.color_code
+    };
+    user_need.push(product_inf);
+  })
+  const stocks_url = '/api/1.0/products/stock';
+  const payment_status = await fetchDataByPost(stocks_url, user_need);
+  let count = '';
+  for (let j=0 ; j<10; j++) {
+    count += `<option value="${j+1}">${j+1}</option>`
+  };
   for (let i=0; i< cart.length ;i++) {
     const total_price = cart[i].count*cart[i].price;
     cart_list.innerHTML += `
       <div class='row cart-list'>
-        <div class='detail'>
-          <img src='${cart[i].main_image}' alt=''>
-          <div class='product_inf'>
-            <div class='title'>${cart[i].title}</div>
-            <div class='color'><div class='choice-color' style='background-color: #${cart[i].color_code}'></div></div>
-            <div class='size'>${cart[i].size}</div>
-          </div>
+      <div class='detail'>
+        <img src='${cart[i].main_image}' alt=''>
+        <div class='product_inf'>
+          <div class='title'>${cart[i].title}</div>
+          <div class='color'><div class='choice-color' style='background-color: #${cart[i].color_code}'></div></div>
+          <div class='size'>${cart[i].size}</div>
         </div>
-        <div class='pay_inf'>
-          <div class='count'>${cart[i].count}</div>
+      </div>
+      <div class='pay_inf'>
+        <select class='count'>
+        ${count}
+        </select>
           <div class='single_price'>NTD. ${cart[i].price}</div>
           <div class='total_price'>NTD. ${total_price}</div>
           <img class='delete' src='./imgs/delete.png' alt='' onclick='deleteProduct(${i})'>
         </div>
       </div>
     `;
+    console.log(cart_list)
   }
 }
 
@@ -162,12 +180,11 @@ async function checkPaymentInf() {
     }
     const payment_url = 'api/1.0/order/checkout';
     const payment_status = await fetchDataByPost(payment_url, payment_inf);
-    if (payment_status.error) return alert(payment_status.error);
+    if (payment_status.error) throw new Error();
     localStorage.setItem('orderNum', payment_status.data.number);
     window.location.replace('/thankyou.html');
   } catch (error) {
-    console.log(error);
-    alert(error.error); 
+    alert('伺服器有問題，請稍後再試！'); 
   }
 };
 
@@ -193,7 +210,6 @@ async function checkUserLogIn() {
       window.location.replace('/login.html');
     }
   } catch (error) {
-    console.log(error);
     alert('伺服器有問題，請稍後再試！'); 
   }
 }

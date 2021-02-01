@@ -9,13 +9,13 @@
   <body>
     <div id="container" class="box">
       <h1>Adding Marketing Campaign</h1>
-      <form action="/admin/campaign" method="POST" enctype="multipart/form-data">
+      <form action="/api/1.0/admin/campaign" method="POST" enctype="multipart/form-data">
         <p>Campaign ID</p>
-        <input class="item" name="number" type="text" value="" />
+        <input class="item_input" name="number" type="text" value="" />
         <p>Story</p>
-        <textarea class="item" name="story" cols="30" rows="5"></textarea>
+        <textarea class="item_textarea" name="story" cols="30" rows="5"></textarea>
         <p>Main Picture</p>
-        <input class="image_box item" name="pictures" type="file" class="btn btn-info" /></input>
+        <input class="image_box item_upload" name="pictures" type="file" class="btn btn-info" /></input>
         <button class="btn" type="submit" value="Submit">Submit</button>
       </form>
     </div>

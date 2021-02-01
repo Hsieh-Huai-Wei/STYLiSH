@@ -5,16 +5,14 @@ const redis = require('../../util/redis');
 
 const createCampaign = async (req, res, next) => {
   try {
-    const picture_urls = new Array();
-    const pictures = req.files['pictures'];
-    pictures.forEach(picture => picture_urls.push(picture['filename']));
+    const searchResult = await Marketing.searchCampaign(req.body.number);
+    if (searchResult.length === 0) return res.status(400).json({ error: '此推廣產品已存在!' });
+    const pictures = req.files['pictures'][0].key.split('/')[1];
     const product_inf = {
       story: req.body.story,
-      picture: picture_urls.toString(),
-      product_id: req.body.number
+      picture: pictures,
+      product_id: searchResult[0].id
     };
-    const searchResult = await Marketing.searchCampaign(product_inf);
-    if (searchResult.length !== 0) return res.status(400).json({ error: '此推廣產品已存在!' });
     await Marketing.createCampaign(product_inf);
     res.status(201).json({ msg: '此推廣產品建立成功!' });
   } catch (error) {
@@ -59,17 +57,16 @@ async function getCampaigns (page_req) {
 
 const getCampaignsFromRedis = async (req, res, next) => {
   try {
-    const page_req = req.query.paging;
     const cache = await redis.getCache('campaigns');
     if (cache.data.length === 0) {
-      const campaigns = await getCampaigns(page_req);
-      if (campaigns.error) return res.status(500).json({msg: campaigns.error});
-      if (campaigns === 0) return res.status(200).json({msg: '尚未建立推廣產品！'});
+      const campaigns = await getCampaigns();
+      if (campaigns.error) return res.status(500).json({error: campaigns.error});
+      if (campaigns === 0) return res.status(400).json({msg: '尚未建立推廣產品！'});
       res.status(200).json(campaigns);
     };
     res.status(200).json(cache);
   } catch (error) {
-    const campaigns = await getCampaigns(page_req);
+    const campaigns = await getCampaigns();
     if (campaigns.error) return res.status(500).json({msg: campaigns.error});
     if (campaigns === 0) return res.status(200).json({msg: '尚未建立推廣產品！'});
     res.status(200).json(campaigns);

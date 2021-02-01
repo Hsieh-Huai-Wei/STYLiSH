@@ -1,6 +1,6 @@
 const router = require('express').Router();
 require('dotenv').config();
-const { secretAccessKey, accessKeyId } = process.env;
+const { secretAccessKey, accessKeyId, REGION } = process.env;
 const multer = require('multer');
 const aws = require('aws-sdk');
 const multerS3 = require('multer-s3');
@@ -8,7 +8,7 @@ const multerS3 = require('multer-s3');
 aws.config.update({
   secretAccessKey: secretAccessKey,
   accessKeyId: accessKeyId,
-  region: 'ap-northeast-2',
+  region: REGION,
 });
 
 const s3 = new aws.S3();

@@ -148,7 +148,16 @@ const getProducts = async (req, res, next) => {
   }
 };
 
+const getStocks = async (req, res, next) => {
+  try {
+    console.log(req.body)
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createProduct,
   getProducts,
+  getStocks
 };

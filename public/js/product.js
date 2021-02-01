@@ -152,11 +152,10 @@ async function getProduct() {
     const id = url.get('id');
     const product_url = `api/1.0/products/details?id=${id}`;
     const product = await fetchDataByGet(product_url);
-    if (product.error) return alert(product.error.msg);
+    if (product.error) throw new Error();
     localStorage.setItem('productData', JSON.stringify(product));
     return product;
   } catch (error) {
-    console.log(error);
     alert('伺服器有問題，請稍後再試！'); 
   }
 }
@@ -281,7 +280,6 @@ async function init() {
     await currentRender(product_detail);
     countCart();
   } catch (error) {
-    console.log(error);
     alert('伺服器有問題，請稍後再試！'); 
   }
 }

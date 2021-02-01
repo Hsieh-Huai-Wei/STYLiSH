@@ -9,33 +9,16 @@
   <body>
     <div id="container" class="box">
       <h1>Adding New Product</h1>
-      <form action="/admin/product" method="POST" enctype="multipart/form-data">
+      <form action="/api/1.0/admin/product" method="POST" enctype="multipart/form-data" class="form">
         <p>Product ID</p>
-        <input class="item" name="id" type="text" value="" />
-        <p>Class</p>
-        <select class="item" name="class">
-          <option value="women" selected="true">Women</option>
-          <option value="men">Men</option>
-          <option value="accessories">Accessories</option>
-        </select>
-        <p>Title</p>
-        <input class="item" name="title" type="text" value="" />
-        <p>Description</p>
-        <textarea class="item" name="description" cols="30" rows="5"></textarea>
-        <p>Price</p>
-        <input class="item" name="price" type="text" value="" />
-        <p>Texture</p>
-        <input class="item" name="texture" type="text" value="" />
-        <p>Wash</p>
-        <input class="item" name="wash" type="text" value="" />
-        <p>Place</p>
-        <input class="item" name="place" type="text" value="" />
-        <p>Note</p>
-        <textarea class="item" name="note" cols="30" rows="2"></textarea>
-        <p>Story</p>
-        <textarea class="item" name="story" cols="30" rows="5"></textarea>
+        <input class="item_input" name="id" type="text" value="" />
         <p>Variants</p>
         <div class="variant item">
+          <select class="item" name="class">
+            <option value="women" selected="true">Women</option>
+            <option value="men">Men</option>
+            <option value="accessories">Accessories</option>
+          </select>
           <select class="item_select" name="color_code">
             <option value="334455" selected="true">深藍</option>
             <option value="FFFFFF">白色</option>
@@ -51,12 +34,28 @@
             <option value="X">X</option>
             <option value="XL">XL</option>
           </select>
-          <input class="stock" name="stock" placeholder="stock" type="number" value="" />
+          <input class="stock" name="stock" placeholder="stock" type="number" min=0 value="" />
         </div>
+        <p>Title</p>
+        <input class="item_input" name="title" type="text" value="" />
+        <p>Description</p>
+        <textarea class="item_textarea" name="description" cols="30" rows="5"></textarea>
+        <p>Price</p>
+        <input class="item_input" name="price" type="text" value="" />
+        <p>Texture</p>
+        <input class="item_input" name="texture" type="text" value="" />
+        <p>Wash</p>
+        <input class="item_input" name="wash" type="text" value="" />
+        <p>Place</p>
+        <input class="item_input" name="place" type="text" value="" />
+        <p>Note</p>
+        <textarea class="item_textarea" name="note" cols="30" rows="2"></textarea>
+        <p>Story</p>
+        <textarea class="item_textarea" name="story" cols="30" rows="5"></textarea>
         <p>Main image</p>
-        <input class="image_box item" type="file" name="main_image" class="btn btn-info" /></input>
+        <input class="image_box item_upload" type="file" name="main_image" class="btn btn-info" /></input>
         <p>Other images</p>
-        <input class="image_box item" multiple type="file" name="images" class="btn btn-info" /></input >
+        <input class="image_box item_upload" multiple type="file" name="images" class="btn btn-info" /></input >
         <button class="btn" type="submit" value="Submit">Submit</button>
       </form>
     </div>

@@ -39,13 +39,12 @@ async function statusChangeCallback(response) {
       };
       const login_url = 'api/1.0/fbsignin';
       const log_in = await fetchDataByPost(login_url, old_token);
-      if (log_in.error) return alert('伺服器似乎有狀況，請稍後再測試');
+      if (log_in.error) throw new Error();
       const new_token = log_in.data.access_token;
       localStorage.setItem('fbToken', new_token);
       window.location.replace('/profile.html');
     }
   } catch (error) {
-    console.log(error);
     alert('伺服器有問題，請稍後再試！'); 
   }
 }
@@ -65,7 +64,6 @@ async function signUp() {
     localStorage.setItem('userToken', token);
     window.location.replace('/profile.html');
   } catch (error) {
-    console.log(error);
     alert('伺服器有問題，請稍後再試！'); 
   }
 };
