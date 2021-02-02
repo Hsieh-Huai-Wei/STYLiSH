@@ -37,6 +37,7 @@ const insertProduct = async (data, class_id) => {
 
 // catch use query url
 function bindSorting(category, keyword, id) {
+  console.log(category, keyword, id)
   let sql = '';
   if (category === 'women') {
     const id = 1;
@@ -52,7 +53,7 @@ function bindSorting(category, keyword, id) {
   } else if (category === 'search') {
     sql += `WHERE p.title LIKE '%${keyword}%'`;
   } else if (category === 'details') {
-    sql += `WHERE p.id = ${id} `;
+    sql += `WHERE p.number = ${id} `;
   } else {
     const err = new Error('...');
     throw err;
@@ -80,20 +81,30 @@ const getProducts = async (category, paging, keyword, id) => {
   return await query(sql, [limit, offset]);
 };
 
-const getSize = async (productF) => {
-  return await query('SELECT size.size, product.number FROM variants INNER JOIN size ON variants.size_id = size.id INNER JOIN product ON variants.product_id = product.id WHERE product.number IN (?) GROUP BY product.id, size.id;', [productF]);
+const getSize = async (product) => {
+  return await query('SELECT size.size, product.number FROM variants INNER JOIN size ON variants.size_id = size.id INNER JOIN product ON variants.product_id = product.id WHERE product.number IN (?) GROUP BY product.id, size.id;', [product]);
 };
 
-const getColor = async (productF) => {
-  return await query('SELECT color.code, color.name, product.number FROM variants INNER JOIN color ON variants.color_id = color.id INNER JOIN product ON variants.product_id = product.id WHERE product.number IN (?) GROUP BY product.id, color.id;', [productF]);
+const getColor = async (product) => {
+  return await query('SELECT color.code, color.name, product.number FROM variants INNER JOIN color ON variants.color_id = color.id INNER JOIN product ON variants.product_id = product.id WHERE product.number IN (?) GROUP BY product.id, color.id;', [product]);
   
 };
 
-
-
-const getVariants = async (productF) => {
-  return await query('SELECT color.code, size.size, stock, product.number FROM variants INNER JOIN color ON variants.color_id = color.id INNER JOIN size ON variants.size_id = size.id INNER JOIN product ON variants.product_id = product.id WHERE product.number IN (?) GROUP BY product.id, color.id, size.id, stock;', [productF]);
+const getVariants = async (product) => {
+  return await query('SELECT color.code, size.size, stock, product.number FROM variants INNER JOIN color ON variants.color_id = color.id INNER JOIN size ON variants.size_id = size.id INNER JOIN product ON variants.product_id = product.id WHERE product.number IN (?) GROUP BY product.id, color.id, size.id, stock;', [product]);
 };
+
+const getStock = async (cart, length) => {
+  let sql = 'SELECT number, size, code, stock FROM stylish.variants INNER JOIN stylish.product ON product.id = variants.product_id INNER JOIN stylish.size on size.id = variants.size_id INNER JOIN stylish.color ON color.id = variants.color_id WHERE (product.number = ? AND size.size = ? AND color.code = ?)';
+  for (let i=0 ; i<length-1; i++) {
+    sql += 'OR (product.number = ? AND size.size = ? AND color.code = ? )'
+  };
+  sql += ';'
+  return await query(sql, cart)
+};
+
+
+
 
 module.exports = {
   checkProduct,
@@ -110,4 +121,5 @@ module.exports = {
   getSize,
   getColor,
   getVariants,
+  getStock
 };

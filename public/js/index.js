@@ -37,7 +37,7 @@ async function getCampaign() {
       key_visual.appendChild(a);
     });
   } catch (error) {
-    alert('伺服器有問題，請稍後再試！1'); 
+    alert('伺服器有問題，請稍後再試！'); 
   }
 }
 
@@ -50,7 +50,8 @@ function renderProducts(products) {
     const price = document.createElement('div');
     const products_box = document.querySelector('.products');
     a.className = 'product';
-    a.href = `/product.html?id=${[i + 1]}`;
+    console.log(products.data[i])
+    a.href = `/product.html?id=${products.data[i].id}`;
     img.src = `${products.data[i].main_image}`;
     color_box.className = 'colors';
     products.data[i].colors.forEach(color => {
@@ -79,7 +80,7 @@ async function getProducts(tag) {
     if (products.next_paging === undefined) next_page = false;
     return products;
   } catch (error) {
-    alert('伺服器有問題，請稍後再試！2'); 
+    alert('伺服器有問題，請稍後再試！'); 
   }
 }
 
@@ -121,7 +122,7 @@ async function init() {
       switchCampaigns(campaigns);
     }
   } catch (error) {
-    alert('伺服器有問題，請稍後再試！3'); 
+    alert('伺服器有問題，請稍後再試！'); 
   }
 }
 

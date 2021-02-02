@@ -150,7 +150,15 @@ const getProducts = async (req, res, next) => {
 
 const getStocks = async (req, res, next) => {
   try {
-    console.log(req.body)
+    let cart_list = new Array();
+    const cart = req.body;
+    const cart_length = req.body.length;
+    cart.forEach(product => {
+      const temp_arr = Object.values(product);
+      cart_list = cart_list.concat(temp_arr);
+    });
+    const products = await Product.getStock(cart_list, cart_length);
+    res.status(200).json({data: products})
   } catch (error) {
     next(error);
   }
