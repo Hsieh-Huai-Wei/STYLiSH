@@ -156,7 +156,7 @@ async function getProduct() {
     localStorage.setItem('productData', JSON.stringify(product));
     return product;
   } catch (error) {
-    alert('伺服器有問題，請稍後再試！'); 
+    console.log(error);
   }
 }
 
@@ -280,7 +280,7 @@ async function init() {
     await currentRender(product_detail);
     countCart();
   } catch (error) {
-    alert('伺服器有問題，請稍後再試！'); 
+    console.log(error);
   }
 }
 

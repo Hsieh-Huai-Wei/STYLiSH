@@ -11,7 +11,7 @@ async function getCampaign() {
       const story = document.createElement('div');
       const key_visual = document.querySelector('.keyvisual');
       a.className = 'visual';
-      a.href = `/product.html?id=${campaign.product_id}`;
+      a.href = `/product.html?id=${campaign.number}`;
       a.style.backgroundImage = `url('${campaign.picture[0]}')`;
       const storyText = campaign.story.split('/');
       let storyDisplay = '';
@@ -37,11 +37,13 @@ async function getCampaign() {
       key_visual.appendChild(a);
     });
   } catch (error) {
-    alert('伺服器有問題，請稍後再試！'); 
+    console.log(error);
   }
 }
 
 function renderProducts(products) {
+  console.log(products)
+  if (products.msg || products.data.length === 0) return;
   for (let i = 0; i<products.data.length; i++) {
     const a = document.createElement('a');
     const img = document.createElement('img');
@@ -76,11 +78,12 @@ async function getProducts(tag) {
   try {
     const products_url = `api/1.0/products/${tag}?paging=${paging}`;
     const products = await fetchDataByGet(products_url);
-    if ( products.error || products.msg ) throw new Error();
+    console.log(products)
+    if ( products.error ) throw new Error();
     if (products.next_paging === undefined) next_page = false;
     return products;
   } catch (error) {
-    alert('伺服器有問題，請稍後再試！'); 
+    console.log(error);
   }
 }
 
@@ -122,7 +125,7 @@ async function init() {
       switchCampaigns(campaigns);
     }
   } catch (error) {
-    alert('伺服器有問題，請稍後再試！'); 
+    console.log(error);
   }
 }
 
@@ -150,6 +153,7 @@ async function loadMore() {
     paging += 1;
     const api_url = getURL();
     const products = await getProducts(api_url);
+    console.log(products)
     renderProducts(products);
   }
 }

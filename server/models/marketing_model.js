@@ -6,7 +6,7 @@ const countCampaigns = async () => {
 };
 
 const getCampaigns = async () => {
-  return await query('SELECT product_id, picture, story FROM stylish.campaigns;')
+  return await query('SELECT campaigns.picture, campaigns.story, product.number FROM stylish.campaigns INNER JOIN stylish.product ON campaigns.product_id = product.id;')
 };
 
 const searchCampaign = async (id) => {

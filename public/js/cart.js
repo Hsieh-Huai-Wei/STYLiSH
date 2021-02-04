@@ -105,7 +105,7 @@ async function checkCart() {
         </div>
       </div>
       <div class='pay_inf'>
-        <select class='count' value=${cart[i].count}>
+        <select id='cart_stock${i}' class='count' value=${cart[i].count} onchange='changeStock(${i})'>
         ${count}
         </select>
           <div class='single_price'>NTD. ${cart[i].price}</div>
@@ -115,6 +115,14 @@ async function checkCart() {
       </div>
     `;
   }
+}
+
+function changeStock(index) {
+  const cart_index = document.querySelector(`#cart_stock${index}`);
+  const cart_list = localStorage.getItem('userCart');
+  const cart = JSON.parse(cart_list);
+  cart[index].count = cart_index.value;
+  localStorage.setItem('userCart', JSON.stringify(cart));
 }
 
 function deleteProduct (pos) {
@@ -187,7 +195,7 @@ async function checkPaymentInf() {
     localStorage.setItem('orderNum', payment_status.data.number);
     window.location.replace('/thankyou.html');
   } catch (error) {
-    alert('伺服器有問題，請稍後再試！'); 
+    console.log(error);
   }
 };
 
@@ -213,7 +221,7 @@ async function checkUserLogIn() {
       window.location.replace('/login.html');
     }
   } catch (error) {
-    alert('伺服器有問題，請稍後再試！'); 
+    console.log(error);
   }
 }
 

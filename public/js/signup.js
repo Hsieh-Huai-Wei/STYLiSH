@@ -45,7 +45,7 @@ async function statusChangeCallback(response) {
       window.location.replace('/profile.html');
     }
   } catch (error) {
-    alert('伺服器有問題，請稍後再試！'); 
+    console.log(error);
   }
 }
 
@@ -64,7 +64,7 @@ async function signUp() {
     localStorage.setItem('userToken', token);
     window.location.replace('/profile.html');
   } catch (error) {
-    alert('伺服器有問題，請稍後再試！'); 
+    console.log(error);
   }
 };
 
