@@ -103,7 +103,10 @@ const getStock = async (cart, length) => {
   return await query(sql, cart)
 };
 
-
+const updateVariants = async (data) => {
+  const sql = 'UPDATE stylish.variants INNER JOIN stylish.product ON product.id = variants.product_id INNER JOIN stylish.size ON size.id = variants.size_id INNER JOIN stylish.color ON color.id = variants.color_id SET variants.stock = ? WHERE color.code = ? AND size.size = ? AND product.number = ?;';
+  return await query(sql, data);
+};
 
 
 module.exports = {
@@ -121,5 +124,6 @@ module.exports = {
   getSize,
   getColor,
   getVariants,
-  getStock
+  getStock,
+  updateVariants
 };

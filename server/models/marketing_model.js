@@ -14,12 +14,12 @@ const searchCampaign = async (id) => {
 };
 
 const createCampaign = async (data) => {
-  return await query('INSERT INTO campaigns SET  ?', [data]);
+  return await query('INSERT INTO campaigns SET  ?', data);
 };
 
 module.exports = {
   countCampaigns,
   searchCampaign,
   createCampaign,
-  getCampaigns
+  getCampaigns,
 };

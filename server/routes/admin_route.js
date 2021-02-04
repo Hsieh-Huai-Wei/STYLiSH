@@ -33,8 +33,8 @@ const cpUpload = uploads.fields([
   { name: 'pictures', maxCount: 8 },
 ]);
 
-const { createProduct } = require('../contorllers/product_controller');
-const { createCampaign } = require('../contorllers/marketing_contorller');
+const { createProduct } = require('../controllers/product_controller');
+const { createCampaign } = require('../controllers/marketing_controller');
 
 router.route('/admin/product').post(cpUpload, createProduct);
 router.route('/admin/campaign').post(cpUpload, createCampaign);
