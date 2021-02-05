@@ -1,30 +1,36 @@
 const { query } = require('../../util/dbcon');
 
 const checkProduct = async (data) => {
-  return await query('SELECT number FROM stylish.product WHERE number = ?', [data]);
-};
-
-const selectColor = async (data) => {
-  return await query('SELECT id FROM stylish.color WHERE code = ? ', [data]);
-};
-const selectSize = async (data) => {
-  return await query('SELECT id FROM stylish.size WHERE size = ?', [data]);
-};
-
-const selectProduct = async (data) => {
   return await query('SELECT id FROM stylish.product WHERE number = ?', [data]);
 };
 
+// const selectColor = async (data) => {
+//   return await query('SELECT id FROM stylish.color WHERE code = ? ', [data]);
+// };
+// const selectSize = async (data) => {
+//   return await query('SELECT id FROM stylish.size WHERE size = ?', [data]);
+// };
+
+// const selectProduct = async (data) => {
+//   return await query('SELECT id FROM stylish.product WHERE number = ?', [data]);
+// };
+
 const selectVariant = async (data) => {
-  return await query('SELECT id, color_id, size_id, product_id FROM variants WHERE color_id = ? AND size_id = ? AND product_id = ?', [data.color, data.size, data.id]);
+  return await query('SELECT id FROM variants WHERE product_id = ? AND color_id = ? AND size_id = ?', [data.product, data.color, data.size]);
 };
 
-const updateVariant = async (data) => {
-  return await query('UPDATE variants SET stock = ? WHERE variants.id = ?', [data.stock, data.id]);
+const findProduct = async (data) => {
+  return await query ('SELECT size.id AS size_id, color.id AS color_id FROM stylish.product, stylish.size, stylish.color where product.id = ? and size.size = ? and color.code = ?;', [data.product, data.size, data.color])
+}
+
+
+const updateVariantById = async (id, stock) => {
+  console.log([id, stock])
+  return await query('UPDATE variants SET stock = ? WHERE variants.id = ?', [stock, id]);
 };
 
-const insertVariant = async (data) => {
-  return await query('INSERT INTO variants SET color_id = ?, size_id = ?, product_id = ?, stock = ?', [data.color, data.size, data.id, data.stock]);
+const insertVariant = async (product_inf, stock) => {
+  return await query('INSERT INTO variants SET color_id = ?, size_id = ?, product_id = ?, stock = ?', [product_inf.color, product_inf.size, product_inf.product, stock]);
 };
 
 const selectClass = async (classification) => {
@@ -111,11 +117,12 @@ const updateVariants = async (data) => {
 
 module.exports = {
   checkProduct,
-  selectColor,
-  selectSize,
-  selectProduct,
+  findProduct,
+  // selectColor,
+  // selectSize,
+  // selectProduct,
   selectVariant,
-  updateVariant,
+  updateVariantById,
   insertVariant,
   selectClass,
   insertProduct,

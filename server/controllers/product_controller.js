@@ -2,31 +2,37 @@ require('dotenv').config();
 const { HOST_S3 } = process.env;
 const Product = require('../models/product_model');
 
-async function findProductData(product_detail) {
-  const color = await Product.selectColor(product_detail.color_code);
-  const size = await Product.selectSize(product_detail.sizes);
-  const product_number = await Product.selectProduct(product_detail.id);
-  const product_inf = {
-    color: color[0].id,
-    size: size[0].id,
-    id: product_number[0].id,
-  };
-  return product_inf;
-}
+// async function findProductData(product_detail) {
+//   const color = await Product.selectColor(product_detail.color_code);
+//   const size = await Product.selectSize(product_detail.sizes);
+//   const product_number = await Product.selectProduct(product_detail.id);
+//   const product_inf = {
+//     color: color[0].id,
+//     size: size[0].id,
+//     id: product_number[0].id,
+//   };
+//   return product_inf;
+// }
 
 const createProduct = async (req, res, next) => {
   try {
     const product = await Product.checkProduct(req.body.id);
     if (product.length === 1) {
-      const product_data = findProductData(req.body);
-      const variant = await Product.selectVariant(product_data);
-      const product_count = new Object();
-      product_count.stock = req.body.stock;
-      if (variant.length >= 1) {
-        await Product.updateVariant(product_count);
+      const product_inf = {
+        product: product[0].id,
+        color: req.body.color_code,
+        size: req.body.sizes,
+      };
+      const product_data = await Product.findProduct(product_inf);
+      product_inf.color = product_data[0].size_id;
+      product_inf.size = product_data[0].color_id;
+      const variant_id = await Product.selectVariant(product_inf);
+      if (variant_id.length >= 1) {
+        console.log(variant_id, req.body.stock)
+        await Product.updateVariantById(variant_id[0].id, req.body.stock);
         res.status(201).json({msg: '此產品數量已成功更新!'});
-      } else if (variant.length === 0) {
-        await Product.insertVariant(product_count);
+      } else if (variant_id.length === 0) {
+        await Product.insertVariant(product_inf, req.body.stock);
         res.status(201).json({msg: '此產品數量已成功寫入!'});
       }
     } else if (product.length === 0) {
