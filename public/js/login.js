@@ -48,7 +48,6 @@ async function statusChangeCallback(response) {
     }
   } catch (error) {
     console.log(error);
-    alert('伺服器有問題，請稍後再試！'); 
   }
 }
 
@@ -66,7 +65,6 @@ async function signIn() {
     window.location.replace('/profile.html');
   } catch (error) {
     console.log(error);
-    alert('伺服器有問題，請稍後再試！'); 
   }
 };
 

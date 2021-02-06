@@ -66,27 +66,48 @@ function getPrime() {
   });
 }
 
-function checkCart() {
+async function checkCart() {
   const cart_list = document.getElementById('list');
   const cart = getCartProduct();
   if (cart.msg) {
     cart_list.innerHTML=`<h4 style='margin-left:20px;'>${cart.msg}</h4>`;
     return;
-  }
+  };
+  const user_need = new Array();
+  cart.forEach(product => {
+    const product_inf = {
+      number: product.product_id,
+      size: product.size,
+      color: product.color_code
+    };
+    user_need.push(product_inf);
+  })
+  const stocks_url = '/api/1.0/products/stock';
+  const products_stock = await fetchDataByPost(stocks_url, user_need);
   for (let i=0; i< cart.length ;i++) {
     const total_price = cart[i].count*cart[i].price;
+    let count = '';
+    for (let j=1 ; j<products_stock.data[i].stock+1; j++) {
+      if (j === Number(cart[i].count)) {
+        count += `<option value="${j}" selected>${j}</option>`
+      } else {
+        count += `<option value="${j}">${j}</option>`
+      }
+    };
     cart_list.innerHTML += `
       <div class='row cart-list'>
-        <div class='detail'>
-          <img src='${cart[i].main_image}' alt=''>
-          <div class='product_inf'>
-            <div class='title'>${cart[i].title}</div>
-            <div class='color'><div class='choice-color' style='background-color: #${cart[i].color_code}'></div></div>
-            <div class='size'>${cart[i].size}</div>
-          </div>
+      <div class='detail'>
+        <img src='${cart[i].main_image}' alt=''>
+        <div class='product_inf'>
+          <div class='title'>${cart[i].title}</div>
+          <div class='color'><div class='choice-color' style='background-color: #${cart[i].color_code}'></div></div>
+          <div class='size'>${cart[i].size}</div>
         </div>
-        <div class='pay_inf'>
-          <div class='count'>${cart[i].count}</div>
+      </div>
+      <div class='pay_inf'>
+        <select id='cart_stock${i}' class='count' value=${cart[i].count} onchange='changeStock(${i})'>
+        ${count}
+        </select>
           <div class='single_price'>NTD. ${cart[i].price}</div>
           <div class='total_price'>NTD. ${total_price}</div>
           <img class='delete' src='./imgs/delete.png' alt='' onclick='deleteProduct(${i})'>
@@ -94,6 +115,14 @@ function checkCart() {
       </div>
     `;
   }
+}
+
+function changeStock(index) {
+  const cart_index = document.querySelector(`#cart_stock${index}`);
+  const cart_list = localStorage.getItem('userCart');
+  const cart = JSON.parse(cart_list);
+  cart[index].count = cart_index.value;
+  localStorage.setItem('userCart', JSON.stringify(cart));
 }
 
 function deleteProduct (pos) {
@@ -162,12 +191,11 @@ async function checkPaymentInf() {
     }
     const payment_url = 'api/1.0/order/checkout';
     const payment_status = await fetchDataByPost(payment_url, payment_inf);
-    if (payment_status.error) return alert(payment_status.error);
+    if (payment_status.error) throw new Error();
     localStorage.setItem('orderNum', payment_status.data.number);
     window.location.replace('/thankyou.html');
   } catch (error) {
     console.log(error);
-    alert(error.error); 
   }
 };
 
@@ -194,13 +222,10 @@ async function checkUserLogIn() {
     }
   } catch (error) {
     console.log(error);
-    alert('伺服器有問題，請稍後再試！'); 
   }
 }
 
-function countTotal() {
-  const cart_str = localStorage.getItem('userCart');
-  const cart_list = JSON.parse(cart_str);
+function countTotal(cart_list) {
   const subtotal = document.getElementById('subtotal');
   const total_price = document.getElementById('total');
   let price = 0;
@@ -211,10 +236,12 @@ function countTotal() {
   total_price.innerText = price + 60;
 }
 
-function init() {
+async function init() {
   checkUserLogIn();
-  countCart();
-  countTotal();
+  const cart = countCart();
+  if (cart.length > 0) {
+    countTotal(cart);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', init());

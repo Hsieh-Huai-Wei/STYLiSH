@@ -5,22 +5,21 @@ const countCampaigns = async () => {
   return result[0].count;
 };
 
-const getCampaigns = async (limit, paging) => {
-  const offset = limit*paging;
-  return await query('SELECT product_id, picture, story FROM stylish.campaigns ORDER BY campaigns.id ASC LIMIT ? OFFSET ?', [limit, offset]);
+const getCampaigns = async () => {
+  return await query('SELECT campaigns.picture, campaigns.story, product.number FROM stylish.campaigns INNER JOIN stylish.product ON campaigns.product_id = product.id;')
 };
 
-const searchCampaign = async (data) => {
-  return await query('SELECT id FROM stylish.product WHERE number = ? ;', [data.productID]);
+const searchCampaign = async (id) => {
+  return await query('SELECT id FROM stylish.product WHERE number = ? ;', [id]);
 };
 
 const createCampaign = async (data) => {
-  return await query('INSERT INTO campaigns SET  ?', [data]);
+  return await query('INSERT INTO campaigns SET  ?', data);
 };
 
 module.exports = {
   countCampaigns,
   searchCampaign,
   createCampaign,
-  getCampaigns
+  getCampaigns,
 };

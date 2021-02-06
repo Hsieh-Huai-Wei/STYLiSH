@@ -23,7 +23,6 @@ async function checkUserLogIn() {
     }
   } catch (error) {
     console.log(error);
-    alert('伺服器有問題，請稍後再試！'); 
   }
 }
 

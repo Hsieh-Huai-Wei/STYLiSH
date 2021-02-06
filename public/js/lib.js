@@ -4,7 +4,8 @@ function countCart() {
     const cart = JSON.parse(cart_str);
     const cart_count = document.getElementById('cart-qty');
     cart_count.textContent = cart.length;
-  }
+  };
+  return JSON.parse(cart_str);
 }
 
 async function fetchDataByGet(url) {
