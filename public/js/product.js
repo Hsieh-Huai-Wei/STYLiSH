@@ -156,7 +156,7 @@ async function getProduct() {
     localStorage.setItem('productData', JSON.stringify(product));
     return product;
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 
@@ -280,7 +280,7 @@ async function init() {
     await currentRender(product_detail);
     countCart();
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 

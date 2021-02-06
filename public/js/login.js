@@ -47,7 +47,7 @@ async function statusChangeCallback(response) {
       alert ('請登入會員！');
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 
@@ -64,7 +64,7 @@ async function signIn() {
     localStorage.setItem('userToken', token);
     window.location.replace('/profile.html');
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 

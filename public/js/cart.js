@@ -42,6 +42,7 @@ TPDirect.card.setup({
     },
   },
 });
+
 shipping.addEventListener('change', ()=>{
   if (shipping.value === 'credit_card') {
     payment = 'credit_card';
@@ -66,24 +67,7 @@ function getPrime() {
   });
 }
 
-async function checkCart() {
-  const cart_list = document.getElementById('list');
-  const cart = getCartProduct();
-  if (cart.msg) {
-    cart_list.innerHTML=`<h4 style='margin-left:20px;'>${cart.msg}</h4>`;
-    return;
-  };
-  const user_need = new Array();
-  cart.forEach(product => {
-    const product_inf = {
-      number: product.product_id,
-      size: product.size,
-      color: product.color_code
-    };
-    user_need.push(product_inf);
-  })
-  const stocks_url = '/api/1.0/products/stock';
-  const products_stock = await fetchDataByPost(stocks_url, user_need);
+function renderCartList(products_stock) {
   for (let i=0; i< cart.length ;i++) {
     const total_price = cart[i].count*cart[i].price;
     let count = '';
@@ -117,6 +101,25 @@ async function checkCart() {
   }
 }
 
+function getCartList() {
+  const cart_list = document.getElementById('list');
+  const cart = getCartProduct();
+  if (cart.msg) {
+    cart_list.innerHTML=`<h4 style='margin-left:20px;'>${cart.msg}</h4>`;
+    return;
+  };
+  const user_need = new Array();
+  cart.forEach(product => {
+    const product_inf = {
+      number: product.product_id,
+      size: product.size,
+      color: product.color_code
+    };
+    user_need.push(product_inf);
+  });
+  return user_need;
+}
+
 function changeStock(index) {
   const cart_index = document.querySelector(`#cart_stock${index}`);
   const cart_list = localStorage.getItem('userCart');
@@ -125,20 +128,27 @@ function changeStock(index) {
   localStorage.setItem('userCart', JSON.stringify(cart));
 }
 
-function deleteProduct (pos) {
-  const cart = getCartProduct();
-  const list = document.getElementById('list');
-  const div = document.createElement('div');
-  const cart_html = document.getElementById('cart');
-  cart.splice(pos,1);
-  localStorage.setItem('userCart', JSON.stringify(cart));
-  list.remove();
-  div.setAttribute('id', 'list');
-  div.setAttribute('class', 'list');
-  cart_html.appendChild(div);
-  countCart();
-  checkCart();
-  countTotal();
+async function deleteProduct (pos) {
+  try {
+    const cart = getCartProduct();
+    const list = document.getElementById('list');
+    const div = document.createElement('div');
+    const cart_html = document.getElementById('cart');
+    cart.splice(pos,1);
+    localStorage.setItem('userCart', JSON.stringify(cart));
+    list.remove();
+    div.setAttribute('id', 'list');
+    div.setAttribute('class', 'list');
+    cart_html.appendChild(div);
+    countCart();
+    const cart_list = getCartList();
+    const stocks_url = '/api/1.0/products/stock';
+    const products_stock = await fetchDataByPost(stocks_url, cart_list);
+    renderCartList(products_stock);
+    countTotal();
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 function choiceTime (time) {
@@ -195,7 +205,7 @@ async function checkPaymentInf() {
     localStorage.setItem('orderNum', payment_status.data.number);
     window.location.replace('/thankyou.html');
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
@@ -214,14 +224,18 @@ async function checkUserLogIn() {
         alert('登入逾時，請重新登入');
         window.location.replace('/login.html');
       } else {
-        checkCart();
+        countCart();
+        const cart_list = getCartList();
+        const stocks_url = '/api/1.0/products/stock';
+        const products_stock = await fetchDataByPost(stocks_url, cart_list);
+        renderCartList(products_stock);
       }
     } else {
       alert('請先登入會員');
       window.location.replace('/login.html');
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 

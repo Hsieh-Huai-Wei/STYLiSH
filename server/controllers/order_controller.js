@@ -1,18 +1,17 @@
 const Order = require('../models/order_model');
-const { SECRET } = process.env;
+const { SECRET, TAPPAY_PARTNER_KEY } = process.env;
 const User = require('../models/user_model');
 const Product = require('../models/product_model');
 const jwt = require('jsonwebtoken');
 const axios = require('axios').default;
 
-async function payByTapPay(req_body, id, orderNumber, cartList) {
+async function payByTapPay(req_body, id, order_num, cartList) {
   try {
     const post_data = {
       prime: req_body.prime,
-      partner_key:
-        'partner_PHgswvYEk4QY6oy3n8X3CwiQCVQmv91ZcFoD5VrkGFXo8N7BFiLUxzeG',
+      partner_key: TAPPAY_PARTNER_KEY,
       merchant_id: 'AppWorksSchool_CTBC',
-      order_number: orderNumber,
+      order_number: order_num,
       amount: 1,
       currency: 'TWD',
       details: JSON.stringify(cartList),
@@ -31,8 +30,8 @@ async function payByTapPay(req_body, id, orderNumber, cartList) {
     });
     return pay_status;
   } catch (error) {
-    console.log(error);
-    return {error: pay_status}
+    console.error(error);
+    return {error: pay_status};
   }
 }
 
@@ -41,15 +40,15 @@ const createOrder = async (req, res, next) => {
     const decode = jwt.verify(req.body.token, SECRET);
     const user_inf = await User.getUserID(decode.userEmail);
     if (user_inf.length === 0) return res.status(404).json({ error: '查無此用戶，請確認是否為會員！' });
-    const orderNumber = Math.round(Math.random() * 1e5) + 1;
+    const order_num = Math.round(Math.random() * 1e5) + 1;
     if (req.body.prime) {
-      const pay_status = await payByTapPay(req.body, user_inf[0].id, orderNumber, req.body.cart);
+      const pay_status = await payByTapPay(req.body, user_inf[0].id, order_num, req.body.cart);
       if (pay_status.error || pay_status.status !== 200) return res.status(404).json({error: '信用卡付款失敗'});
     };
     const cart = req.body.cart
     const cart_list = JSON.stringify(cart);
-    const paymentInf = {
-      order_number: orderNumber,
+    const payment_inf = {
+      order_number: order_num,
       user_id: user_inf[0].id,
       prime: 'paid',
       location: req.body.location,
@@ -61,7 +60,7 @@ const createOrder = async (req, res, next) => {
       price: req.body.total_price,
       cart: cart_list
     };
-    const insert_order = await Order.insertOrder(paymentInf);
+    const insert_order = await Order.insertOrder(payment_inf);
     if (insert_order.length === 0) return res.status(400).json({error: '訂單建立失敗，請聯繫客服人員！'})
     cart.forEach(async (cart) => {
       try {
@@ -77,7 +76,7 @@ const createOrder = async (req, res, next) => {
     });
     const result = new Object();
     result.data = {
-      'number': orderNumber
+      phone_number: order_num
     };
     res.status(200).json(result);
   } catch (error) {

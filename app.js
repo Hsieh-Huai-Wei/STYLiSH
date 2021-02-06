@@ -27,9 +27,8 @@ app.use('/api/' + API_VERSION,
 
 // Error handling
 app.use((err, req, res, next) => {
-  console.log(err)
-  let msg = '伺服器似乎有狀況，請稍後再試!'
-  if (err) msg = err;
+  console.log(err);
+  const msg = err ? err : '伺服器似乎有狀況，請稍後再試!';
   res.status(err.status || 500);
   res.json({ error: msg });
 });
