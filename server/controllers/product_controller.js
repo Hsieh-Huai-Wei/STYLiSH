@@ -2,32 +2,25 @@ require('dotenv').config();
 const { HOST_S3 } = process.env;
 const Product = require('../models/product_model');
 
-async function findProductData(product_detail) {
-  const color = await Product.selectColor(product_detail.color_code);
-  const size = await Product.selectSize(product_detail.sizes);
-  const product_number = await Product.selectProduct(product_detail.id);
-  const product_inf = {
-    color: color[0].id,
-    size: size[0].id,
-    id: product_number[0].id,
-  };
-  return product_inf;
-}
-
 const createProduct = async (req, res, next) => {
   try {
     const product = await Product.checkProduct(req.body.id);
     if (product.length === 1) {
-      const product_data = findProductData(req.body);
-      const variant = await Product.selectVariant(product_data);
-      const product_count = new Object();
-      product_count.stock = req.body.stock;
-      if (variant.length >= 1) {
-        await Product.updateVariant(product_count);
+      const product_inf = {
+        product: product[0].id,
+        color: req.body.color_code,
+        size: req.body.sizes,
+      };
+      const product_data = await Product.findIdByProductId(product_inf);
+      product_inf.color = product_data[0].size_id;
+      product_inf.size = product_data[0].color_id;
+      const variant_id = await Product.selectVariant(product_inf);
+      if (variant_id.length >= 1) {
+        await Product.updateVariantById(variant_id[0].id, req.body.stock);
         res.status(201).json({msg: '此產品數量已成功更新!'});
-      } else if (variant.length === 0) {
-        await Product.insertVariant(product_count);
-        res.status(201).json({msg: '此產品數量已成功寫入!'});
+      } else if (variant_id.length === 0) {
+        await Product.insertVariant(product_inf, req.body.stock);
+        res.status(201).json({msg: '此產品已成功新增!'});
       }
     } else if (product.length === 0) {
       const data = {
@@ -45,21 +38,17 @@ const createProduct = async (req, res, next) => {
         stock: req.body.stock,
         main_image: req.files['main_image'][0].key.split('/')[1],
       };
-      // Cannot save array to mysql, so you need to transfer to string
       const images_urls = new Array();
-      // req.files is a array (contain object)
       const images = req.files['images'];
       images.forEach(image => images_urls.push(image.key.split('/')[1]));
-      // array transfer to string
       data.images = images_urls.toString();
-      // insert data function
       const classification = await Product.selectClass(req.body.class);
       const class_id = classification[0].id;
       await Product.insertProduct(data, class_id);
-      const product_count = findProductData(data);
-      product_count.stock = data.stock;
-      await Product.insertVariant(product_count);
-      res.status(201).json({msg: '此產品數量已成功建立!'});
+      const product_ids = await Product.findIdByProductInf(data);
+      product_ids[0].stock = data.stock;
+      await Product.newVariant(product_ids[0]);
+      res.status(201).json({msg: '此產品已成功建立!'});
     }
   } catch (error) {
     next(error);
@@ -148,7 +137,24 @@ const getProducts = async (req, res, next) => {
   }
 };
 
+const getStocks = async (req, res, next) => {
+  try {
+    let cart_list = new Array();
+    const cart = req.body;
+    const cart_length = req.body.length;
+    cart.forEach(product => {
+      const temp_arr = Object.values(product);
+      cart_list = cart_list.concat(temp_arr);
+    });
+    const products = await Product.getStock(cart_list, cart_length);
+    res.status(200).json({data: products})
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createProduct,
   getProducts,
+  getStocks
 };

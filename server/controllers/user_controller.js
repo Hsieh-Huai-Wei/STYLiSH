@@ -72,7 +72,6 @@ const signUp = async (req, res, next) => {
       access_token:token,
       access_expired:signInDate,
     };
-    console.log(inf)
     await User.signUp(inf);
     const user = {
       id: randomID,

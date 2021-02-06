@@ -1,5 +1,3 @@
-@import "./common.css";
-
 .box {
   max-width: 500px;
   margin: 30px auto;
@@ -12,10 +10,22 @@
 
 form {
   text-align: start;
+  padding-left: 30px;
+  padding-right: 20px;
 }
 
-.item {
-  width: 400px;
+.item_input {
+  width: 425px;
+  padding: 10px;
+}
+
+.item_textarea {
+  width: 425px;
+  padding: 10px;
+}
+
+.item_upload {
+  width: 405px;
   padding: 10px;
 }
 

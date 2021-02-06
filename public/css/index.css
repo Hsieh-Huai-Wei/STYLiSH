@@ -98,3 +98,7 @@ select,
 img {
   vertical-align: middle;
 }
+
+.current {
+  z-index: 1;
+}
