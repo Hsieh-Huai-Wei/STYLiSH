@@ -2,7 +2,6 @@ require('dotenv').config();
 const mysql = require('mysql');
 const { promisify } = require('util');
 const env = process.env.NODE_ENV || 'production';
-const multipleStatements = process.env.NODE_ENV === "test";
 const { HOST, USERNAME, PASSWORD, DATABASE, DATABASE_TEST } = process.env;
 
 const mysqlConfig = {
@@ -19,19 +18,10 @@ const mysqlConfig = {
     user: USERNAME,
     password: PASSWORD,
     database: DATABASE,
-  },
-  test: {
-    // for automation testing (command: npm run test)
-    host: HOST,
-    user: USERNAME,
-    password: PASSWORD,
-    database: DATABASE_TEST,
-  },
+  }
 };
 
-const con = mysql.createConnection(mysqlConfig[env], {
-  multipleStatements
-});
+const con = mysql.createConnection(mysqlConfig[env]);
 
 const promiseQuery = (query, bindings) => {
   return promisify(con.query).bind(con)(query, bindings);

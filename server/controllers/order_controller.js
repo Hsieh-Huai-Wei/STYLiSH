@@ -13,7 +13,7 @@ async function payByTapPay(req_body, id, order_num, cartList) {
       merchant_id: 'AppWorksSchool_CTBC',
       order_number: order_num,
       amount: 1,
-      currency: 'TWD',
+      currency: 'NTD',
       details: JSON.stringify(cartList),
       cardholder: {
         id: id,
@@ -76,7 +76,7 @@ const createOrder = async (req, res, next) => {
     });
     const result = new Object();
     result.data = {
-      phone_number: order_num
+      number: order_num
     };
     res.status(200).json(result);
   } catch (error) {

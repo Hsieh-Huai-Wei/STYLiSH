@@ -25,6 +25,10 @@ app.use('/api/' + API_VERSION,
   ]
 );
 
+app.get('*', (req, res) => {
+  res.redirect('/404.html');
+});
+
 // Error handling
 app.use((err, req, res, next) => {
   console.log(err);

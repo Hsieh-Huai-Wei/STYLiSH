@@ -140,12 +140,14 @@ const getProducts = async (req, res, next) => {
 
 const getStocks = async (req, res, next) => {
   try {
+    // if (req.body.error || req.body.length === 0) return;
     let cart_list = new Array();
     const cart = req.body;
     const cart_length = req.body.length;
     cart.forEach(product => {
-      const temp_arr = Object.values(product);
-      cart_list = cart_list.concat(temp_arr);
+      cart_list.push(product.product_id)
+      cart_list.push(product.size)
+      cart_list.push(product.color_code)   
     });
     const products = await Product.getStock(cart_list, cart_length);
     res.status(200).json({data: products})

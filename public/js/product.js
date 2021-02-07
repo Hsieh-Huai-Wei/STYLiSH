@@ -66,7 +66,7 @@ cart.addEventListener('click', () => {
   const addProduct = {
     product_id: purchase.data.id,
     title: purchase.data.title,
-    price: parseInt(purchase.data.price.split('.')[1]),
+    price: purchase.data.price,
     main_image: purchase.data.main_image,
     color_code: product_detail.color_code,
     size: product_detail.size,
@@ -134,16 +134,18 @@ function checkStock(size) {
   });
 }
 
-function checkCartList(cartList, addProduct) {
-  cartList.forEach(item => {
-    if (item.product_id === addProduct.product_id && item.size === addProduct.size && item.color_code === addProduct.color_code) {
-      const new_count = Number(item.count) + Number(addProduct.count);
-      item.count = new_count;
-      item.price = addProduct.price;
-    }
-  });
-  cartList.push(addProduct);
-  return cartList;
+function checkCartList(cart_list, addProduct) {
+  if (!cart_list || !cart_list.length || cart_list.length === 0) {
+    cart_list = [addProduct];
+    return cart_list;
+  };
+  const exist_cart_pos = cart_list.findIndex(item => item.product_id === addProduct.product_id && item.size === addProduct.size && item.color_code === addProduct.color_code);
+  if (exist_cart_pos !== -1) {
+    cart_list[exist_cart_pos].count = Number(addProduct.count);
+  } else {
+    cart_list.push(addProduct);
+  }
+  return cart_list;
 }
 
 async function getProduct() {
@@ -177,7 +179,7 @@ function renderProduct(product) {
     id.innerHTML = `${product.data.id}`;
     price.setAttribute('id', 'product-price');
     price.className = 'price';
-    price.innerHTML = `${product.data.price}`;
+    price.innerHTML = `NTD. ${product.data.price}`;
     details.prepend(price);
     details.prepend(id);
     details.prepend(product_name);
