@@ -51,7 +51,8 @@ const createProduct = async (req, res, next) => {
       res.status(201).json({msg: '此產品已成功建立!'});
     }
   } catch (error) {
-    next(error);
+    console.error(`Product create fail : ${error}`);
+    res.status(404).json({error: '產品建立失敗，請重新再試！'});
   }
 };
 
@@ -63,7 +64,7 @@ const getProducts = async (req, res, next) => {
       req.query.keyword,
       req.query.id
     );
-    if (count === 0) return res.status(200).json({msg: '尚無產品上架!'});
+    if (count === 0) return res.status(200).json({ error: '尚無產品上架!'});
     const all_pages = Math.floor((count - 1) / 6);
     let paging = 0;
     if (isNaN(req.query.paging) || req.query.paging <= 0) {
@@ -82,7 +83,7 @@ const getProducts = async (req, res, next) => {
       req.query.keyword,
       req.query.id
     );
-    if (product_list.length === 0) return res.status(200).json({msg: '尚無產品上架!'});
+    if (product_list.length === 0) return res.status(200).json({error: '尚無產品上架!'});
     const product_id = product_list.map(product => product.id);
     const product_size = await Product.getSize(product_id);
     const product_color = await Product.getColor(product_id);
@@ -139,12 +140,14 @@ const getProducts = async (req, res, next) => {
 
 const getStocks = async (req, res, next) => {
   try {
+    // if (req.body.error || req.body.length === 0) return;
     let cart_list = new Array();
     const cart = req.body;
     const cart_length = req.body.length;
     cart.forEach(product => {
-      const temp_arr = Object.values(product);
-      cart_list = cart_list.concat(temp_arr);
+      cart_list.push(product.product_id)
+      cart_list.push(product.size)
+      cart_list.push(product.color_code)   
     });
     const products = await Product.getStock(cart_list, cart_length);
     res.status(200).json({data: products})
