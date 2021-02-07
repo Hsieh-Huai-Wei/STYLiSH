@@ -1,19 +1,27 @@
 require('dotenv').config();
 const mysql = require('mysql');
-const { promisify } = require('util'); // util from native nodejs library
-const { HOST, USERNAME2, PASSWORD, DATABASE } = process.env;
+const { promisify } = require('util');
+const env = process.env.NODE_ENV || 'production';
+const { HOST, USERNAME, PASSWORD, DATABASE, DATABASE_TEST } = process.env;
 
-// DB connection
-const con = mysql.createConnection({
-  host: HOST, // MYSQL HOST NAME
-  user: USERNAME2, // MYSQL USERNAME
-  password: PASSWORD, // MYSQL PASSWORD
-  database: DATABASE, // MYSQL DB NAME
-});
+const mysqlConfig = {
+  production: {
+    // for EC2 machine
+    host: HOST,
+    user: USERNAME,
+    password: PASSWORD,
+    database: DATABASE,
+  },
+  development: {
+    // for localhost development
+    host: HOST,
+    user: USERNAME,
+    password: PASSWORD,
+    database: DATABASE,
+  }
+};
 
-con.connect(function (err) {
-  console.log('DB Connected!');
-});
+const con = mysql.createConnection(mysqlConfig[env]);
 
 const promiseQuery = (query, bindings) => {
   return promisify(con.query).bind(con)(query, bindings);

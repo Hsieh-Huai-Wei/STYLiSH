@@ -17,7 +17,6 @@ const findIdByProductInf = async (data) => {
 }
 
 const updateVariantById = async (id, stock) => {
-  console.log([id, stock])
   return await query('UPDATE variants SET stock = ? WHERE variants.id = ?', [stock, id]);
 };
 
@@ -37,9 +36,7 @@ const insertProduct = async (data, class_id) => {
   return await query('INSERT INTO product SET number = ?,attributes_id = ?, title = ?, description = ?, price = ?, texture = ?, wash = ?, place = ?, note = ?, story = ?, main_image = ?, images = ?', [ data.id, class_id, data.title, data.description, data.price, data.texture, data.wash, data.place, data.note, data.story, data.main_image, data.images, ]);
 };
 
-// catch use query url
 function bindSorting(category, keyword, id) {
-  console.log(category, keyword, id)
   let sql = '';
   if (category === 'women') {
     const id = 1;
@@ -97,10 +94,12 @@ const getVariants = async (product) => {
 };
 
 const getStock = async (cart, length) => {
-  let sql = 'SELECT number, size, code, stock FROM stylish.variants INNER JOIN stylish.product ON product.id = variants.product_id INNER JOIN stylish.size on size.id = variants.size_id INNER JOIN stylish.color ON color.id = variants.color_id WHERE (product.number = ? AND size.size = ? AND color.code = ?)';
-  for (let i=0 ; i<length-1; i++) {
-    sql += 'OR (product.number = ? AND size.size = ? AND color.code = ? )'
-  };
+  let sql = 'SELECT number, size, code, stock, price FROM stylish.variants INNER JOIN stylish.product ON product.id = variants.product_id INNER JOIN stylish.size on size.id = variants.size_id INNER JOIN stylish.color ON color.id = variants.color_id WHERE (product.number = ? AND size.size = ? AND color.code = ?)';
+  if (length > 1) {
+    for (let i=0 ; i<length-1; i++) {
+      sql += 'OR (product.number = ? AND size.size = ? AND color.code = ? )'
+    };
+  }
   sql += ';'
   return await query(sql, cart)
 };

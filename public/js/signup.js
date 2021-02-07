@@ -45,7 +45,7 @@ async function statusChangeCallback(response) {
       window.location.replace('/profile.html');
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 
@@ -64,7 +64,7 @@ async function signUp() {
     localStorage.setItem('userToken', token);
     window.location.replace('/profile.html');
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 

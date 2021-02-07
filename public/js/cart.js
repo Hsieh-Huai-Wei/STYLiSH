@@ -1,5 +1,4 @@
 /* global TPDirect */
-
 const credit_card_payment_inf = document.getElementById('payment');
 const shipping = document.getElementById('shipping');
 let payment = 'credit_card';
@@ -42,6 +41,7 @@ TPDirect.card.setup({
     },
   },
 });
+
 shipping.addEventListener('change', ()=>{
   if (shipping.value === 'credit_card') {
     payment = 'credit_card';
@@ -66,50 +66,33 @@ function getPrime() {
   });
 }
 
-async function checkCart() {
-  const cart_list = document.getElementById('list');
-  const cart = getCartProduct();
-  if (cart.msg) {
-    cart_list.innerHTML=`<h4 style='margin-left:20px;'>${cart.msg}</h4>`;
-    return;
-  };
-  const user_need = new Array();
-  cart.forEach(product => {
-    const product_inf = {
-      number: product.product_id,
-      size: product.size,
-      color: product.color_code
-    };
-    user_need.push(product_inf);
-  })
-  const stocks_url = '/api/1.0/products/stock';
-  const products_stock = await fetchDataByPost(stocks_url, user_need);
-  for (let i=0; i< cart.length ;i++) {
-    const total_price = cart[i].count*cart[i].price;
+function insertCartList(products_stock, cart_list) {
+  for (let i=0; i< cart_list.length ;i++) {
+    const total_price = Number(cart_list[i].count)*Number(cart_list[i].price);
     let count = '';
     for (let j=1 ; j<products_stock.data[i].stock+1; j++) {
-      if (j === Number(cart[i].count)) {
+      if (j === Number(cart_list[i].count)) {
         count += `<option value="${j}" selected>${j}</option>`
       } else {
         count += `<option value="${j}">${j}</option>`
       }
     };
-    cart_list.innerHTML += `
+    show_list.innerHTML += `
       <div class='row cart-list'>
       <div class='detail'>
-        <img src='${cart[i].main_image}' alt=''>
+        <img src='${cart_list[i].main_image}' alt=''>
         <div class='product_inf'>
-          <div class='title'>${cart[i].title}</div>
-          <div class='color'><div class='choice-color' style='background-color: #${cart[i].color_code}'></div></div>
-          <div class='size'>${cart[i].size}</div>
+          <div class='title'>${cart_list[i].title}</div>
+          <div class='color'><div class='choice-color' style='background-color: #${cart_list[i].color_code}'></div></div>
+          <div class='size'>${cart_list[i].size}</div>
         </div>
       </div>
       <div class='pay_inf'>
-        <select id='cart_stock${i}' class='count' value=${cart[i].count} onchange='changeStock(${i})'>
+        <select id='cart_stock${i}' class='count' value=${cart_list[i].count} onchange='changeStock(${i})'>
         ${count}
         </select>
-          <div class='single_price'>NTD. ${cart[i].price}</div>
-          <div class='total_price'>NTD. ${total_price}</div>
+          <div class='single_price'>NTD. ${cart_list[i].price}</div>
+          <div id='total_price${i}' class='total_price'>NTD. ${total_price}</div>
           <img class='delete' src='./imgs/delete.png' alt='' onclick='deleteProduct(${i})'>
         </div>
       </div>
@@ -119,44 +102,29 @@ async function checkCart() {
 
 function changeStock(index) {
   const cart_index = document.querySelector(`#cart_stock${index}`);
-  const cart_list = localStorage.getItem('userCart');
-  const cart = JSON.parse(cart_list);
-  cart[index].count = cart_index.value;
-  localStorage.setItem('userCart', JSON.stringify(cart));
+  const total = document.querySelector(`#total_price${index}`);
+  const cart_list = countCart();
+  cart_list[index].count = cart_index.value;
+  total.innerHTML = 'NTD. ' + Number(cart_list[index].count)*Number(cart_list[index].price)
+  localStorage.setItem('userCart', JSON.stringify(cart_list));
+  countTotal(cart_list);
 }
 
-function deleteProduct (pos) {
-  const cart = getCartProduct();
-  const list = document.getElementById('list');
-  const div = document.createElement('div');
-  const cart_html = document.getElementById('cart');
-  cart.splice(pos,1);
-  localStorage.setItem('userCart', JSON.stringify(cart));
-  list.remove();
-  div.setAttribute('id', 'list');
-  div.setAttribute('class', 'list');
-  cart_html.appendChild(div);
-  countCart();
-  checkCart();
-  countTotal();
+function deleteProduct(pos) {
+  const cart_list = countCart();
+  cart_list.splice(pos,1);
+  localStorage.setItem('userCart', JSON.stringify(cart_list));
+  show_list.innerHTML = '';
+  checkCart()
 };
 
 function choiceTime (time) {
   recipient_time = time;
 };
 
-function getCartProduct() {
-  const cart_str = localStorage.getItem('userCart');
-  const cart = JSON.parse(cart_str);
-  if (!cart_str || cart.length === 0) {
-    return { msg: '購物車空空的耶！'};
-  }
-  return cart;
-}
-
 async function checkPaymentInf() {
   try {
-    const cart = getCartProduct();
+    const cart = countCart();
     const recipient_name = document.getElementById('recipient-name').value;
     const recipient_phone = document.getElementById('recipient-phone').value;
     const recipient_address = document.getElementById('recipient-address').value;
@@ -191,11 +159,12 @@ async function checkPaymentInf() {
     }
     const payment_url = 'api/1.0/order/checkout';
     const payment_status = await fetchDataByPost(payment_url, payment_inf);
-    if (payment_status.error) throw new Error();
+    if (payment_status.error) return alert(payment_status.error);
     localStorage.setItem('orderNum', payment_status.data.number);
     window.location.replace('/thankyou.html');
   } catch (error) {
-    console.log(error);
+    alert(error.error)
+    console.error(error);
   }
 };
 
@@ -213,21 +182,22 @@ async function checkUserLogIn() {
       if (profile.error) {
         alert('登入逾時，請重新登入');
         window.location.replace('/login.html');
-      } else {
-        checkCart();
+        return;
       }
     } else {
       alert('請先登入會員');
       window.location.replace('/login.html');
+      return;
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 
+const subtotal = document.getElementById('subtotal');
+const total_price = document.getElementById('total');
+
 function countTotal(cart_list) {
-  const subtotal = document.getElementById('subtotal');
-  const total_price = document.getElementById('total');
   let price = 0;
   cart_list.forEach(cart => {
     price += Number(cart.count) * Number(cart.price);
@@ -237,11 +207,26 @@ function countTotal(cart_list) {
 }
 
 async function init() {
-  checkUserLogIn();
-  const cart = countCart();
-  if (cart.length > 0) {
-    countTotal(cart);
-  }
+  await checkUserLogIn();
+  checkCart()
 }
 
 document.addEventListener('DOMContentLoaded', init());
+
+const show_list = document.getElementById('list');
+
+async function renderCartList(cart_list) {
+  const stocks_url = '/api/1.0/products/stock';
+  const products_stock = await fetchDataByPost(stocks_url, cart_list);
+  insertCartList(products_stock, cart_list)
+  countTotal(cart_list);
+}
+
+function checkCart() {
+  const cart_list = countCart();
+  if (!cart_list || !cart_list.length || cart_list.length === 0) {
+    show_list.innerHTML=`<h4 style='margin-left:20px;'>購物車空空的耶！</h4>`;
+    return;
+  };
+  renderCartList(cart_list);
+}
